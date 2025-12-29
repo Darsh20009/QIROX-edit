@@ -24,7 +24,7 @@ export function Header() {
       <div className="mx-auto max-w-7xl px-6">
         <div className="flex h-16 items-center justify-between gap-4">
           <Link href="/" className="flex items-center gap-2" data-testid="link-logo">
-            <img src={qiroxLogo} alt="QIROX" className="h-6 w-auto dark:invert" />
+            <img src={qiroxLogo} alt="QIROX" className="h-10 w-auto dark:invert" />
           </Link>
 
           <nav className="hidden md:flex items-center gap-1">
