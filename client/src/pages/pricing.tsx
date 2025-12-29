@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Layout } from "@/components/layout/layout";
-import { CheckCircle2, ArrowRight, HelpCircle, Store, Coffee, GraduationCap } from "lucide-react";
+import { CheckCircle2, ArrowLeft, HelpCircle, Store, Coffee, GraduationCap } from "lucide-react";
 import {
   Accordion,
   AccordionContent,
@@ -18,10 +18,10 @@ type PlanCategory = "stores" | "restaurants" | "education";
 const planCategories = [
   {
     id: "stores" as PlanCategory,
-    name: "المتاجر والتطبيقات",
-    nameEn: "E-commerce & Apps",
+    name: "المتاجر الإلكترونية",
+    nameEn: "E-commerce",
     icon: Store,
-    description: "نظام متكامل للمتاجر الإلكترونية مع تكامل Tap, Tabby, Tamara",
+    description: "نظام متكامل للمتاجر الإلكترونية مع إدارة المنتجات والطلبات",
     plans: [
       {
         duration: "شهري",
@@ -48,19 +48,19 @@ const planCategories = [
     ],
     features: [
       "متجر إلكتروني كامل",
-      "تكامل مع Tap للدفع",
-      "تكامل مع Tabby (اشتر الآن وادفع لاحقاً)",
-      "تكامل مع Tamara",
       "إدارة المنتجات والمخزون",
-      "تتبع الطلبات",
+      "نظام الطلبات المتكامل",
       "تقارير المبيعات",
-      "دعم فني على مدار الساعة",
+      "دعم متعدد اللغات",
+      "تصميم متجاوب",
+      "لوحة تحكم شاملة",
+      "دعم فني 24/7",
     ],
   },
   {
     id: "restaurants" as PlanCategory,
-    name: "الكافيهات والمطاعم",
-    nameEn: "Cafes & Restaurants",
+    name: "المطاعم والكافيهات",
+    nameEn: "Restaurants",
     icon: Coffee,
     description: "نظام نقاط البيع وإدارة المطاعم الشامل",
     plans: [
@@ -94,14 +94,14 @@ const planCategories = [
       "نظام المطبخ",
       "إدارة الموظفين والورديات",
       "تقارير يومية وشهرية",
-      "تكامل مع تطبيقات التوصيل",
+      "طباعة الفواتير",
       "دعم فني متخصص",
     ],
   },
   {
     id: "education" as PlanCategory,
-    name: "منصات التعليم",
-    nameEn: "Education Platforms",
+    name: "المنصات التعليمية",
+    nameEn: "Education",
     icon: GraduationCap,
     description: "نظام إدارة التعلم الإلكتروني المتكامل",
     plans: [
@@ -135,7 +135,7 @@ const planCategories = [
       "بث مباشر للدروس",
       "منتدى نقاش الطلاب",
       "تتبع تقدم الطلاب",
-      "بوابة دفع متكاملة",
+      "شهادات رقمية",
       "تطبيق جوال للطلاب",
     ],
   },
@@ -148,7 +148,7 @@ const faqs = [
   },
   {
     question: "ما هي طرق الدفع المتاحة؟",
-    answer: "نقبل الدفع عبر Tap, Tabby, Tamara, وكذلك التحويل البنكي المباشر.",
+    answer: "نقبل الدفع عبر التحويل البنكي. تواصل معنا عبر الواتساب لإتمام عملية الدفع.",
   },
   {
     question: "هل هناك فترة تجريبية مجانية؟",
@@ -166,101 +166,107 @@ const faqs = [
 
 export default function Pricing() {
   const [selectedCategory, setSelectedCategory] = useState<PlanCategory>("stores");
-  const currentCategory = planCategories.find((c) => c.id === selectedCategory)!;
-  const CategoryIcon = currentCategory.icon;
 
   return (
     <Layout>
       <section className="py-20 md:py-28">
         <div className="mx-auto max-w-7xl px-6">
           <div className="max-w-3xl mx-auto text-center">
-            <Badge variant="secondary" className="mb-6" data-testid="badge-pricing-intro">
+            <Badge variant="secondary" className="mb-6 px-4 py-2" data-testid="badge-pricing-intro">
               أقل الأسعار في السوق
             </Badge>
             <h1 className="text-4xl md:text-5xl font-bold tracking-tight text-foreground" data-testid="text-pricing-title">
               خطط اشتراك مرنة
             </h1>
-            <p className="mt-6 text-lg text-muted-foreground" data-testid="text-pricing-subtitle">
-              اختر النظام المناسب لعملك بأسعار تنافسية. ابدأ اليوم وانمو معنا.
+            <p className="mt-6 text-lg text-muted-foreground max-w-2xl mx-auto" data-testid="text-pricing-subtitle">
+              اختر النظام المناسب لعملك بأسعار تنافسية. ابدأ تجربتك المجانية اليوم.
             </p>
           </div>
         </div>
       </section>
 
-      <section className="pb-16 md:pb-24">
+      <section className="pb-20 md:pb-28">
         <div className="mx-auto max-w-7xl px-6">
           <Tabs value={selectedCategory} onValueChange={(v) => setSelectedCategory(v as PlanCategory)} className="w-full">
-            <TabsList className="grid w-full grid-cols-3 mb-12" data-testid="tabs-plan-categories">
-              {planCategories.map((category) => {
-                const Icon = category.icon;
-                return (
-                  <TabsTrigger
-                    key={category.id}
-                    value={category.id}
-                    className="flex items-center gap-2"
-                    data-testid={`tab-category-${category.id}`}
-                  >
-                    <Icon className="w-4 h-4" />
-                    <span className="hidden sm:inline">{category.name}</span>
-                  </TabsTrigger>
-                );
-              })}
-            </TabsList>
+            <div className="flex justify-center mb-12">
+              <TabsList className="h-14 p-1.5" data-testid="tabs-plan-categories">
+                {planCategories.map((category) => {
+                  const Icon = category.icon;
+                  return (
+                    <TabsTrigger
+                      key={category.id}
+                      value={category.id}
+                      className="px-6 py-3 data-[state=active]:shadow-sm"
+                      data-testid={`tab-category-${category.id}`}
+                    >
+                      <Icon className="w-5 h-5" />
+                      <span className="hidden sm:inline font-medium">{category.name}</span>
+                    </TabsTrigger>
+                  );
+                })}
+              </TabsList>
+            </div>
 
             {planCategories.map((category) => (
               <TabsContent key={category.id} value={category.id}>
-                <div className="text-center mb-8">
-                  <h2 className="text-2xl font-semibold text-foreground" data-testid={`text-category-name-${category.id}`}>
+                <div className="text-center mb-12">
+                  <h2 className="text-2xl md:text-3xl font-bold text-foreground mb-3" data-testid={`text-category-name-${category.id}`}>
                     {category.name}
                   </h2>
-                  <p className="text-muted-foreground mt-2" data-testid={`text-category-desc-${category.id}`}>
+                  <p className="text-muted-foreground" data-testid={`text-category-desc-${category.id}`}>
                     {category.description}
                   </p>
                 </div>
 
-                <div className="grid md:grid-cols-3 gap-8 mb-12">
+                <div className="grid md:grid-cols-3 gap-6 mb-12">
                   {category.plans.map((plan, index) => (
                     <Card
                       key={plan.duration}
-                      className={`relative ${plan.popular ? "ring-2 ring-foreground" : ""}`}
+                      className={`relative border-0 shadow-md transition-all duration-300 ${plan.popular ? "ring-2 ring-primary shadow-lg scale-[1.02]" : "hover-elevate"}`}
                       data-testid={`card-plan-${category.id}-${index}`}
                     >
                       {plan.popular && (
-                        <div className="absolute -top-3 left-1/2 -translate-x-1/2">
-                          <Badge variant="default" data-testid={`badge-popular-${category.id}`}>الأكثر شعبية</Badge>
+                        <div className="absolute -top-4 left-1/2 -translate-x-1/2">
+                          <Badge className="px-4 py-1.5 text-sm" data-testid={`badge-popular-${category.id}`}>
+                            الأكثر شعبية
+                          </Badge>
                         </div>
                       )}
-                      <CardHeader className="text-center pb-4">
-                        <h3 className="text-lg font-semibold text-foreground" data-testid={`text-plan-duration-${category.id}-${index}`}>
-                          {plan.duration}
-                        </h3>
-                        <p className="text-sm text-muted-foreground">{plan.durationEn}</p>
-                      </CardHeader>
-                      <CardContent className="text-center space-y-4">
-                        <div>
+                      <CardContent className="p-8 pt-10">
+                        <div className="text-center mb-6">
+                          <h3 className="text-lg font-bold text-foreground mb-1" data-testid={`text-plan-duration-${category.id}-${index}`}>
+                            {plan.duration}
+                          </h3>
+                          <p className="text-sm text-muted-foreground">{plan.durationEn}</p>
+                        </div>
+                        <div className="text-center mb-6">
                           {plan.originalPrice && (
-                            <span className="text-lg text-muted-foreground line-through block">
+                            <span className="text-lg text-muted-foreground line-through block mb-1">
                               {plan.originalPrice} ريال
                             </span>
                           )}
-                          <span className="text-4xl font-bold text-foreground" data-testid={`text-plan-price-${category.id}-${index}`}>
-                            {plan.price}
-                          </span>
-                          <span className="text-lg text-muted-foreground mr-1">ريال</span>
+                          <div className="flex items-baseline justify-center gap-1">
+                            <span className="text-5xl font-bold text-foreground" data-testid={`text-plan-price-${category.id}-${index}`}>
+                              {plan.price}
+                            </span>
+                            <span className="text-lg text-muted-foreground">ريال</span>
+                          </div>
                         </div>
                         {plan.savings && (
-                          <Badge variant="secondary" className="text-green-600 dark:text-green-400">
-                            {plan.savings}
-                          </Badge>
+                          <div className="text-center mb-6">
+                            <Badge variant="secondary" className="bg-emerald-100 text-emerald-700 dark:bg-emerald-900/50 dark:text-emerald-300">
+                              {plan.savings}
+                            </Badge>
+                          </div>
                         )}
-                        <Link href="/register" className="block pt-4">
+                        <Link href="/register" className="block">
                           <Button
                             variant={plan.popular ? "default" : "outline"}
-                            className="w-full"
+                            className="w-full h-12 text-base font-semibold"
                             data-testid={`button-subscribe-${category.id}-${index}`}
                           >
                             ابدأ الآن
-                            <ArrowRight className="mr-2 w-4 h-4" />
+                            <ArrowLeft className="w-5 h-5" />
                           </Button>
                         </Link>
                       </CardContent>
@@ -268,20 +274,20 @@ export default function Pricing() {
                   ))}
                 </div>
 
-                <Card>
+                <Card className="border-0 shadow-sm bg-muted/30">
                   <CardContent className="p-8">
-                    <h3 className="text-xl font-semibold text-foreground mb-6 text-center">
-                      مميزات {category.name}
+                    <h3 className="text-xl font-bold text-foreground mb-8 text-center">
+                      جميع الميزات المتضمنة
                     </h3>
-                    <div className="grid sm:grid-cols-2 md:grid-cols-4 gap-4">
+                    <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-4">
                       {category.features.map((feature, index) => (
                         <div
                           key={feature}
                           className="flex items-center gap-3"
                           data-testid={`feature-${category.id}-${index}`}
                         >
-                          <CheckCircle2 className="w-5 h-5 text-green-600 dark:text-green-400 flex-shrink-0" />
-                          <span className="text-foreground text-sm">{feature}</span>
+                          <CheckCircle2 className="w-5 h-5 text-primary flex-shrink-0" />
+                          <span className="text-foreground">{feature}</span>
                         </div>
                       ))}
                     </div>
@@ -293,31 +299,31 @@ export default function Pricing() {
         </div>
       </section>
 
-      <section className="py-16 md:py-20 bg-card border-t border-border">
+      <section className="py-20 md:py-28 bg-muted/30">
         <div className="mx-auto max-w-3xl px-6">
           <div className="text-center mb-12">
-            <div className="inline-flex items-center justify-center w-12 h-12 rounded-lg bg-muted mb-4">
-              <HelpCircle className="w-6 h-6 text-foreground" />
+            <div className="inline-flex items-center justify-center w-14 h-14 rounded-xl bg-primary/10 mb-6">
+              <HelpCircle className="w-7 h-7 text-primary" />
             </div>
-            <h2 className="text-2xl md:text-3xl font-semibold text-foreground">
+            <h2 className="text-2xl md:text-3xl font-bold text-foreground">
               الأسئلة الشائعة
             </h2>
           </div>
 
-          <Accordion type="single" collapsible className="space-y-4">
+          <Accordion type="single" collapsible className="space-y-3">
             {faqs.map((faq, index) => (
               <AccordionItem
                 key={index}
                 value={`item-${index}`}
-                className="border border-border rounded-lg px-6"
+                className="border-0 bg-background rounded-xl px-6 shadow-sm"
               >
                 <AccordionTrigger
-                  className="text-right font-medium text-foreground hover:no-underline"
+                  className="text-right font-semibold text-foreground hover:no-underline py-5"
                   data-testid={`accordion-faq-${index}`}
                 >
                   {faq.question}
                 </AccordionTrigger>
-                <AccordionContent className="text-muted-foreground text-right" data-testid={`text-faq-answer-${index}`}>
+                <AccordionContent className="text-muted-foreground text-right pb-5 leading-relaxed" data-testid={`text-faq-answer-${index}`}>
                   {faq.answer}
                 </AccordionContent>
               </AccordionItem>
@@ -326,20 +332,25 @@ export default function Pricing() {
         </div>
       </section>
 
-      <section className="py-16 md:py-20 bg-foreground text-background">
-        <div className="mx-auto max-w-7xl px-6 text-center">
-          <h2 className="text-2xl md:text-3xl font-semibold mb-4">
-            ابدأ تجربتك المجانية اليوم
-          </h2>
-          <p className="text-background/70 mb-8 max-w-xl mx-auto">
-            جرب النظام مجاناً لمدة 14 يوم. لا تحتاج بطاقة ائتمان.
-          </p>
-          <Link href="/register">
-            <Button variant="secondary" size="lg" data-testid="button-cta-free-trial">
-              ابدأ التجربة المجانية
-              <ArrowRight className="mr-2 w-4 h-4" />
-            </Button>
-          </Link>
+      <section className="py-20 md:py-28">
+        <div className="mx-auto max-w-7xl px-6">
+          <div className="relative rounded-2xl bg-gradient-to-l from-primary to-primary/80 p-12 md:p-16 text-center overflow-hidden">
+            <div className="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNjAiIGhlaWdodD0iNjAiIHZpZXdCb3g9IjAgMCA2MCA2MCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48ZyBmaWxsPSJub25lIiBmaWxsLXJ1bGU9ImV2ZW5vZGQiPjxnIGZpbGw9IiNmZmYiIGZpbGwtb3BhY2l0eT0iMC4xIj48cGF0aCBkPSJNMzYgMzRjMC0yLjIwOS0xLjc5MS00LTQtNHMtNCAxLjc5MS00IDQgMS43OTEgNCA0IDQgNC0xLjc5MSA0LTR6Ii8+PC9nPjwvZz48L3N2Zz4=')] opacity-30" />
+            <div className="relative">
+              <h2 className="text-3xl md:text-4xl font-bold text-primary-foreground mb-4">
+                ابدأ تجربتك المجانية اليوم
+              </h2>
+              <p className="text-primary-foreground/80 mb-8 max-w-xl mx-auto text-lg">
+                جرب النظام مجاناً لمدة 14 يوم. لا تحتاج بطاقة ائتمان.
+              </p>
+              <Link href="/register">
+                <Button size="lg" variant="secondary" className="px-10 py-6 text-lg font-semibold" data-testid="button-cta-free-trial">
+                  ابدأ التجربة المجانية
+                  <ArrowLeft className="w-5 h-5" />
+                </Button>
+              </Link>
+            </div>
+          </div>
         </div>
       </section>
     </Layout>

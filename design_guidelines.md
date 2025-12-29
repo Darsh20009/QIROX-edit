@@ -1,134 +1,125 @@
 # QIROX Design Guidelines
 
 ## Design Approach
-**System-Based**: Linear + Vercel hybrid - modern B2B SaaS aesthetic emphasizing clarity, precision, and professional restraint. This aligns with QIROX's human-driven, anti-hype philosophy and complex enterprise workflows.
+**System-Based**: Linear + Vercel hybrid with premium polish - modern B2B/B2C SaaS aesthetic emphasizing clarity, sophistication, and professional restraint. Competes with Shopify and Zid while maintaining "Build systems. Stay human." philosophy.
 
-## Core Design Principles
+## Color System
+- **Deep Black**: #0A0A0A (backgrounds, primary text)
+- **Pure White**: #FFFFFF (contrast elements, cards)
+- **Emerald Accent**: #047857 (primary actions, highlights)
+- **Emerald Variants**: #065F46 (hover), #10B981 (success states)
+- **Grays**: #F9FAFB (subtle backgrounds), #E5E7EB (borders), #6B7280 (secondary text)
+- **Subtle Gradients**: Linear gradients from deep black to #1A1A1A for premium depth
 
-### 1. Typography
-- **Primary**: Inter or similar (SF Pro, Geist)
-- **Hierarchy**: 
-  - Hero: 48-64px, font-weight-700
-  - H1: 36-42px, font-weight-600
-  - H2: 28-32px, font-weight-600
-  - H3: 20-24px, font-weight-500
-  - Body: 15-16px, font-weight-400
-  - Small: 13-14px, font-weight-400
-- **Line heights**: 1.2 for headings, 1.6 for body
-- **Letter spacing**: Tight (-0.02em) for large headings
+## Typography (Inter Font Family)
+**Hierarchy**:
+- Hero: 56-72px, font-weight-700, tracking-tight, leading-none
+- H1: 40-48px, font-weight-600, tracking-tight
+- H2: 32-36px, font-weight-600
+- H3: 24-28px, font-weight-500
+- Body Large: 18px, font-weight-400, leading-relaxed
+- Body: 16px, font-weight-400, leading-normal
+- Small: 14px, font-weight-400
+- Captions: 12px, font-weight-500, uppercase, tracking-wide
 
-### 2. Layout System
-**Spacing primitives**: Use Tailwind units of **2, 3, 4, 6, 8, 12, 16, 20, 24**
+**RTL Support**: Full bidirectional text support, mirrored layouts for Arabic (flip navigation, sidebars, icons)
+
+## Layout System
+**Spacing**: Tailwind units of **2, 3, 4, 6, 8, 12, 16, 20, 24, 32**
+- Hero sections: py-24 to py-32
+- Content sections: py-16 to py-20
 - Component padding: p-6 to p-8
-- Section spacing: py-16 to py-24 (desktop), py-12 (mobile)
 - Card gaps: gap-6 to gap-8
-- Container: max-w-7xl with px-6
+- Container: max-w-7xl, px-6 lg:px-8
 
-### 3. Component Library
+## Component Library
 
 **Navigation**
-- Minimal top nav: Logo left, primary links center, CTA right
-- Dashboard sidebar: 240px fixed width, collapsed to 64px icons
-- Breadcrumbs for deep navigation
-- Tab navigation for section switching
+- Top bar: Backdrop blur, border-b with subtle shadow
+- Logo left/right (RTL), primary links center, CTA + profile right/left
+- Sticky on scroll with elevated shadow
+- Mobile: Slide-in drawer with backdrop overlay
 
 **Buttons**
-- Primary: solid, medium weight, px-6 py-2.5
-- Secondary: outlined, same padding
-- Ghost: text-only for tertiary actions
-- Sizes: sm (px-4 py-2), md (px-6 py-2.5), lg (px-8 py-3)
+- Primary: Emerald bg, white text, rounded-lg, px-6 py-3, medium shadow
+- Secondary: Border emerald, emerald text, same sizing
+- Ghost: Emerald text only, hover bg emerald/10
+- On images: Backdrop blur-lg, bg-white/90, text-black, no special hover (inherent states)
 
 **Cards**
-- Border-based (no heavy shadows)
-- Subtle hover: border emphasis or slight lift
-- Padding: p-6 to p-8
-- Rounded: rounded-lg to rounded-xl
+- Sophisticated borders with subtle inner shadow
+- Hover: Lift (translate-y-1) + shadow-xl, 200ms transition
+- Padding: p-8
+- Rounded: rounded-xl
+- Premium variant: Gradient border (emerald to transparent)
 
 **Forms**
-- Input height: h-10 to h-11
-- Labels above inputs, weight-500
-- Helper text: text-sm below
-- Error states: border + text indication
-- Group related fields visually
+- Input height: h-12
+- Rounded: rounded-lg
+- Border focus: emerald ring
+- Labels: font-weight-500, mb-2
+- Multi-column desktop: 2-col for related fields
 
 **Data Display**
-- Tables: minimal borders, hover rows, sticky headers
-- Stats cards: large numbers, small labels
-- Status badges: small, rounded-full, subtle backgrounds
-- Timeline: left-aligned, connected dots
+- Tables: Hover rows with emerald/5 bg, sticky headers
+- Stats: Large numbers (32-40px), emerald accent for changes
+- Badges: rounded-full, emerald/10 bg, emerald text, px-3 py-1
+- Charts: Emerald primary color, minimal decoration
 
-**Dashboard Elements**
-- Widget cards with clear titles
-- KPI displays: large number + small change indicator
-- Quick action buttons group
-- Recent activity feeds
-- Charts: minimal decoration, clear data
+## Marketing Website Structure
 
-### 4. Marketing Website Specifics
+**Home Page** (7-8 sections):
+1. **Hero**: Full-width premium image (subtle gradient overlay), centered content, large heading, subheading, dual CTAs (Primary emerald + Secondary ghost), trust indicators below (logo grid or stats)
+2. **Platform Overview**: 3-column feature grid with icons, titles, descriptions
+3. **Visual Product Demo**: 2-column alternating sections with UI screenshots + descriptions
+4. **Target Industries**: E-commerce, Restaurant, Education cards with imagery
+5. **Multi-Tenant Showcase**: Dashboard preview emphasizing tenant management
+6. **Social Proof**: Customer logos, testimonial cards with avatars
+7. **Pricing**: Comparison table with emerald highlights
+8. **Final CTA**: Gradient background section, centered, high contrast
 
-**Home Page**
-- Hero: Full-width, centered content, NO large background image (text-focused statement)
-- Decision Flow: Interactive section replacing traditional features
-- Social proof: Logo grid or stat cards
-- Feature sections: 2-column alternating (text + UI screenshot/diagram)
-- Pricing: Comparison table
-- Final CTA: Centered, high-contrast section
+**Visual Treatment**:
+- Hero: Premium lifestyle/platform imagery with 40% black gradient overlay
+- Product sections: Clean UI screenshots with elegant drop shadows
+- Industry cards: Representative imagery (storefront, restaurant, classroom)
+- Background: Subtle mesh gradients (black to dark gray) for depth
 
-**Visual Approach**
-- Product screenshots > stock imagery
-- UI diagrams/flowcharts for "How it Works"
-- Subtle gradients or mesh backgrounds only
-- Monochromatic with strategic accent use
+## Images Strategy
+- **Hero Image**: Large, premium, professional - represents platform sophistication
+- **Feature Sections**: UI screenshots showing actual platform interfaces
+- **Industry Cards**: High-quality photography representing each vertical
+- **Team/About**: Professional photography with emerald accent overlays
+- **Empty States**: Minimalist illustrations in emerald monochrome
 
-### 5. Multi-Column Usage
-- Feature grids: 3 columns desktop, 1 mobile
-- Pricing tables: side-by-side comparison
-- Dashboard widgets: 2-3 column responsive grid
-- Form sections: 2 columns for related fields (desktop only)
+## Animations
+**Strategic and Smooth**:
+- Page elements: Fade-in with slide-up (staggered 50ms), 300ms ease-out
+- Buttons: Scale 1.02 on hover, 200ms
+- Cards: Lift + shadow on hover, 200ms
+- Loading: Emerald gradient spinner
+- NO scroll-triggered animations, keep performance-focused
 
-### 6. Animations
-**Minimal and purposeful only:**
-- Micro-interactions: button hovers, checkbox checks
-- Page transitions: subtle fade (100ms)
-- Loading states: skeleton screens or spinners
-- NO scroll animations, parallax, or decorative motion
+## RTL Considerations
+- Mirror all layouts: Navigation, sidebars, card layouts, forms
+- Text alignment: right for Arabic, left for English
+- Icons: Flip directional icons (arrows, chevrons)
+- Reading flow: Right-to-left content consumption
+- Spacing: Maintain consistent gaps regardless of direction
 
-### 7. Images
+## Dashboard Platform
+- **Sidebar**: 260px, dark bg (#0A0A0A), emerald active states, collapsible to icons
+- **Top Bar**: Tenant switcher, breadcrumbs, search, profile (with RTL support)
+- **Main Area**: White bg, page title + actions, responsive content grid
+- **Widgets**: 2-3 column grid, elevated cards, emerald accents for KPIs
 
-**Marketing Site:**
-- Hero: NO large hero image - use bold typography statement
-- Product sections: Clean UI screenshots with subtle shadow/border
-- Team/About: Professional headshots if included
-- Case studies: Project preview images
+## Critical Quality Standards
+- Generous whitespace for premium feel
+- Consistent emerald accent usage (never overuse)
+- Professional imagery throughout
+- Subtle gradients for depth, not decoration
+- Mobile-first responsive with elevated touch targets
+- Complete, polished sections - no sparse layouts
+- Sophisticated without being flashy
+- Trustworthy, modern, innovative aesthetic
 
-**Dashboard/Platform:**
-- Empty states: Simple illustrations or icons
-- Avatars: Circle, 32-40px typical
-- File previews: Thumbnails in grids
-
-## Page-Specific Layouts
-
-**Marketing Pages**
-- Home: Statement hero (text-focused) → Decision flow → Features (2-col) → Pricing → CTA
-- Product pages: Hero statement → Visual demo → Feature breakdown → Integration showcase
-- Case studies: Hero with client logo → Challenge/Solution → Results (metrics) → Testimonial
-
-**Dashboard**
-- Left sidebar nav (collapsible)
-- Top bar: Context + actions + profile
-- Main: Page title + tabs/filters + content grid/table
-- Right panel: Details/context (contextual)
-
-**Builder Interface**
-- Three-panel: Left (blocks/pages tree) + Center (canvas) + Right (properties)
-- Top toolbar: Save/publish/preview
-- Bottom status bar
-
-## Critical Constraints
-- No forced viewport heights except hero (80-90vh max)
-- Consistent vertical rhythm: py-16/py-20/py-24
-- Professional restraint: avoid over-designed elements
-- Clarity over cleverness: straightforward patterns
-- Mobile-first responsive: stack columns, expand touch targets
-
-**Brand Voice in Design**: Clean, confident, precise - embodying "Build systems. Stay human."
+**Brand Essence**: Premium clarity, human-centered technology, sophisticated restraint
