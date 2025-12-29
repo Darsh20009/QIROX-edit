@@ -17,6 +17,8 @@ import Register from "@/pages/register";
 import Dashboard from "@/pages/dashboard";
 import NewStore from "@/pages/new-store";
 import Subscribe from "@/pages/subscribe";
+import EmployeeDashboard from "@/pages/employee-dashboard";
+import AdminDashboard from "@/pages/admin-dashboard";
 import NotFound from "@/pages/not-found";
 
 function Router() {
@@ -34,6 +36,8 @@ function Router() {
       <Route path="/dashboard" component={Dashboard} />
       <Route path="/dashboard/stores/new" component={NewStore} />
       <Route path="/dashboard/subscribe" component={Subscribe} />
+      <Route path="/employee" component={EmployeeDashboard} />
+      <Route path="/admin" component={AdminDashboard} />
       <Route component={NotFound} />
     </Switch>
   );
