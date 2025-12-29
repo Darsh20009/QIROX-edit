@@ -31,7 +31,8 @@ client/
 │   │   ├── register.tsx     # User registration
 │   │   ├── dashboard.tsx    # Customer dashboard
 │   │   ├── new-store.tsx    # Store creation
-│   │   ├── subscribe.tsx    # Subscription selection + WhatsApp payment
+│   │   ├── subscribe.tsx    # Subscription + WhatsApp payment
+│   │   ├── store-manage.tsx # Store management (products, categories, orders)
 │   │   ├── employee-dashboard.tsx  # Employee dashboard
 │   │   ├── admin-dashboard.tsx     # Admin dashboard
 │   │   ├── terms.tsx
@@ -45,7 +46,10 @@ server/
 ├── models/
 │   ├── User.ts              # User model (customer/employee/admin)
 │   ├── Subscription.ts      # Subscription model with payment confirmation
-│   └── Store.ts             # Store model (ecommerce/restaurant/education)
+│   ├── Store.ts             # Store model (ecommerce/restaurant/education)
+│   ├── Product.ts           # Product model with pricing, quantity, images
+│   ├── Category.ts          # Category model for organizing products
+│   └── Order.ts             # Order model with status and payment tracking
 ├── auth.ts                  # JWT auth, password hashing, middleware
 ├── routes.ts                # API endpoints
 └── storage.ts               # In-memory storage (for contact form)
@@ -64,11 +68,18 @@ shared/
 - **/register** - User registration with 14-day free trial
 - **/dashboard** - Customer dashboard (subscriptions, stores)
 - **/dashboard/stores/new** - Create new store
-- **/dashboard/subscribe** - Subscription selection with WhatsApp payment instructions
+- **/dashboard/stores/:storeId** - Store management (products, categories, orders)
+- **/dashboard/subscribe** - Subscription selection with WhatsApp payment
 - **/employee** - Employee dashboard (store management, payment confirmation)
 - **/admin** - Admin dashboard (statistics, user management)
 - **/terms** - Terms of Service
 - **/privacy** - Privacy Policy
+
+## Store Management Features
+- **Products**: Add, edit, delete products with name, price, quantity, status
+- **Categories**: Organize products into categories
+- **Orders**: View and manage customer orders, update order status
+- **Stats**: View store statistics (products, categories, orders, revenue)
 
 ## Payment Flow (Manual via WhatsApp)
 1. Customer creates subscription (starts as "trial" status)
@@ -111,6 +122,26 @@ shared/
 - `GET /api/stores` - Get user stores (protected)
 - `GET /api/stores/:id` - Get specific store (protected)
 - `PATCH /api/stores/:id` - Update store (protected)
+- `GET /api/stores/:storeId/stats` - Get store statistics (protected)
+
+### Products
+- `GET /api/stores/:storeId/products` - Get store products (protected)
+- `POST /api/stores/:storeId/products` - Create product (protected)
+- `GET /api/stores/:storeId/products/:productId` - Get product (protected)
+- `PATCH /api/stores/:storeId/products/:productId` - Update product (protected)
+- `DELETE /api/stores/:storeId/products/:productId` - Delete product (protected)
+
+### Categories
+- `GET /api/stores/:storeId/categories` - Get store categories (protected)
+- `POST /api/stores/:storeId/categories` - Create category (protected)
+- `PATCH /api/stores/:storeId/categories/:categoryId` - Update category (protected)
+- `DELETE /api/stores/:storeId/categories/:categoryId` - Delete category (protected)
+
+### Orders
+- `GET /api/stores/:storeId/orders` - Get store orders (protected)
+- `GET /api/stores/:storeId/orders/:orderId` - Get order (protected)
+- `PATCH /api/stores/:storeId/orders/:orderId/status` - Update order status (protected)
+- `PATCH /api/stores/:storeId/orders/:orderId/payment` - Update payment status (protected)
 
 ### Admin
 - `GET /api/admin/users` - Get all users (admin only)
@@ -125,7 +156,7 @@ shared/
 - `GET /api/contact` - Retrieve messages (admin/employee)
 
 ## User Roles
-- **customer**: Can manage own subscriptions and stores
+- **customer**: Can manage own subscriptions, stores, products, categories, and orders
 - **employee**: Can manage customer stores, confirm payments, view support messages
 - **admin**: Full access to all features including statistics
 
@@ -146,6 +177,7 @@ shared/
 The project runs using `npm run dev` which starts both the Express backend and Vite frontend dev server on port 5000.
 
 ## Next Steps (Planned)
-- Store templates (ecommerce, restaurant, education)
+- Public storefront for customers to browse and order
+- Image upload for products
+- Email notifications for orders
 - Full Arabic language support throughout
-- Store management features (products, orders, etc.)

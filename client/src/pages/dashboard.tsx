@@ -257,24 +257,25 @@ export default function Dashboard() {
               ) : (
                 <div className="space-y-4">
                   {stores.map((store) => (
-                    <div
-                      key={store._id}
-                      className="flex items-center justify-between p-4 rounded-lg border"
-                      data-testid={`store-item-${store._id}`}
-                    >
-                      <div className="flex items-center gap-4">
-                        <div className="p-2 rounded-lg bg-muted">
-                          <Store className="h-5 w-5" />
+                    <Link key={store._id} href={`/dashboard/stores/${store._id}`}>
+                      <div
+                        className="flex items-center justify-between p-4 rounded-lg border hover-elevate cursor-pointer"
+                        data-testid={`store-item-${store._id}`}
+                      >
+                        <div className="flex items-center gap-4">
+                          <div className="p-2 rounded-lg bg-muted">
+                            <Store className="h-5 w-5" />
+                          </div>
+                          <div>
+                            <p className="font-medium">{store.name}</p>
+                            <p className="text-sm text-muted-foreground">/{store.slug}</p>
+                          </div>
                         </div>
-                        <div>
-                          <p className="font-medium">{store.name}</p>
-                          <p className="text-sm text-muted-foreground">/{store.slug}</p>
-                        </div>
+                        <Badge className={statusColors[store.status as keyof typeof statusColors]}>
+                          {statusNames[store.status]}
+                        </Badge>
                       </div>
-                      <Badge className={statusColors[store.status as keyof typeof statusColors]}>
-                        {statusNames[store.status]}
-                      </Badge>
-                    </div>
+                    </Link>
                   ))}
                 </div>
               )}

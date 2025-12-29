@@ -14,6 +14,9 @@ import {
 import { User } from "./models/User";
 import { Subscription, PLAN_PRICES } from "./models/Subscription";
 import { Store } from "./models/Store";
+import { Product } from "./models/Product";
+import { Order, generateOrderNumber } from "./models/Order";
+import { Category } from "./models/Category";
 
 const rateLimitMap = new Map<string, { count: number; resetTime: number }>();
 const RATE_LIMIT_WINDOW = 60 * 1000;
@@ -61,6 +64,40 @@ const storeSchema = z.object({
   phone: z.string().optional(),
   email: z.string().email().optional().or(z.literal("")),
   address: z.string().optional(),
+});
+
+const productSchema = z.object({
+  name: z.string().min(2, "اسم المنتج مطلوب"),
+  nameEn: z.string().optional(),
+  description: z.string().optional(),
+  price: z.number().min(0, "السعر يجب أن يكون رقم موجب"),
+  comparePrice: z.number().min(0).optional(),
+  cost: z.number().min(0).optional(),
+  sku: z.string().optional(),
+  barcode: z.string().optional(),
+  quantity: z.number().min(0).default(0),
+  category: z.string().optional(),
+  images: z.array(z.string()).default([]),
+  status: z.enum(["active", "inactive", "out_of_stock"]).default("active"),
+  featured: z.boolean().default(false),
+});
+
+const categorySchema = z.object({
+  name: z.string().min(2, "اسم الفئة مطلوب"),
+  nameEn: z.string().optional(),
+  description: z.string().optional(),
+  image: z.string().optional(),
+  parentId: z.string().optional(),
+  order: z.number().default(0),
+  isActive: z.boolean().default(true),
+});
+
+const orderStatusSchema = z.object({
+  status: z.enum(["pending", "confirmed", "preparing", "ready", "shipped", "delivered", "cancelled"]),
+});
+
+const paymentStatusSchema = z.object({
+  paymentStatus: z.enum(["pending", "paid", "failed", "refunded"]),
 });
 
 export async function registerRoutes(
@@ -423,6 +460,426 @@ export async function registerRoutes(
           totalSubscriptions,
           activeSubscriptions,
           totalStores,
+          totalRevenue: revenueResult[0]?.total || 0,
+        },
+      });
+    } catch (error) {
+      res.status(500).json({ error: "فشل في جلب الإحصائيات" });
+    }
+  });
+
+  // ==================== PRODUCT ROUTES ====================
+
+  app.get("/api/stores/:storeId/products", authMiddleware, async (req: AuthRequest, res) => {
+    try {
+      const store = await Store.findOne({
+        _id: req.params.storeId,
+        userId: req.user!.userId,
+      });
+
+      if (!store) {
+        res.status(404).json({ error: "المتجر غير موجود" });
+        return;
+      }
+
+      const products = await Product.find({ storeId: store._id }).sort({ createdAt: -1 });
+      res.json({ products });
+    } catch (error) {
+      res.status(500).json({ error: "فشل في جلب المنتجات" });
+    }
+  });
+
+  app.post("/api/stores/:storeId/products", authMiddleware, async (req: AuthRequest, res) => {
+    try {
+      const store = await Store.findOne({
+        _id: req.params.storeId,
+        userId: req.user!.userId,
+      });
+
+      if (!store) {
+        res.status(404).json({ error: "المتجر غير موجود" });
+        return;
+      }
+
+      const data = productSchema.parse(req.body);
+      
+      const product = await Product.create({
+        storeId: store._id,
+        ...data,
+      });
+
+      res.status(201).json({ success: true, product });
+    } catch (error) {
+      if (error instanceof ZodError) {
+        const validationError = fromZodError(error);
+        res.status(400).json({ error: validationError.message });
+      } else {
+        console.error("Product creation error:", error);
+        res.status(500).json({ error: "فشل في إنشاء المنتج" });
+      }
+    }
+  });
+
+  app.get("/api/stores/:storeId/products/:productId", authMiddleware, async (req: AuthRequest, res) => {
+    try {
+      const store = await Store.findOne({
+        _id: req.params.storeId,
+        userId: req.user!.userId,
+      });
+
+      if (!store) {
+        res.status(404).json({ error: "المتجر غير موجود" });
+        return;
+      }
+
+      const product = await Product.findOne({
+        _id: req.params.productId,
+        storeId: store._id,
+      });
+
+      if (!product) {
+        res.status(404).json({ error: "المنتج غير موجود" });
+        return;
+      }
+
+      res.json({ product });
+    } catch (error) {
+      res.status(500).json({ error: "فشل في جلب المنتج" });
+    }
+  });
+
+  app.patch("/api/stores/:storeId/products/:productId", authMiddleware, async (req: AuthRequest, res) => {
+    try {
+      const store = await Store.findOne({
+        _id: req.params.storeId,
+        userId: req.user!.userId,
+      });
+
+      if (!store) {
+        res.status(404).json({ error: "المتجر غير موجود" });
+        return;
+      }
+
+      const data = productSchema.partial().parse(req.body);
+      
+      const product = await Product.findOneAndUpdate(
+        { _id: req.params.productId, storeId: store._id },
+        data,
+        { new: true }
+      );
+
+      if (!product) {
+        res.status(404).json({ error: "المنتج غير موجود" });
+        return;
+      }
+
+      res.json({ success: true, product });
+    } catch (error) {
+      if (error instanceof ZodError) {
+        const validationError = fromZodError(error);
+        res.status(400).json({ error: validationError.message });
+      } else {
+        res.status(500).json({ error: "فشل في تحديث المنتج" });
+      }
+    }
+  });
+
+  app.delete("/api/stores/:storeId/products/:productId", authMiddleware, async (req: AuthRequest, res) => {
+    try {
+      const store = await Store.findOne({
+        _id: req.params.storeId,
+        userId: req.user!.userId,
+      });
+
+      if (!store) {
+        res.status(404).json({ error: "المتجر غير موجود" });
+        return;
+      }
+
+      const product = await Product.findOneAndDelete({
+        _id: req.params.productId,
+        storeId: store._id,
+      });
+
+      if (!product) {
+        res.status(404).json({ error: "المنتج غير موجود" });
+        return;
+      }
+
+      res.json({ success: true });
+    } catch (error) {
+      res.status(500).json({ error: "فشل في حذف المنتج" });
+    }
+  });
+
+  // ==================== CATEGORY ROUTES ====================
+
+  app.get("/api/stores/:storeId/categories", authMiddleware, async (req: AuthRequest, res) => {
+    try {
+      const store = await Store.findOne({
+        _id: req.params.storeId,
+        userId: req.user!.userId,
+      });
+
+      if (!store) {
+        res.status(404).json({ error: "المتجر غير موجود" });
+        return;
+      }
+
+      const categories = await Category.find({ storeId: store._id }).sort({ order: 1 });
+      res.json({ categories });
+    } catch (error) {
+      res.status(500).json({ error: "فشل في جلب الفئات" });
+    }
+  });
+
+  app.post("/api/stores/:storeId/categories", authMiddleware, async (req: AuthRequest, res) => {
+    try {
+      const store = await Store.findOne({
+        _id: req.params.storeId,
+        userId: req.user!.userId,
+      });
+
+      if (!store) {
+        res.status(404).json({ error: "المتجر غير موجود" });
+        return;
+      }
+
+      const data = categorySchema.parse(req.body);
+      
+      const category = await Category.create({
+        storeId: store._id,
+        ...data,
+      });
+
+      res.status(201).json({ success: true, category });
+    } catch (error) {
+      if (error instanceof ZodError) {
+        const validationError = fromZodError(error);
+        res.status(400).json({ error: validationError.message });
+      } else {
+        res.status(500).json({ error: "فشل في إنشاء الفئة" });
+      }
+    }
+  });
+
+  app.patch("/api/stores/:storeId/categories/:categoryId", authMiddleware, async (req: AuthRequest, res) => {
+    try {
+      const store = await Store.findOne({
+        _id: req.params.storeId,
+        userId: req.user!.userId,
+      });
+
+      if (!store) {
+        res.status(404).json({ error: "المتجر غير موجود" });
+        return;
+      }
+
+      const data = categorySchema.partial().parse(req.body);
+      
+      const category = await Category.findOneAndUpdate(
+        { _id: req.params.categoryId, storeId: store._id },
+        data,
+        { new: true }
+      );
+
+      if (!category) {
+        res.status(404).json({ error: "الفئة غير موجودة" });
+        return;
+      }
+
+      res.json({ success: true, category });
+    } catch (error) {
+      if (error instanceof ZodError) {
+        const validationError = fromZodError(error);
+        res.status(400).json({ error: validationError.message });
+      } else {
+        res.status(500).json({ error: "فشل في تحديث الفئة" });
+      }
+    }
+  });
+
+  app.delete("/api/stores/:storeId/categories/:categoryId", authMiddleware, async (req: AuthRequest, res) => {
+    try {
+      const store = await Store.findOne({
+        _id: req.params.storeId,
+        userId: req.user!.userId,
+      });
+
+      if (!store) {
+        res.status(404).json({ error: "المتجر غير موجود" });
+        return;
+      }
+
+      const category = await Category.findOneAndDelete({
+        _id: req.params.categoryId,
+        storeId: store._id,
+      });
+
+      if (!category) {
+        res.status(404).json({ error: "الفئة غير موجودة" });
+        return;
+      }
+
+      res.json({ success: true });
+    } catch (error) {
+      res.status(500).json({ error: "فشل في حذف الفئة" });
+    }
+  });
+
+  // ==================== ORDER ROUTES ====================
+
+  app.get("/api/stores/:storeId/orders", authMiddleware, async (req: AuthRequest, res) => {
+    try {
+      const store = await Store.findOne({
+        _id: req.params.storeId,
+        userId: req.user!.userId,
+      });
+
+      if (!store) {
+        res.status(404).json({ error: "المتجر غير موجود" });
+        return;
+      }
+
+      const orders = await Order.find({ storeId: store._id }).sort({ createdAt: -1 });
+      res.json({ orders });
+    } catch (error) {
+      res.status(500).json({ error: "فشل في جلب الطلبات" });
+    }
+  });
+
+  app.get("/api/stores/:storeId/orders/:orderId", authMiddleware, async (req: AuthRequest, res) => {
+    try {
+      const store = await Store.findOne({
+        _id: req.params.storeId,
+        userId: req.user!.userId,
+      });
+
+      if (!store) {
+        res.status(404).json({ error: "المتجر غير موجود" });
+        return;
+      }
+
+      const order = await Order.findOne({
+        _id: req.params.orderId,
+        storeId: store._id,
+      });
+
+      if (!order) {
+        res.status(404).json({ error: "الطلب غير موجود" });
+        return;
+      }
+
+      res.json({ order });
+    } catch (error) {
+      res.status(500).json({ error: "فشل في جلب الطلب" });
+    }
+  });
+
+  app.patch("/api/stores/:storeId/orders/:orderId/status", authMiddleware, async (req: AuthRequest, res) => {
+    try {
+      const store = await Store.findOne({
+        _id: req.params.storeId,
+        userId: req.user!.userId,
+      });
+
+      if (!store) {
+        res.status(404).json({ error: "المتجر غير موجود" });
+        return;
+      }
+
+      const data = orderStatusSchema.parse(req.body);
+      
+      const order = await Order.findOneAndUpdate(
+        { _id: req.params.orderId, storeId: store._id },
+        { status: data.status },
+        { new: true }
+      );
+
+      if (!order) {
+        res.status(404).json({ error: "الطلب غير موجود" });
+        return;
+      }
+
+      res.json({ success: true, order });
+    } catch (error) {
+      if (error instanceof ZodError) {
+        const validationError = fromZodError(error);
+        res.status(400).json({ error: validationError.message });
+      } else {
+        res.status(500).json({ error: "فشل في تحديث حالة الطلب" });
+      }
+    }
+  });
+
+  app.patch("/api/stores/:storeId/orders/:orderId/payment", authMiddleware, async (req: AuthRequest, res) => {
+    try {
+      const store = await Store.findOne({
+        _id: req.params.storeId,
+        userId: req.user!.userId,
+      });
+
+      if (!store) {
+        res.status(404).json({ error: "المتجر غير موجود" });
+        return;
+      }
+
+      const data = paymentStatusSchema.parse(req.body);
+      
+      const order = await Order.findOneAndUpdate(
+        { _id: req.params.orderId, storeId: store._id },
+        { paymentStatus: data.paymentStatus },
+        { new: true }
+      );
+
+      if (!order) {
+        res.status(404).json({ error: "الطلب غير موجود" });
+        return;
+      }
+
+      res.json({ success: true, order });
+    } catch (error) {
+      if (error instanceof ZodError) {
+        const validationError = fromZodError(error);
+        res.status(400).json({ error: validationError.message });
+      } else {
+        res.status(500).json({ error: "فشل في تحديث حالة الدفع" });
+      }
+    }
+  });
+
+  // ==================== STORE STATS ====================
+
+  app.get("/api/stores/:storeId/stats", authMiddleware, async (req: AuthRequest, res) => {
+    try {
+      const store = await Store.findOne({
+        _id: req.params.storeId,
+        userId: req.user!.userId,
+      });
+
+      if (!store) {
+        res.status(404).json({ error: "المتجر غير موجود" });
+        return;
+      }
+
+      const [totalProducts, totalCategories, totalOrders, pendingOrders] = await Promise.all([
+        Product.countDocuments({ storeId: store._id }),
+        Category.countDocuments({ storeId: store._id }),
+        Order.countDocuments({ storeId: store._id }),
+        Order.countDocuments({ storeId: store._id, status: "pending" }),
+      ]);
+
+      const revenueResult = await Order.aggregate([
+        { $match: { storeId: store._id, paymentStatus: "paid" } },
+        { $group: { _id: null, total: { $sum: "$total" } } },
+      ]);
+
+      res.json({
+        stats: {
+          totalProducts,
+          totalCategories,
+          totalOrders,
+          pendingOrders,
           totalRevenue: revenueResult[0]?.total || 0,
         },
       });
