@@ -5,8 +5,9 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/com
 import { Badge } from "@/components/ui/badge";
 import { useAuth } from "@/lib/auth";
 import { useToast } from "@/hooks/use-toast";
-import { Loader2, ArrowLeft, CheckCircle2, Store, Coffee, GraduationCap } from "lucide-react";
+import { Loader2, ArrowLeft, CheckCircle2, Store, Coffee, GraduationCap, MessageCircle } from "lucide-react";
 import { queryClient, apiRequestJson } from "@/lib/queryClient";
+import { WHATSAPP_PAYMENT_LINK, WHATSAPP_PAYMENT_NUMBER } from "@shared/constants";
 
 type PlanType = "stores" | "restaurants" | "education";
 type BillingCycle = "monthly" | "6months" | "yearly";
@@ -45,6 +46,12 @@ export default function Subscribe() {
   const [selectedPlan, setSelectedPlan] = useState<PlanType | null>(null);
   const [selectedBilling, setSelectedBilling] = useState<BillingCycle>("6months");
   const [isLoading, setIsLoading] = useState(false);
+  const [subscriptionCreated, setSubscriptionCreated] = useState(false);
+  const [createdSubscription, setCreatedSubscription] = useState<{
+    planType: string;
+    billingCycle: string;
+    price: number;
+  } | null>(null);
   const { user, isLoading: authLoading } = useAuth();
   const { toast } = useToast();
   const [, setLocation] = useLocation();
@@ -68,18 +75,24 @@ export default function Subscribe() {
     setIsLoading(true);
 
     try {
-      await apiRequestJson("POST", "/api/subscriptions", {
+      const result = await apiRequestJson<{ subscription: { planType: string; billingCycle: string; price: number } }>("POST", "/api/subscriptions", {
         planType: selectedPlan,
         billingCycle: selectedBilling,
       });
 
-      queryClient.invalidateQueries({ queryKey: ["/api/subscriptions"] });
+      queryClient.invalidateQueries({ queryKey: ["/api", "subscriptions"] });
+
+      setCreatedSubscription({
+        planType: selectedPlan,
+        billingCycle: selectedBilling,
+        price: plans[selectedPlan][selectedBilling],
+      });
+      setSubscriptionCreated(true);
 
       toast({
         title: "تم بنجاح!",
-        description: "تم إنشاء اشتراكك. لديك 14 يوم تجربة مجانية.",
+        description: "تم إنشاء اشتراكك. تواصل معنا لإتمام الدفع.",
       });
-      setLocation("/dashboard");
     } catch (error) {
       toast({
         title: "خطأ",
@@ -104,6 +117,86 @@ export default function Subscribe() {
   }
 
   const selectedPlanData = selectedPlan ? plans[selectedPlan] : null;
+
+  if (subscriptionCreated && createdSubscription) {
+    return (
+      <div className="min-h-screen bg-background">
+        <header className="border-b bg-card">
+          <div className="mx-auto max-w-7xl px-6 py-4 flex items-center gap-4">
+            <Link href="/dashboard">
+              <Button variant="ghost" size="icon" data-testid="button-back-dashboard">
+                <ArrowLeft className="h-5 w-5" />
+              </Button>
+            </Link>
+            <div>
+              <h1 className="text-xl font-semibold text-foreground" data-testid="text-payment-title">إتمام الدفع</h1>
+              <p className="text-sm text-muted-foreground">تواصل معنا عبر الواتساب لإتمام الدفع</p>
+            </div>
+          </div>
+        </header>
+
+        <main className="mx-auto max-w-2xl px-6 py-12">
+          <Card>
+            <CardHeader className="text-center">
+              <div className="mx-auto w-16 h-16 rounded-full bg-green-100 dark:bg-green-900 flex items-center justify-center mb-4">
+                <CheckCircle2 className="h-8 w-8 text-green-600 dark:text-green-400" />
+              </div>
+              <CardTitle className="text-2xl">تم إنشاء اشتراكك بنجاح</CardTitle>
+              <CardDescription>
+                لديك 14 يوم تجربة مجانية. تواصل معنا لتفعيل الاشتراك الكامل.
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-6">
+              <div className="bg-muted rounded-lg p-4 space-y-3">
+                <div className="flex justify-between">
+                  <span className="text-muted-foreground">النظام</span>
+                  <span className="font-medium">{plans[createdSubscription.planType as PlanType]?.name}</span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-muted-foreground">المدة</span>
+                  <span className="font-medium">{billingLabels[createdSubscription.billingCycle as BillingCycle]}</span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-muted-foreground">المبلغ</span>
+                  <span className="font-bold text-lg">{createdSubscription.price} ريال</span>
+                </div>
+              </div>
+
+              <div className="border rounded-lg p-6 text-center space-y-4">
+                <MessageCircle className="h-12 w-12 mx-auto text-green-600" />
+                <h3 className="font-semibold text-lg">تواصل معنا عبر الواتساب</h3>
+                <p className="text-muted-foreground">
+                  تواصل معنا على الرقم التالي لإتمام عملية الدفع وتفعيل اشتراكك
+                </p>
+                <p className="text-xl font-bold direction-ltr" dir="ltr" data-testid="text-whatsapp-number">
+                  {WHATSAPP_PAYMENT_NUMBER}
+                </p>
+                <a
+                  href={WHATSAPP_PAYMENT_LINK}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="block"
+                >
+                  <Button className="w-full bg-green-600 hover:bg-green-700" size="lg" data-testid="button-whatsapp-contact">
+                    <MessageCircle className="ml-2 h-5 w-5" />
+                    تواصل عبر الواتساب
+                  </Button>
+                </a>
+              </div>
+
+              <div className="flex gap-4">
+                <Link href="/dashboard" className="flex-1">
+                  <Button variant="outline" className="w-full" data-testid="button-go-dashboard">
+                    الذهاب للوحة التحكم
+                  </Button>
+                </Link>
+              </div>
+            </CardContent>
+          </Card>
+        </main>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-background">

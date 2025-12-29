@@ -13,6 +13,9 @@ export interface ISubscription extends Document {
   startDate: Date;
   endDate: Date;
   trialEndsAt?: Date;
+  paymentConfirmedAt?: Date;
+  paymentConfirmedBy?: Types.ObjectId;
+  paymentNotes?: string;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -39,6 +42,9 @@ const SubscriptionSchema = new Schema<ISubscription>(
     startDate: { type: Date, default: Date.now },
     endDate: { type: Date, required: true },
     trialEndsAt: { type: Date },
+    paymentConfirmedAt: { type: Date },
+    paymentConfirmedBy: { type: Schema.Types.ObjectId, ref: "User" },
+    paymentNotes: { type: String },
   },
   { timestamps: true }
 );

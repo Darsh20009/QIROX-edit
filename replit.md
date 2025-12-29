@@ -31,6 +31,9 @@ client/
 │   │   ├── register.tsx     # User registration
 │   │   ├── dashboard.tsx    # Customer dashboard
 │   │   ├── new-store.tsx    # Store creation
+│   │   ├── subscribe.tsx    # Subscription selection + WhatsApp payment
+│   │   ├── employee-dashboard.tsx  # Employee dashboard
+│   │   ├── admin-dashboard.tsx     # Admin dashboard
 │   │   ├── terms.tsx
 │   │   ├── privacy.tsx
 │   │   └── not-found.tsx
@@ -41,13 +44,14 @@ client/
 server/
 ├── models/
 │   ├── User.ts              # User model (customer/employee/admin)
-│   ├── Subscription.ts      # Subscription model with plan pricing
+│   ├── Subscription.ts      # Subscription model with payment confirmation
 │   └── Store.ts             # Store model (ecommerce/restaurant/education)
 ├── auth.ts                  # JWT auth, password hashing, middleware
 ├── routes.ts                # API endpoints
 └── storage.ts               # In-memory storage (for contact form)
 shared/
-└── schema.ts                # Contact message schema
+├── schema.ts                # Contact message schema
+└── constants.ts             # WhatsApp payment number
 ```
 
 ## Pages
@@ -60,8 +64,20 @@ shared/
 - **/register** - User registration with 14-day free trial
 - **/dashboard** - Customer dashboard (subscriptions, stores)
 - **/dashboard/stores/new** - Create new store
+- **/dashboard/subscribe** - Subscription selection with WhatsApp payment instructions
+- **/employee** - Employee dashboard (store management, payment confirmation)
+- **/admin** - Admin dashboard (statistics, user management)
 - **/terms** - Terms of Service
 - **/privacy** - Privacy Policy
+
+## Payment Flow (Manual via WhatsApp)
+1. Customer creates subscription (starts as "trial" status)
+2. Customer is shown WhatsApp number (+966532441566) to contact for payment
+3. Customer contacts via WhatsApp and completes payment
+4. Employee/Admin confirms payment in employee dashboard
+5. Subscription status changes from "trial" to "active"
+
+**Note**: No automated payment gateway (Stripe, Tap, Tabby, Tamara) is integrated. All payments are handled manually via WhatsApp contact.
 
 ## Pricing Plans (SAR)
 ### Stores (E-commerce)
@@ -101,6 +117,7 @@ shared/
 - `GET /api/admin/subscriptions` - Get all subscriptions (admin only)
 - `GET /api/admin/stores` - Get all stores (admin/employee)
 - `PATCH /api/admin/stores/:id/status` - Update store status (admin/employee)
+- `PATCH /api/admin/subscriptions/:id/confirm` - Confirm payment (admin/employee)
 - `GET /api/admin/stats` - Get platform statistics (admin only)
 
 ### Contact
@@ -109,8 +126,8 @@ shared/
 
 ## User Roles
 - **customer**: Can manage own subscriptions and stores
-- **employee**: Can manage customer stores and support
-- **admin**: Full access to all features
+- **employee**: Can manage customer stores, confirm payments, view support messages
+- **admin**: Full access to all features including statistics
 
 ## Environment Variables
 - `MONGODB_URI` - MongoDB Atlas connection string
@@ -129,8 +146,6 @@ shared/
 The project runs using `npm run dev` which starts both the Express backend and Vite frontend dev server on port 5000.
 
 ## Next Steps (Planned)
-- Employee dashboard (customer support, store management)
-- Admin dashboard (statistics, user management)
-- Payment gateway integration (Tap, Tabby, Tamara)
 - Store templates (ecommerce, restaurant, education)
-- Arabic language support throughout
+- Full Arabic language support throughout
+- Store management features (products, orders, etc.)

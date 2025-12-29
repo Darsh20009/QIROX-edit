@@ -375,6 +375,34 @@ export async function registerRoutes(
     }
   });
 
+  app.patch("/api/admin/subscriptions/:id/confirm", authMiddleware, roleMiddleware("admin", "employee"), async (req: AuthRequest, res) => {
+    try {
+      const { notes } = req.body;
+      const subscription = await Subscription.findById(req.params.id);
+      
+      if (!subscription) {
+        res.status(404).json({ error: "الاشتراك غير موجود" });
+        return;
+      }
+      
+      if (subscription.status === "active") {
+        res.status(400).json({ error: "الاشتراك مفعل بالفعل" });
+        return;
+      }
+      
+      subscription.status = "active";
+      subscription.paymentConfirmedAt = new Date();
+      subscription.paymentConfirmedBy = req.user!.userId as any;
+      if (notes) subscription.paymentNotes = notes;
+      await subscription.save();
+      
+      res.json({ success: true, subscription });
+    } catch (error) {
+      console.error("Confirm payment error:", error);
+      res.status(500).json({ error: "فشل في تأكيد الدفع" });
+    }
+  });
+
   app.get("/api/admin/stats", authMiddleware, roleMiddleware("admin"), async (_req, res) => {
     try {
       const [totalUsers, totalSubscriptions, activeSubscriptions, totalStores] = await Promise.all([
