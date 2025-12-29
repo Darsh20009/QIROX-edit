@@ -1,21 +1,23 @@
 import { Link, useLocation } from "wouter";
 import { Button } from "@/components/ui/button";
 import { ThemeToggle } from "@/components/theme-toggle";
-import { Menu, X } from "lucide-react";
+import { Menu, X, User, LogIn } from "lucide-react";
 import { useState } from "react";
+import { useAuth } from "@/lib/auth";
 import qiroxLogo from "@assets/qirox_without_background_1767002019509.png";
 
 const navLinks = [
-  { href: "/", label: "Home" },
-  { href: "/how-it-works", label: "How It Works" },
-  { href: "/pricing", label: "Pricing" },
-  { href: "/about", label: "About" },
-  { href: "/contact", label: "Contact" },
+  { href: "/", label: "الرئيسية" },
+  { href: "/how-it-works", label: "كيف يعمل" },
+  { href: "/pricing", label: "الأسعار" },
+  { href: "/about", label: "عن QIROX" },
+  { href: "/contact", label: "تواصل معنا" },
 ];
 
 export function Header() {
   const [location] = useLocation();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const { user, isLoading } = useAuth();
 
   return (
     <header className="sticky top-0 z-50 w-full border-b border-border bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
@@ -35,7 +37,7 @@ export function Header() {
                       ? "text-foreground"
                       : "text-muted-foreground"
                   }`}
-                  data-testid={`link-nav-${link.label.toLowerCase().replace(/\s+/g, "-")}`}
+                  data-testid={`link-nav-${link.href.replace("/", "") || "home"}`}
                 >
                   {link.label}
                 </Button>
@@ -45,11 +47,31 @@ export function Header() {
 
           <div className="flex items-center gap-2">
             <ThemeToggle />
-            <Link href="/contact" className="hidden sm:block">
-              <Button data-testid="button-get-started">
-                Get Started
-              </Button>
-            </Link>
+            {!isLoading && (
+              <>
+                {user ? (
+                  <Link href="/dashboard" className="hidden sm:block">
+                    <Button data-testid="button-dashboard">
+                      <User className="h-4 w-4 ml-2" />
+                      لوحة التحكم
+                    </Button>
+                  </Link>
+                ) : (
+                  <div className="hidden sm:flex items-center gap-2">
+                    <Link href="/login">
+                      <Button variant="ghost" data-testid="button-login">
+                        دخول
+                      </Button>
+                    </Link>
+                    <Link href="/register">
+                      <Button data-testid="button-register">
+                        ابدأ مجاناً
+                      </Button>
+                    </Link>
+                  </div>
+                )}
+              </>
+            )}
             <Button
               variant="ghost"
               size="icon"
@@ -76,17 +98,37 @@ export function Header() {
                         : "text-muted-foreground"
                     }`}
                     onClick={() => setMobileMenuOpen(false)}
-                    data-testid={`link-mobile-nav-${link.label.toLowerCase().replace(/\s+/g, "-")}`}
+                    data-testid={`link-mobile-nav-${link.href.replace("/", "") || "home"}`}
                   >
                     {link.label}
                   </Button>
                 </Link>
               ))}
-              <Link href="/contact" className="sm:hidden mt-2">
-                <Button className="w-full" onClick={() => setMobileMenuOpen(false)}>
-                  Get Started
-                </Button>
-              </Link>
+              {!isLoading && (
+                <>
+                  {user ? (
+                    <Link href="/dashboard" className="mt-2">
+                      <Button className="w-full" onClick={() => setMobileMenuOpen(false)}>
+                        <User className="h-4 w-4 ml-2" />
+                        لوحة التحكم
+                      </Button>
+                    </Link>
+                  ) : (
+                    <div className="flex flex-col gap-2 mt-2">
+                      <Link href="/login">
+                        <Button variant="outline" className="w-full" onClick={() => setMobileMenuOpen(false)}>
+                          تسجيل الدخول
+                        </Button>
+                      </Link>
+                      <Link href="/register">
+                        <Button className="w-full" onClick={() => setMobileMenuOpen(false)}>
+                          ابدأ مجاناً
+                        </Button>
+                      </Link>
+                    </div>
+                  )}
+                </>
+              )}
             </div>
           </nav>
         )}
