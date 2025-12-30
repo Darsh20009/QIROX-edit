@@ -2,6 +2,9 @@ import { Router } from "express";
 import { z } from "zod";
 import { Tenant } from "../models/Tenant";
 import { Membership } from "../models/Membership";
+import { Store } from "../models/Store";
+import { Product } from "../models/Product";
+import { Category } from "../models/Category";
 import { authMiddleware } from "../auth";
 import { extractTenant, verifyTenantAccess, requireTenantRole, TenantRequest } from "../middleware/tenantMiddleware";
 import { ZodError } from "zod";
@@ -224,5 +227,20 @@ router.get(
     }
   }
 );
+
+// Get public store data
+router.get("/store/:slug", async (req, res) => {
+  try {
+    const store = await Store.findOne({ slug: req.params.slug });
+    if (!store) {
+      return res.status(404).json({ error: "المتجر غير موجود" });
+    }
+    const products = await Product.find({ storeId: store._id, status: "active" });
+    const categories = await Category.find({ storeId: store._id, isActive: true });
+    res.json({ store, products, categories });
+  } catch (error) {
+    res.status(500).json({ error: "فشل في جلب بيانات المتجر" });
+  }
+});
 
 export default router;
