@@ -75,12 +75,15 @@ export class MongoStorage implements IStorage {
   }
 
   async createContactMessage(insertMessage: InsertContactMessage): Promise<ContactMessageType> {
+    const company = insertMessage.company ? String(insertMessage.company) : null;
+    const budget = insertMessage.budget ? String(insertMessage.budget) : null;
+    
     const doc = await ContactMessageModel.create({
       name: insertMessage.name,
       email: insertMessage.email,
-      company: insertMessage.company ?? null,
+      company,
       projectType: insertMessage.projectType,
-      budget: insertMessage.budget ?? null,
+      budget,
       message: insertMessage.message,
     });
 
@@ -88,9 +91,9 @@ export class MongoStorage implements IStorage {
       id: doc._id.toString(),
       name: doc.name,
       email: doc.email,
-      company: (doc.company as string | null) ?? null,
+      company: doc.company as string | null,
       projectType: doc.projectType,
-      budget: (doc.budget as string | null) ?? null,
+      budget: doc.budget as string | null,
       message: doc.message,
       createdAt: doc.createdAt,
     };
@@ -102,9 +105,9 @@ export class MongoStorage implements IStorage {
       id: doc._id.toString(),
       name: doc.name,
       email: doc.email,
-      company: doc.company || null,
+      company: (doc.company as string | null) ?? null,
       projectType: doc.projectType,
-      budget: doc.budget || null,
+      budget: (doc.budget as string | null) ?? null,
       message: doc.message,
       createdAt: doc.createdAt,
     }));

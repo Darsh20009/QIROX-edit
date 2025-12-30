@@ -20,6 +20,8 @@ import Subscribe from "@/pages/subscribe";
 import EmployeeDashboard from "@/pages/employee-dashboard";
 import AdminDashboard from "@/pages/admin-dashboard";
 import StoreManage from "@/pages/store-manage";
+import TenantsPage from "@/pages/tenants";
+import TenantDashboard from "@/pages/tenant-dashboard";
 import NotFound from "@/pages/not-found";
 
 function Router() {
@@ -38,6 +40,8 @@ function Router() {
       <Route path="/dashboard/stores/new" component={NewStore} />
       <Route path="/dashboard/subscribe" component={Subscribe} />
       <Route path="/dashboard/stores/:storeId" component={StoreManage} />
+      <Route path="/tenants" component={TenantsPage} />
+      <Route path="/tenants/:slug" component={TenantDashboard} />
       <Route path="/employee" component={EmployeeDashboard} />
       <Route path="/admin" component={AdminDashboard} />
       <Route component={NotFound} />

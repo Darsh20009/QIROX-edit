@@ -17,6 +17,10 @@ import { Store } from "./models/Store";
 import { Product } from "./models/Product";
 import { Order, generateOrderNumber } from "./models/Order";
 import { Category } from "./models/Category";
+import { Tenant } from "./models/Tenant";
+import { Membership } from "./models/Membership";
+import { extractTenant, verifyTenantAccess, requireTenantRole, TenantRequest } from "./middleware/tenantMiddleware";
+import tenantsRouter from "./routes/tenants";
 
 const rateLimitMap = new Map<string, { count: number; resetTime: number }>();
 const RATE_LIMIT_WINDOW = 60 * 1000;
@@ -105,6 +109,9 @@ export async function registerRoutes(
   app: Express
 ): Promise<Server> {
   
+  // ==================== TENANT ROUTES ====================
+  app.use("/api/tenants", extractTenant, tenantsRouter);
+
   // ==================== AUTH ROUTES ====================
   
   app.post("/api/auth/register", async (req, res) => {
