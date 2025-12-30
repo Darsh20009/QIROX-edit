@@ -24,6 +24,7 @@ import StoreManage from "@/pages/store-manage";
 import Storefront from "@/pages/storefront";
 import TenantsPage from "@/pages/tenants";
 import TenantDashboard from "@/pages/tenant-dashboard";
+import KanbanBoard from "@/pages/kanban-board";
 import NotFound from "@/pages/not-found";
 
 function Router() {
@@ -45,6 +46,7 @@ function Router() {
       <Route path="/store/:slug" component={Storefront} />
       <Route path="/tenants" component={TenantsPage} />
       <Route path="/tenants/:slug" component={TenantDashboard} />
+      <Route path="/kanban" component={KanbanBoard} />
       <Route path="/employee" component={EmployeeDashboard} />
       <Route path="/admin" component={AdminDashboard} />
       <Route path="/admin-full" component={AdminDashboardFull} />

@@ -21,6 +21,7 @@ import { Tenant } from "./models/Tenant";
 import { Membership } from "./models/Membership";
 import { extractTenant, verifyTenantAccess, requireTenantRole, type TenantRequest } from "./middleware/tenantMiddleware";
 import tenantsRouter from "./routes/tenants";
+import { Project, Task } from "./models/Project";
 
 const rateLimitMap = new Map<string, { count: number; resetTime: number }>();
 const RATE_LIMIT_WINDOW = 60 * 1000;
@@ -952,6 +953,63 @@ export async function registerRoutes(
     const message = `طلب جديد: ${orderId}\nالمبلغ: ${amount} ريال\nيرجى إرسال صورة التحويل هنا.`;
     const whatsappLink = `https://wa.me/966532441566?text=${encodeURIComponent(message)}`;
     res.json({ whatsappLink });
+  });
+
+  // ==================== KANBAN BOARD / TASKS ROUTES ====================
+
+  app.get("/api/projects/:projectId/tasks", authMiddleware, async (req, res) => {
+    try {
+      const { projectId } = req.params;
+      const tasks = await Task.find({ projectId }).populate("assignedTo", "name email");
+      res.json(tasks);
+    } catch (error) {
+      res.status(500).json({ error: "فشل في جلب المهام" });
+    }
+  });
+
+  app.post("/api/projects/:projectId/tasks", authMiddleware, async (req, res) => {
+    try {
+      const { projectId } = req.params;
+      const { title, description, status, assignedTo, dueDate } = req.body;
+      const task = new Task({
+        projectId,
+        title,
+        description,
+        status: status || "todo",
+        assignedTo,
+        dueDate,
+      });
+      await task.save();
+      const populated = await task.populate("assignedTo", "name email");
+      res.status(201).json(populated);
+    } catch (error) {
+      res.status(500).json({ error: "فشل في إنشاء المهمة" });
+    }
+  });
+
+  app.patch("/api/projects/:projectId/tasks/:taskId", authMiddleware, async (req, res) => {
+    try {
+      const { taskId } = req.params;
+      const { title, description, status, assignedTo, dueDate } = req.body;
+      const task = await Task.findByIdAndUpdate(
+        taskId,
+        { title, description, status, assignedTo, dueDate },
+        { new: true }
+      ).populate("assignedTo", "name email");
+      res.json(task);
+    } catch (error) {
+      res.status(500).json({ error: "فشل في تحديث المهمة" });
+    }
+  });
+
+  app.delete("/api/projects/:projectId/tasks/:taskId", authMiddleware, async (req, res) => {
+    try {
+      const { taskId } = req.params;
+      await Task.findByIdAndDelete(taskId);
+      res.json({ success: true });
+    } catch (error) {
+      res.status(500).json({ error: "فشل في حذف المهمة" });
+    }
   });
 
   return httpServer;
