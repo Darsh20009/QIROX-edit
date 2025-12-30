@@ -21,6 +21,7 @@ import {
   History,
   Wallet,
   Terminal,
+  Send,
 } from "lucide-react";
 import { useAuth } from "@/lib/auth";
 
@@ -41,6 +42,8 @@ const menuItems = [
   { label: "سجل النشاطات", href: "/admin/audit", icon: History },
   { label: "الإدارة المالية", href: "/admin/financials", icon: Wallet },
   { label: "سجلات النظام العميقة", href: "/admin/logs", icon: Terminal },
+  { label: "التسويق والحملات", href: "/admin/marketing", icon: Send },
+  { label: "إدارة المحتوى", href: "/admin/content", icon: FileText },
   { label: "التحليلات", href: "/admin/analytics", icon: BarChart3 },
   { label: "التقارير", href: "/admin/reports", icon: FileText },
   { label: "المتاجر", href: "/admin/stores", icon: Store },
