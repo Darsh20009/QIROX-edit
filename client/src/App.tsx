@@ -39,6 +39,10 @@ import AdminSecurityPage from "@/pages/admin/security";
 import AdminLocalizationPage from "@/pages/admin/localization";
 import AdminDatabasePage from "@/pages/admin/database";
 import AdminSupportPage from "@/pages/admin/support";
+import AdminCustomizationPage from "@/pages/admin/customization";
+import AdminNotificationsPage from "@/pages/admin/notifications";
+import AdminSocialPage from "@/pages/admin/social";
+import AdminAuditPage from "@/pages/admin/audit";
 import NotFound from "@/pages/not-found";
 
 function Router() {
@@ -75,6 +79,10 @@ function Router() {
       <Route path="/admin/localization" component={AdminLocalizationPage} />
       <Route path="/admin/database" component={AdminDatabasePage} />
       <Route path="/admin/support" component={AdminSupportPage} />
+      <Route path="/admin/customization" component={AdminCustomizationPage} />
+      <Route path="/admin/notifications" component={AdminNotificationsPage} />
+      <Route path="/admin/social" component={AdminSocialPage} />
+      <Route path="/admin/audit" component={AdminAuditPage} />
       <Route path="/employee" component={EmployeeDashboard} />
       <Route path="/admin" component={AdminDashboard} />
       <Route path="/admin-full" component={AdminDashboardFull} />

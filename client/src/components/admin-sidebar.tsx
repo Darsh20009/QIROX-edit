@@ -15,6 +15,10 @@ import {
   Globe,
   Database,
   HelpCircle,
+  Palette,
+  BellRing,
+  Share2,
+  History,
 } from "lucide-react";
 import { useAuth } from "@/lib/auth";
 
@@ -29,6 +33,10 @@ const menuItems = [
   { label: "اللغات والنطاقات", href: "/admin/localization", icon: Globe },
   { label: "قاعدة البيانات", href: "/admin/database", icon: Database },
   { label: "الدعم والرسائل", href: "/admin/support", icon: HelpCircle },
+  { label: "تخصيص المظهر", href: "/admin/customization", icon: Palette },
+  { label: "التنبيهات", href: "/admin/notifications", icon: BellRing },
+  { label: "التواصل الاجتماعي", href: "/admin/social", icon: Share2 },
+  { label: "سجل النشاطات", href: "/admin/audit", icon: History },
   { label: "التحليلات", href: "/admin/analytics", icon: BarChart3 },
   { label: "التقارير", href: "/admin/reports", icon: FileText },
   { label: "المتاجر", href: "/admin/stores", icon: Store },
