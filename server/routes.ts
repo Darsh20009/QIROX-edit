@@ -936,5 +936,23 @@ export async function registerRoutes(
     }
   });
 
+  app.get("/api/finance/invoices", authMiddleware, async (_req, res) => {
+    const invoices = await storage.getInvoices();
+    res.json(invoices);
+  });
+
+  app.get("/api/finance/quotes", authMiddleware, async (_req, res) => {
+    const quotes = await storage.getQuotes();
+    res.json(quotes);
+  });
+
+  app.post("/api/finance/whatsapp-payment", authMiddleware, async (req, res) => {
+    const { orderId, amount } = req.body;
+    // Manual WhatsApp Payment flow: Instruct user to send screenshot via WhatsApp
+    const message = `طلب جديد: ${orderId}\nالمبلغ: ${amount} ريال\nيرجى إرسال صورة التحويل هنا.`;
+    const whatsappLink = `https://wa.me/966532441566?text=${encodeURIComponent(message)}`;
+    res.json({ whatsappLink });
+  });
+
   return httpServer;
 }

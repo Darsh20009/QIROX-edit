@@ -1,4 +1,4 @@
-import { type User, type InsertUser, type ContactMessage as ContactMessageType, type InsertContactMessage } from "@shared/schema";
+import { type User, type InsertUser, type ContactMessage as ContactMessageType, type InsertContactMessage, type Invoice, type InsertInvoice, type Quote, type InsertQuote, contactMessages, insertContactMessageSchema } from "@shared/schema";
 import { randomUUID } from "crypto";
 import { ContactMessage as ContactMessageModel } from "./models/ContactMessage";
 import { isConnected } from "./db";
@@ -9,15 +9,24 @@ export interface IStorage {
   createUser(user: InsertUser): Promise<User>;
   createContactMessage(message: InsertContactMessage): Promise<ContactMessageType>;
   getContactMessages(): Promise<ContactMessageType[]>;
+  // Finance
+  getInvoices(): Promise<Invoice[]>;
+  createInvoice(invoice: InsertInvoice): Promise<Invoice>;
+  getQuotes(): Promise<Quote[]>;
+  createQuote(quote: InsertQuote): Promise<Quote>;
 }
 
 export class MemStorage implements IStorage {
   private users: Map<string, User>;
   private contactMessages: Map<string, ContactMessageType>;
+  private invoices: Map<string, Invoice>;
+  private quotes: Map<string, Quote>;
 
   constructor() {
     this.users = new Map();
     this.contactMessages = new Map();
+    this.invoices = new Map();
+    this.quotes = new Map();
   }
 
   async getUser(id: string): Promise<User | undefined> {
@@ -52,6 +61,39 @@ export class MemStorage implements IStorage {
     return Array.from(this.contactMessages.values()).sort(
       (a, b) => b.createdAt.getTime() - a.createdAt.getTime()
     );
+  }
+
+  async getInvoices(): Promise<Invoice[]> {
+    return Array.from(this.invoices.values());
+  }
+
+  async createInvoice(insertInvoice: InsertInvoice): Promise<Invoice> {
+    const id = randomUUID();
+    const invoice: Invoice = { 
+      ...insertInvoice, 
+      id, 
+      createdAt: new Date(),
+      status: insertInvoice.status || "unpaid",
+      dueDate: insertInvoice.dueDate || null
+    };
+    this.invoices.set(id, invoice);
+    return invoice;
+  }
+
+  async getQuotes(): Promise<Quote[]> {
+    return Array.from(this.quotes.values());
+  }
+
+  async createQuote(insertQuote: InsertQuote): Promise<Quote> {
+    const id = randomUUID();
+    const quote: Quote = { 
+      ...insertQuote, 
+      id, 
+      createdAt: new Date(),
+      status: insertQuote.status || "pending"
+    };
+    this.quotes.set(id, quote);
+    return quote;
   }
 }
 
@@ -116,6 +158,22 @@ export class MongoStorage implements IStorage {
       };
     });
   }
+
+  async getInvoices(): Promise<Invoice[]> {
+    return this.memStorage.getInvoices();
+  }
+
+  async createInvoice(invoice: InsertInvoice): Promise<Invoice> {
+    return this.memStorage.createInvoice(invoice);
+  }
+
+  async getQuotes(): Promise<Quote[]> {
+    return this.memStorage.getQuotes();
+  }
+
+  async createQuote(quote: InsertQuote): Promise<Quote> {
+    return this.memStorage.createQuote(quote);
+  }
 }
 
 const memStorage = new MemStorage();
@@ -127,4 +185,8 @@ export const storage: IStorage = {
   createUser: (user) => isConnected() ? mongoStorage.createUser(user) : memStorage.createUser(user),
   createContactMessage: (message) => isConnected() ? mongoStorage.createContactMessage(message) : memStorage.createContactMessage(message),
   getContactMessages: () => isConnected() ? mongoStorage.getContactMessages() : memStorage.getContactMessages(),
+  getInvoices: () => isConnected() ? mongoStorage.getInvoices() : memStorage.getInvoices(),
+  createInvoice: (invoice) => isConnected() ? mongoStorage.createInvoice(invoice) : memStorage.createInvoice(invoice),
+  getQuotes: () => isConnected() ? mongoStorage.getQuotes() : memStorage.getQuotes(),
+  createQuote: (quote) => isConnected() ? mongoStorage.createQuote(quote) : memStorage.createQuote(quote),
 };

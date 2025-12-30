@@ -33,5 +33,36 @@ export const insertContactMessageSchema = createInsertSchema(contactMessages).om
   createdAt: true,
 });
 
-export type InsertContactMessage = z.infer<typeof insertContactMessageSchema>;
-export type ContactMessage = typeof contactMessages.$inferSelect;
+export const invoices = pgTable("invoices", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  orderId: varchar("order_id").notNull(),
+  amount: text("amount").notNull(),
+  status: text("status").notNull().default("unpaid"), // unpaid, paid, cancelled
+  dueDate: timestamp("due_date"),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+});
+
+export const insertInvoiceSchema = createInsertSchema(invoices).omit({
+  id: true,
+  createdAt: true,
+});
+
+export type InsertInvoice = z.infer<typeof insertInvoiceSchema>;
+export type Invoice = typeof invoices.$inferSelect;
+
+export const quotes = pgTable("quotes", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  customerName: text("customer_name").notNull(),
+  items: text("items").notNull(), // JSON string
+  total: text("total").notNull(),
+  status: text("status").notNull().default("pending"), // pending, accepted, rejected
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+});
+
+export const insertQuoteSchema = createInsertSchema(quotes).omit({
+  id: true,
+  createdAt: true,
+});
+
+export type InsertQuote = z.infer<typeof insertQuoteSchema>;
+export type Quote = typeof quotes.$inferSelect;
