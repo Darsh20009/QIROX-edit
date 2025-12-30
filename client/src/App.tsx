@@ -25,6 +25,15 @@ import Storefront from "@/pages/storefront";
 import TenantsPage from "@/pages/tenants";
 import TenantDashboard from "@/pages/tenant-dashboard";
 import KanbanBoard from "@/pages/kanban-board";
+import AdminDashboardPage from "@/pages/admin/dashboard";
+import AdminUsersPage from "@/pages/admin/users";
+import AdminProductsPage from "@/pages/admin/products";
+import AdminOrdersPage from "@/pages/admin/orders";
+import AdminSubscriptionsPage from "@/pages/admin/subscriptions";
+import AdminAnalyticsPage from "@/pages/admin/analytics";
+import AdminReportsPage from "@/pages/admin/reports";
+import AdminStoresPage from "@/pages/admin/stores";
+import AdminSettingsPage from "@/pages/admin/settings";
 import NotFound from "@/pages/not-found";
 
 function Router() {
@@ -47,6 +56,15 @@ function Router() {
       <Route path="/tenants" component={TenantsPage} />
       <Route path="/tenants/:slug" component={TenantDashboard} />
       <Route path="/kanban" component={KanbanBoard} />
+      <Route path="/admin/dashboard" component={AdminDashboardPage} />
+      <Route path="/admin/users" component={AdminUsersPage} />
+      <Route path="/admin/products" component={AdminProductsPage} />
+      <Route path="/admin/orders" component={AdminOrdersPage} />
+      <Route path="/admin/subscriptions" component={AdminSubscriptionsPage} />
+      <Route path="/admin/analytics" component={AdminAnalyticsPage} />
+      <Route path="/admin/reports" component={AdminReportsPage} />
+      <Route path="/admin/stores" component={AdminStoresPage} />
+      <Route path="/admin/settings" component={AdminSettingsPage} />
       <Route path="/employee" component={EmployeeDashboard} />
       <Route path="/admin" component={AdminDashboard} />
       <Route path="/admin-full" component={AdminDashboardFull} />
