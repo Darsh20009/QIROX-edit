@@ -5,6 +5,7 @@ export type StoreStatus = "active" | "inactive" | "pending";
 
 export interface IStore extends Document {
   userId: Types.ObjectId;
+  tenantId?: Types.ObjectId;
   subscriptionId: Types.ObjectId;
   name: string;
   nameEn?: string;
@@ -28,7 +29,8 @@ export interface IStore extends Document {
 
 const StoreSchema = new Schema<IStore>(
   {
-    userId: { type: Schema.Types.ObjectId, ref: "User", required: true },
+    userId: { type: Schema.Types.ObjectId, ref: "User", required: true, index: true },
+    tenantId: { type: Schema.Types.ObjectId, ref: "Tenant", index: true },
     subscriptionId: { type: Schema.Types.ObjectId, ref: "Subscription", required: true },
     name: { type: String, required: true },
     nameEn: { type: String },

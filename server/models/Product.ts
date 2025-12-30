@@ -4,6 +4,7 @@ export type ProductStatus = "active" | "inactive" | "out_of_stock";
 
 export interface IProduct extends Document {
   storeId: Types.ObjectId;
+  tenantId?: Types.ObjectId;
   name: string;
   nameEn?: string;
   description?: string;
@@ -27,7 +28,8 @@ export interface IProduct extends Document {
 
 const ProductSchema = new Schema<IProduct>(
   {
-    storeId: { type: Schema.Types.ObjectId, ref: "Store", required: true },
+    storeId: { type: Schema.Types.ObjectId, ref: "Store", required: true, index: true },
+    tenantId: { type: Schema.Types.ObjectId, ref: "Tenant", index: true },
     name: { type: String, required: true },
     nameEn: { type: String },
     description: { type: String },

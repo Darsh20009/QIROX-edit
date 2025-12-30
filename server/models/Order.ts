@@ -13,6 +13,7 @@ export interface IOrderItem {
 
 export interface IOrder extends Document {
   storeId: Types.ObjectId;
+  tenantId?: Types.ObjectId;
   orderNumber: string;
   customerName: string;
   customerPhone: string;
@@ -45,7 +46,8 @@ const OrderItemSchema = new Schema<IOrderItem>(
 
 const OrderSchema = new Schema<IOrder>(
   {
-    storeId: { type: Schema.Types.ObjectId, ref: "Store", required: true },
+    storeId: { type: Schema.Types.ObjectId, ref: "Store", required: true, index: true },
+    tenantId: { type: Schema.Types.ObjectId, ref: "Tenant", index: true },
     orderNumber: { type: String, required: true, unique: true },
     customerName: { type: String, required: true },
     customerPhone: { type: String, required: true },

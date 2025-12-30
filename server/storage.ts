@@ -101,16 +101,20 @@ export class MongoStorage implements IStorage {
 
   async getContactMessages(): Promise<ContactMessageType[]> {
     const docs = await ContactMessageModel.find().sort({ createdAt: -1 });
-    return docs.map((doc: any) => ({
-      id: doc._id.toString(),
-      name: doc.name,
-      email: doc.email,
-      company: (doc.company as string | null) ?? null,
-      projectType: doc.projectType,
-      budget: (doc.budget as string | null) ?? null,
-      message: doc.message,
-      createdAt: doc.createdAt,
-    }));
+    return docs.map((doc: any) => {
+      const company = doc.company ?? null;
+      const budget = doc.budget ?? null;
+      return {
+        id: doc._id.toString(),
+        name: doc.name,
+        email: doc.email,
+        company: company as string | null,
+        projectType: doc.projectType,
+        budget: budget as string | null,
+        message: doc.message,
+        createdAt: doc.createdAt,
+      };
+    });
   }
 }
 
