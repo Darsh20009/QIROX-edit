@@ -43,6 +43,8 @@ import AdminCustomizationPage from "@/pages/admin/customization";
 import AdminNotificationsPage from "@/pages/admin/notifications";
 import AdminSocialPage from "@/pages/admin/social";
 import AdminAuditPage from "@/pages/admin/audit";
+import AdminFinancialsPage from "@/pages/admin/financials";
+import AdminLogsPage from "@/pages/admin/logs";
 import NotFound from "@/pages/not-found";
 
 function Router() {
@@ -83,6 +85,8 @@ function Router() {
       <Route path="/admin/notifications" component={AdminNotificationsPage} />
       <Route path="/admin/social" component={AdminSocialPage} />
       <Route path="/admin/audit" component={AdminAuditPage} />
+      <Route path="/admin/financials" component={AdminFinancialsPage} />
+      <Route path="/admin/logs" component={AdminLogsPage} />
       <Route path="/employee" component={EmployeeDashboard} />
       <Route path="/admin" component={AdminDashboard} />
       <Route path="/admin-full" component={AdminDashboardFull} />

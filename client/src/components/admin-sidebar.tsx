@@ -19,6 +19,8 @@ import {
   BellRing,
   Share2,
   History,
+  Wallet,
+  Terminal,
 } from "lucide-react";
 import { useAuth } from "@/lib/auth";
 
@@ -37,6 +39,8 @@ const menuItems = [
   { label: "التنبيهات", href: "/admin/notifications", icon: BellRing },
   { label: "التواصل الاجتماعي", href: "/admin/social", icon: Share2 },
   { label: "سجل النشاطات", href: "/admin/audit", icon: History },
+  { label: "الإدارة المالية", href: "/admin/financials", icon: Wallet },
+  { label: "سجلات النظام العميقة", href: "/admin/logs", icon: Terminal },
   { label: "التحليلات", href: "/admin/analytics", icon: BarChart3 },
   { label: "التقارير", href: "/admin/reports", icon: FileText },
   { label: "المتاجر", href: "/admin/stores", icon: Store },
