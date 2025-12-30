@@ -12,6 +12,7 @@ import {
   Store,
   LogOut,
   Shield,
+  Globe,
 } from "lucide-react";
 import { useAuth } from "@/lib/auth";
 
@@ -23,6 +24,7 @@ const menuItems = [
   { label: "الاشتراكات", href: "/admin/subscriptions", icon: CreditCard },
   { label: "الأداء", href: "/admin/performance", icon: BarChart3 },
   { label: "الأمان", href: "/admin/security", icon: Shield },
+  { label: "اللغات والنطاقات", href: "/admin/localization", icon: Globe },
   { label: "التحليلات", href: "/admin/analytics", icon: BarChart3 },
   { label: "التقارير", href: "/admin/reports", icon: FileText },
   { label: "المتاجر", href: "/admin/stores", icon: Store },

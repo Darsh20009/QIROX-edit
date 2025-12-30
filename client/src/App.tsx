@@ -36,6 +36,7 @@ import AdminStoresPage from "@/pages/admin/stores";
 import AdminSettingsPage from "@/pages/admin/settings";
 import AdminPerformancePage from "@/pages/admin/performance";
 import AdminSecurityPage from "@/pages/admin/security";
+import AdminLocalizationPage from "@/pages/admin/localization";
 import NotFound from "@/pages/not-found";
 
 function Router() {
@@ -69,6 +70,7 @@ function Router() {
       <Route path="/admin/settings" component={AdminSettingsPage} />
       <Route path="/admin/performance" component={AdminPerformancePage} />
       <Route path="/admin/security" component={AdminSecurityPage} />
+      <Route path="/admin/localization" component={AdminLocalizationPage} />
       <Route path="/employee" component={EmployeeDashboard} />
       <Route path="/admin" component={AdminDashboard} />
       <Route path="/admin-full" component={AdminDashboardFull} />
