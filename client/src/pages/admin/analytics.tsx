@@ -1,6 +1,7 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { AdminSidebar } from "@/components/admin-sidebar";
 import { BarChart, Bar, LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend } from "recharts";
+import { useQuery } from "@tanstack/react-query";
 
 const chartData = [
   { month: "يناير", users: 120, revenue: 24000, orders: 45 },
@@ -12,6 +13,17 @@ const chartData = [
 ];
 
 export default function AdminAnalytics() {
+  const { data: users = [] } = useQuery<any[]>({
+    queryKey: ["/api/admin/users"],
+  });
+
+  const { data: orders = [] } = useQuery<any[]>({
+    queryKey: ["/api/admin/orders"],
+  });
+
+  const totalRevenue = orders.reduce((sum, o) => sum + (o.total || 0), 0);
+  const avgOrderValue = orders.length > 0 ? (totalRevenue / orders.length).toFixed(2) : 0;
+
   return (
     <div className="flex h-screen bg-background">
       <AdminSidebar />
@@ -28,8 +40,8 @@ export default function AdminAnalytics() {
                 <CardTitle className="text-sm">إجمالي المستخدمين</CardTitle>
               </CardHeader>
               <CardContent>
-                <div className="text-2xl font-bold">1,234</div>
-                <p className="text-xs text-green-600">+45% العام الماضي</p>
+                <div className="text-2xl font-bold" data-testid="stat-users-count">{users.length}</div>
+                <p className="text-xs text-green-600">من MongoDB</p>
               </CardContent>
             </Card>
             <Card>
@@ -37,8 +49,8 @@ export default function AdminAnalytics() {
                 <CardTitle className="text-sm">إجمالي الطلبات</CardTitle>
               </CardHeader>
               <CardContent>
-                <div className="text-2xl font-bold">5,678</div>
-                <p className="text-xs text-green-600">+32% العام الماضي</p>
+                <div className="text-2xl font-bold" data-testid="stat-orders-count">{orders.length}</div>
+                <p className="text-xs text-green-600">من MongoDB</p>
               </CardContent>
             </Card>
             <Card>
@@ -46,17 +58,17 @@ export default function AdminAnalytics() {
                 <CardTitle className="text-sm">متوسط القيمة</CardTitle>
               </CardHeader>
               <CardContent>
-                <div className="text-2xl font-bold">892 ر.س</div>
-                <p className="text-xs text-green-600">+12% العام الماضي</p>
+                <div className="text-2xl font-bold" data-testid="stat-avg-value">{avgOrderValue} ر.س</div>
+                <p className="text-xs text-green-600">من البيانات</p>
               </CardContent>
             </Card>
             <Card>
               <CardHeader className="pb-2">
-                <CardTitle className="text-sm">معدل الرضا</CardTitle>
+                <CardTitle className="text-sm">إجمالي الإيرادات</CardTitle>
               </CardHeader>
               <CardContent>
-                <div className="text-2xl font-bold">4.8/5</div>
-                <p className="text-xs">من 2,340 تقييم</p>
+                <div className="text-2xl font-bold" data-testid="stat-total-revenue">{totalRevenue.toLocaleString()} ر.س</div>
+                <p className="text-xs">من البيانات المباشرة</p>
               </CardContent>
             </Card>
           </div>
