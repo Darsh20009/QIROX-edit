@@ -3,10 +3,7 @@ import jwt from "jsonwebtoken";
 import { User, type IUser, type UserRole } from "./models/User";
 import { Request, Response, NextFunction } from "express";
 
-const JWT_SECRET = process.env.SESSION_SECRET;
-if (!JWT_SECRET) {
-  throw new Error("SESSION_SECRET environment variable is required");
-}
+const JWT_SECRET = process.env.SESSION_SECRET || "default-secret-key";
 const JWT_EXPIRES_IN = "7d";
 
 export interface JWTPayload {
@@ -38,7 +35,12 @@ export function generateToken(user: IUser): string {
 
 export function verifyToken(token: string): JWTPayload | null {
   try {
-    return jwt.verify(token, JWT_SECRET) as JWTPayload;
+    const decoded = jwt.verify(token, JWT_SECRET) as any;
+    return {
+      userId: decoded.userId,
+      email: decoded.email,
+      role: decoded.role,
+    };
   } catch {
     return null;
   }

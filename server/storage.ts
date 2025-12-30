@@ -78,8 +78,9 @@ export class MongoStorage implements IStorage {
     const doc = await ContactMessageModel.create({
       name: insertMessage.name,
       email: insertMessage.email,
-      company: insertMessage.company,
+      company: insertMessage.company ?? null,
       projectType: insertMessage.projectType,
+      budget: insertMessage.budget ?? null,
       message: insertMessage.message,
     });
 
@@ -87,8 +88,9 @@ export class MongoStorage implements IStorage {
       id: doc._id.toString(),
       name: doc.name,
       email: doc.email,
-      company: doc.company || null,
+      company: (doc.company as string | null) ?? null,
       projectType: doc.projectType,
+      budget: (doc.budget as string | null) ?? null,
       message: doc.message,
       createdAt: doc.createdAt,
     };
@@ -96,12 +98,13 @@ export class MongoStorage implements IStorage {
 
   async getContactMessages(): Promise<ContactMessageType[]> {
     const docs = await ContactMessageModel.find().sort({ createdAt: -1 });
-    return docs.map((doc) => ({
+    return docs.map((doc: any) => ({
       id: doc._id.toString(),
       name: doc.name,
       email: doc.email,
       company: doc.company || null,
       projectType: doc.projectType,
+      budget: doc.budget || null,
       message: doc.message,
       createdAt: doc.createdAt,
     }));
