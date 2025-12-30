@@ -14,47 +14,28 @@ export interface TenantRequest extends AuthRequest {
  */
 export async function extractTenant(req: TenantRequest, res: Response, next: NextFunction) {
   try {
-    // Try from subdomain first (e.g., acme.qirox.com)
     const host = req.hostname;
     let tenantSlug = null;
 
-    if (host.includes("qirox.com")) {
-      const parts = host.split(".");
-      if (parts.length > 2) {
-        tenantSlug = parts[0]; // e.g., "acme" from "acme.qirox.com"
-      }
+    // 1. Subdomain logic (e.g. acme.qirox.online or acme.qirox.com)
+    const parts = host.split(".");
+    if (parts.length >= 3 && parts[0] !== "www") {
+      tenantSlug = parts[0];
+    } else if (parts.length === 2 && !["qirox", "localhost", "replit", "www"].includes(parts[0])) {
+      tenantSlug = parts[0];
     }
 
-    // Try from path param (e.g., /api/tenant/:slug)
     const pathSlug = (req as any).params?.slug;
-    if (pathSlug) {
-      tenantSlug = pathSlug;
-    }
+    if (pathSlug) tenantSlug = pathSlug;
 
-    // Try from query (e.g., ?tenant=acme)
     const querySlug = req.query.tenant as string;
-    if (querySlug) {
-      tenantSlug = querySlug;
-    }
+    if (querySlug) tenantSlug = querySlug;
 
-    if (tenantSlug) {
-      // In production, fetch from DB. For now, use slug as ID
+    if (tenantSlug && !["www", "api", "admin", "dashboard", "api-dev"].includes(tenantSlug)) {
       (req as TenantRequest).tenant = {
         id: tenantSlug,
         slug: tenantSlug,
       };
-    } else {
-      // Handle custom subdomain logic if host is not qirox.com
-      const host = req.hostname;
-      const parts = host.split(".");
-      if (parts.length > 1 && parts[parts.length - 1] !== "localhost" && parts[parts.length - 2] !== "replit") {
-        // This is a custom domain, parts[0] is the potential store slug
-        const possibleSlug = parts[0];
-        (req as TenantRequest).tenant = {
-          id: possibleSlug,
-          slug: possibleSlug,
-        };
-      }
     }
 
     next();

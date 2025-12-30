@@ -104,34 +104,73 @@ export default function Home() {
 
   return (
     <Layout>
-      <section className="relative py-24 md:py-32 overflow-hidden">
-        <div className="absolute inset-0 bg-gradient-to-b from-primary/5 via-transparent to-transparent" />
+      <section className="relative py-24 md:py-32 overflow-hidden premium-gradient">
+        <div className="hero-glow" />
         <div className="relative mx-auto max-w-7xl px-6">
           <div className="max-w-4xl mx-auto text-center">
-            <Badge variant="secondary" className="mb-8 px-4 py-2 text-sm" data-testid="badge-tagline">
-              أقل الأسعار في السوق
-            </Badge>
-            <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold tracking-tight text-foreground leading-tight" data-testid="text-hero-title">
-              أنشئ نظامك الرقمي
-              <span className="block mt-2 bg-gradient-to-l from-primary to-primary/70 bg-clip-text text-transparent">
-                بكل سهولة واحترافية
+            <div className="inline-flex items-center gap-2 mb-8 px-4 py-2 rounded-full bg-primary/10 border border-primary/20 backdrop-blur-sm animate-in fade-in slide-in-from-top-4 duration-500">
+              <Badge variant="secondary" className="px-2 py-0.5 text-[10px] font-bold tracking-wider uppercase bg-primary text-primary-foreground">NEW</Badge>
+              <span className="text-sm font-medium text-primary">أقل الأسعار في السوق العربي</span>
+            </div>
+            <h1 className="text-5xl md:text-6xl lg:text-7xl font-bold tracking-tight text-foreground leading-[1.1] animate-in fade-in slide-in-from-bottom-4 duration-700" data-testid="text-hero-title">
+              أنشئ إمبراطوريتك
+              <span className="block mt-2 bg-gradient-to-l from-primary via-emerald-500 to-primary/70 bg-clip-text text-transparent">
+                الرقمية اليوم
               </span>
             </h1>
-            <p className="mt-8 text-lg md:text-xl text-muted-foreground max-w-2xl mx-auto leading-relaxed" data-testid="text-hero-subtitle">
-              منصة QIROX تمكّنك من إنشاء وإدارة متجرك الإلكتروني أو مطعمك أو منصتك التعليمية بأسعار تنافسية وميزات احترافية.
+            <p className="mt-8 text-lg md:text-xl text-muted-foreground max-w-2xl mx-auto leading-relaxed animate-in fade-in slide-in-from-bottom-6 duration-1000" data-testid="text-hero-subtitle">
+              منصة QIROX تمنحك القوة لبناء متجر إلكتروني احترافي أو مطعم ذكي أو منصة تعليمية متكاملة بلمسات إبداعية وتكاليف مدروسة.
             </p>
-            <div className="mt-10 flex flex-col sm:flex-row gap-4 justify-center">
+            <div className="mt-12 flex flex-col sm:flex-row gap-4 justify-center items-center animate-in fade-in slide-in-from-bottom-8 duration-1000">
               <Link href="/register">
-                <Button size="lg" className="w-full sm:w-auto px-8 py-6 text-lg" data-testid="button-start-free">
-                  ابدأ تجربتك المجانية
-                  <ArrowLeft className="w-5 h-5" />
+                <Button size="lg" className="w-full sm:w-auto h-14 px-10 text-lg shadow-xl shadow-primary/20 hover-elevate transition-all duration-300" data-testid="button-start-free">
+                  ابدأ مجاناً الآن
+                  <ArrowLeft className="w-5 h-5 mr-2" />
                 </Button>
               </Link>
               <Link href="/pricing">
-                <Button variant="outline" size="lg" className="w-full sm:w-auto px-8 py-6 text-lg" data-testid="button-view-pricing">
-                  عرض الأسعار
+                <Button variant="outline" size="lg" className="w-full sm:w-auto h-14 px-10 text-lg glass-card hover-elevate transition-all duration-300" data-testid="button-view-pricing">
+                  اكتشف الباقات
                 </Button>
               </Link>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section className="py-20 md:py-28 overflow-hidden">
+        <div className="mx-auto max-w-7xl px-6">
+          <div className="flex flex-col md:flex-row items-center gap-12">
+            <div className="flex-1 text-right animate-in fade-in slide-in-from-right-4 duration-1000">
+              <Badge className="mb-4 bg-primary/20 text-primary border-primary/30">إبداع بلا حدود</Badge>
+              <h2 className="text-4xl md:text-5xl font-bold mb-6 leading-tight">واجهات متطورة تليق بعلامتك التجارية</h2>
+              <p className="text-lg text-muted-foreground mb-8 leading-relaxed">
+                نحن لا نصمم مجرد مواقع، نحن نبني تجارب مستخدم إبداعية تزيد من ولاء عملائك وتضاعف مبيعاتك من خلال تصاميم عصرية ومدروسة.
+              </p>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                <div className="p-4 rounded-2xl bg-muted/50 border border-border/50 hover-elevate">
+                  <div className="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center text-primary font-bold mb-3">1</div>
+                  <p className="font-semibold">هوية عربية مودرن</p>
+                </div>
+                <div className="p-4 rounded-2xl bg-muted/50 border border-border/50 hover-elevate">
+                  <div className="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center text-primary font-bold mb-3">2</div>
+                  <p className="font-semibold">أداء فائق السرعة</p>
+                </div>
+              </div>
+            </div>
+            <div className="flex-1 relative animate-in fade-in slide-in-from-left-4 duration-1000">
+              <div className="absolute -inset-4 bg-primary/20 blur-3xl rounded-full opacity-50 hero-glow" />
+              <Card className="relative glass-card animate-float overflow-hidden border-white/20 shadow-2xl">
+                <CardContent className="p-0">
+                  <div className="bg-gradient-to-br from-muted to-background aspect-video flex items-center justify-center text-muted-foreground p-8">
+                    <div className="grid grid-cols-3 gap-4 w-full">
+                      {[1,2,3,4,5,6].map(i => (
+                        <div key={i} className="h-12 rounded-lg bg-primary/5 border border-primary/10" />
+                      ))}
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
             </div>
           </div>
         </div>

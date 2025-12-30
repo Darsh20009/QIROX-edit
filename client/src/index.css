@@ -85,6 +85,32 @@
   /* Fallback for older browsers */
   --destructive-border: hsl(var(--destructive));
   --destructive-border: hsl(from hsl(var(--destructive)) h s calc(l + var(--opaque-button-border-intensity)) / alpha);
+
+  --primary: 160 84% 39%;
+  --primary-foreground: 0 0% 100%;
+  --radius: 0.75rem;
+}
+
+.premium-gradient {
+  background: radial-gradient(circle at top left, hsl(var(--primary) / 0.15), transparent 40%),
+              radial-gradient(circle at bottom right, hsl(var(--primary) / 0.1), transparent 40%);
+}
+
+.glass-card {
+  @apply bg-background/60 backdrop-blur-md border border-white/10 shadow-2xl;
+}
+
+.hero-glow {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 600px;
+  height: 600px;
+  background: radial-gradient(circle, hsl(var(--primary) / 0.2) 0%, transparent 70%);
+  filter: blur(80px);
+  z-index: -1;
+  pointer-events: none;
 }
 
 /* DARK MODE - QIROX Premium Design */
@@ -164,6 +190,39 @@
   /* Fallback for older browsers */
   --destructive-border: hsl(var(--destructive));
   --destructive-border: hsl(from hsl(var(--destructive)) h s calc(l + var(--opaque-button-border-intensity)) / alpha);
+  --radius: 0.75rem;
+}
+
+.premium-gradient {
+  background: radial-gradient(circle at top left, hsl(var(--primary) / 0.15), transparent 40%),
+              radial-gradient(circle at bottom right, hsl(var(--primary) / 0.1), transparent 40%);
+}
+
+.glass-card {
+  @apply bg-background/60 backdrop-blur-md border border-white/10 shadow-2xl;
+}
+
+.hero-glow {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 600px;
+  height: 600px;
+  background: radial-gradient(circle, hsl(var(--primary) / 0.2) 0%, transparent 70%);
+  filter: blur(80px);
+  z-index: -1;
+  pointer-events: none;
+}
+
+@keyframes float {
+  0% { transform: translateY(0px) rotate(0deg); }
+  50% { transform: translateY(-10px) rotate(1deg); }
+  100% { transform: translateY(0px) rotate(0deg); }
+}
+
+.animate-float {
+  animation: float 6s ease-in-out infinite;
 }
 
 @layer base {
