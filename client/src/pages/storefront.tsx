@@ -32,7 +32,7 @@ export default function Storefront() {
     );
   }
 
-  const { store, products, categories } = data;
+  const { store, products, categories } = data as any;
 
   return (
     <div className="min-h-screen flex flex-col">

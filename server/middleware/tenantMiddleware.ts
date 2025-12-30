@@ -43,6 +43,18 @@ export async function extractTenant(req: TenantRequest, res: Response, next: Nex
         id: tenantSlug,
         slug: tenantSlug,
       };
+    } else {
+      // Handle custom subdomain logic if host is not qirox.com
+      const host = req.hostname;
+      const parts = host.split(".");
+      if (parts.length > 1 && parts[parts.length - 1] !== "localhost" && parts[parts.length - 2] !== "replit") {
+        // This is a custom domain, parts[0] is the potential store slug
+        const possibleSlug = parts[0];
+        (req as TenantRequest).tenant = {
+          id: possibleSlug,
+          slug: possibleSlug,
+        };
+      }
     }
 
     next();

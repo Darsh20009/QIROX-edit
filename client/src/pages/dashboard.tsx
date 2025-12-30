@@ -335,6 +335,9 @@ export default function Dashboard() {
                           <Badge className={statusColors[store.status] || ""}>
                             {statusNames[store.status]}
                           </Badge>
+                          <Link href={`/store/${store.slug}`}>
+                            <Button variant="ghost" size="sm" className="hover-elevate" onClick={(e) => e.stopPropagation()}>زيارة</Button>
+                          </Link>
                           <ArrowRight className="h-4 w-4 text-muted-foreground" />
                         </div>
                       </div>
