@@ -86,9 +86,7 @@ export function Footer() {
           <p className="text-sm text-muted-foreground" data-testid="text-footer-copyright">
             جميع الحقوق محفوظة QIROX {new Date().getFullYear()}
           </p>
-          <p className="text-sm text-muted-foreground">
-            صُنع بالمملكة العربية السعودية
-          </p>
+          <p className="text-sm text-muted-foreground">صُنع بحب في المملكة العربية السعودية</p>
         </div>
       </div>
     </footer>
