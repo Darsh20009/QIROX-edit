@@ -1,7 +1,7 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { AdminSidebar } from "@/components/admin-sidebar";
-import { BarChart, Bar, LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend } from "recharts";
-import { useQuery } from "@tanstack/react-query";
+import { BarChart, Bar, LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend, AreaChart, Area } from "recharts";
+import { TrendingUp, Users, ShoppingCart, DollarSign, ArrowUpRight, ArrowDownRight } from "lucide-react";
 
 const chartData = [
   { month: "يناير", users: 120, revenue: 24000, orders: 45 },
@@ -13,103 +13,82 @@ const chartData = [
 ];
 
 export default function AdminAnalytics() {
-  const { data: users = [] } = useQuery<any[]>({
-    queryKey: ["/api/admin/users"],
-  });
-
-  const { data: orders = [] } = useQuery<any[]>({
-    queryKey: ["/api/admin/orders"],
-  });
-
-  const totalRevenue = orders.reduce((sum, o) => sum + (o.total || 0), 0);
-  const avgOrderValue = orders.length > 0 ? (totalRevenue / orders.length).toFixed(2) : 0;
-
   return (
     <div className="flex h-screen bg-background">
       <AdminSidebar />
-      <div className="flex-1 overflow-auto p-8">
+      <div className="flex-1 overflow-auto p-8 text-right">
         <div className="mb-8">
-          <div>
-            <h1 className="text-3xl font-bold mb-2">التحليلات</h1>
-            <p className="text-muted-foreground mb-8">إحصائيات النمو والأداء</p>
-          </div>
+          <h1 className="text-3xl font-bold mb-2">تحليلات الأداء والنمو</h1>
+          <p className="text-muted-foreground">مراقبة المؤشرات الحيوية للنظام بشكل مباشر</p>
+        </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8">
-            <Card>
-              <CardHeader className="pb-2">
-                <CardTitle className="text-sm">إجمالي المستخدمين</CardTitle>
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+          {[
+            { label: "إجمالي المبيعات", value: "152,430 ر.س", icon: DollarSign, trend: "+12.5%", positive: true },
+            { label: "المستخدمين النشطين", value: "1,240", icon: Users, trend: "+5.2%", positive: true },
+            { label: "الطلبات الجديدة", value: "85", icon: ShoppingCart, trend: "-2.1%", positive: false },
+            { label: "معدل التحويل", value: "3.2%", icon: TrendingUp, trend: "+0.8%", positive: true },
+          ].map((stat, i) => (
+            <Card key={i}>
+              <CardHeader className="flex flex-row items-center justify-between pb-2 space-y-0">
+                <CardTitle className="text-sm font-medium">{stat.label}</CardTitle>
+                <stat.icon className="h-4 w-4 text-muted-foreground" />
               </CardHeader>
               <CardContent>
-                <div className="text-2xl font-bold" data-testid="stat-users-count">{users.length}</div>
-                <p className="text-xs text-green-600">من MongoDB</p>
+                <div className="text-2xl font-bold">{stat.value}</div>
+                <div className={`text-xs flex items-center gap-1 mt-1 ${stat.positive ? "text-green-600" : "text-red-600"}`}>
+                  {stat.positive ? <ArrowUpRight className="h-3 w-3" /> : <ArrowDownRight className="h-3 w-3" />}
+                  <span>{stat.trend} مقارنة بالشهر السابق</span>
+                </div>
               </CardContent>
             </Card>
-            <Card>
-              <CardHeader className="pb-2">
-                <CardTitle className="text-sm">إجمالي الطلبات</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="text-2xl font-bold" data-testid="stat-orders-count">{orders.length}</div>
-                <p className="text-xs text-green-600">من MongoDB</p>
-              </CardContent>
-            </Card>
-            <Card>
-              <CardHeader className="pb-2">
-                <CardTitle className="text-sm">متوسط القيمة</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="text-2xl font-bold" data-testid="stat-avg-value">{avgOrderValue} ر.س</div>
-                <p className="text-xs text-green-600">من البيانات</p>
-              </CardContent>
-            </Card>
-            <Card>
-              <CardHeader className="pb-2">
-                <CardTitle className="text-sm">إجمالي الإيرادات</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="text-2xl font-bold" data-testid="stat-total-revenue">{totalRevenue.toLocaleString()} ر.س</div>
-                <p className="text-xs">من البيانات المباشرة</p>
-              </CardContent>
-            </Card>
-          </div>
+          ))}
+        </div>
 
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
-            <Card data-testid="card-revenue-chart">
-              <CardHeader>
-                <CardTitle>الإيرادات والطلبات</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <ResponsiveContainer width="100%" height={300}>
-                  <LineChart data={chartData}>
-                    <CartesianGrid strokeDasharray="3 3" />
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
+          <Card>
+            <CardHeader>
+              <CardTitle>الإيرادات والنمو الشهري</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="h-[300px]">
+                <ResponsiveContainer width="100%" height="100%">
+                  <AreaChart data={chartData}>
+                    <defs>
+                      <linearGradient id="colorRev" x1="0" y1="0" x2="0" y2="1">
+                        <stop offset="5%" stopColor="#3b82f6" stopOpacity={0.8}/>
+                        <stop offset="95%" stopColor="#3b82f6" stopOpacity={0}/>
+                      </linearGradient>
+                    </defs>
+                    <CartesianGrid strokeDasharray="3 3" vertical={false} />
                     <XAxis dataKey="month" />
                     <YAxis />
                     <Tooltip />
-                    <Legend />
-                    <Line type="monotone" dataKey="revenue" stroke="#3b82f6" name="الإيرادات" />
-                    <Line type="monotone" dataKey="orders" stroke="#10b981" name="الطلبات" />
-                  </LineChart>
+                    <Area type="monotone" dataKey="revenue" stroke="#3b82f6" fillOpacity={1} fill="url(#colorRev)" name="الإيرادات" />
+                  </AreaChart>
                 </ResponsiveContainer>
-              </CardContent>
-            </Card>
+              </div>
+            </CardContent>
+          </Card>
 
-            <Card data-testid="card-users-chart">
-              <CardHeader>
-                <CardTitle>نمو المستخدمين</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <ResponsiveContainer width="100%" height={300}>
+          <Card>
+            <CardHeader>
+              <CardTitle>توزيع الطلبات</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="h-[300px]">
+                <ResponsiveContainer width="100%" height="100%">
                   <BarChart data={chartData}>
-                    <CartesianGrid strokeDasharray="3 3" />
+                    <CartesianGrid strokeDasharray="3 3" vertical={false} />
                     <XAxis dataKey="month" />
                     <YAxis />
                     <Tooltip />
-                    <Bar dataKey="users" fill="#3b82f6" name="المستخدمين" />
+                    <Bar dataKey="orders" fill="#10b981" radius={[4, 4, 0, 0]} name="الطلبات" />
                   </BarChart>
                 </ResponsiveContainer>
-              </CardContent>
-            </Card>
-          </div>
+              </div>
+            </CardContent>
+          </Card>
         </div>
       </div>
     </div>

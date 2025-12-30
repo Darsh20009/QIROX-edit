@@ -3,143 +3,99 @@ import { Button } from "@/components/ui/button";
 import { AdminSidebar } from "@/components/admin-sidebar";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Toggle } from "@/components/ui/toggle";
-import { Save } from "lucide-react";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Save, User, Settings2, Bell, ShieldCheck } from "lucide-react";
+import { Switch } from "@/components/ui/switch";
 
 export default function AdminSettings() {
   return (
     <div className="flex h-screen bg-background">
       <AdminSidebar />
-      <div className="flex-1 overflow-auto p-8">
-        <div className="mb-8">
-          <div>
-            <h1 className="text-3xl font-bold mb-2">الإعدادات</h1>
-            <p className="text-muted-foreground mb-8">إدارة إعدادات النظام العامة</p>
-          </div>
+      <div className="flex-1 overflow-auto p-8 text-right">
+        <h1 className="text-3xl font-bold mb-8">إعدادات النظام</h1>
 
-          <div className="space-y-8 max-w-2xl">
-            {/* Site Settings */}
-            <Card data-testid="card-site-settings">
+        <Tabs defaultValue="general" dir="rtl" className="w-full">
+          <TabsList className="mb-8">
+            <TabsTrigger value="general" className="gap-2">
+              <Settings2 className="h-4 w-4" />
+              الإعدادات العامة
+            </TabsTrigger>
+            <TabsTrigger value="profile" className="gap-2">
+              <User className="h-4 w-4" />
+              الملف الشخصي
+            </TabsTrigger>
+            <TabsTrigger value="notifications" className="gap-2">
+              <Bell className="h-4 w-4" />
+              التنبيهات
+            </TabsTrigger>
+            <TabsTrigger value="security" className="gap-2">
+              <ShieldCheck className="h-4 w-4" />
+              الأمان
+            </TabsTrigger>
+          </TabsList>
+
+          <TabsContent value="general" className="space-y-6">
+            <Card>
               <CardHeader>
-                <CardTitle>إعدادات الموقع</CardTitle>
+                <CardTitle>معلومات المنصة</CardTitle>
               </CardHeader>
               <CardContent className="space-y-4">
-                <div>
-                  <Label htmlFor="site-name">اسم الموقع</Label>
-                  <Input 
-                    id="site-name" 
-                    defaultValue="منصة قيروكس" 
-                    data-testid="input-site-name"
-                  />
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="space-y-2">
+                    <Label>اسم الموقع</Label>
+                    <Input defaultValue="منصة قيروكس" />
+                  </div>
+                  <div className="space-y-2">
+                    <Label>رابط الموقع</Label>
+                    <Input defaultValue="https://qirox.com" />
+                  </div>
                 </div>
-                <div>
-                  <Label htmlFor="site-url">رابط الموقع</Label>
-                  <Input 
-                    id="site-url" 
-                    defaultValue="https://qirox.com" 
-                    data-testid="input-site-url"
-                  />
-                </div>
-                <div>
-                  <Label htmlFor="support-email">بريد الدعم</Label>
-                  <Input 
-                    id="support-email" 
-                    defaultValue="support@qirox.com" 
-                    data-testid="input-support-email"
-                  />
+                <div className="space-y-2">
+                  <Label>الوصف التعريفي (SEO)</Label>
+                  <Input defaultValue="أفضل منصة لإدارة المتاجر الإلكترونية في الوطن العربي" />
                 </div>
               </CardContent>
             </Card>
 
-            {/* Email Settings */}
-            <Card data-testid="card-email-settings">
+            <Card>
               <CardHeader>
-                <CardTitle>إعدادات البريد الإلكتروني</CardTitle>
+                <CardTitle>خيارات التشغيل</CardTitle>
               </CardHeader>
               <CardContent className="space-y-4">
-                <div>
-                  <Label htmlFor="smtp-host">SMTP Host</Label>
-                  <Input 
-                    id="smtp-host" 
-                    defaultValue="smtp.gmail.com" 
-                    data-testid="input-smtp-host"
-                  />
+                <div className="flex items-center justify-between p-2 border rounded-lg">
+                  <Switch defaultChecked />
+                  <Label>تفعيل التسجيل الجديد للعملاء</Label>
                 </div>
-                <div>
-                  <Label htmlFor="smtp-port">SMTP Port</Label>
-                  <Input 
-                    id="smtp-port" 
-                    defaultValue="587" 
-                    data-testid="input-smtp-port"
-                  />
-                </div>
-                <div>
-                  <Label htmlFor="smtp-email">بريد SMTP</Label>
-                  <Input 
-                    id="smtp-email" 
-                    defaultValue="noreply@qirox.com" 
-                    data-testid="input-smtp-email"
-                  />
+                <div className="flex items-center justify-between p-2 border rounded-lg">
+                  <Switch defaultChecked />
+                  <Label>وضع الصيانة النشط</Label>
                 </div>
               </CardContent>
             </Card>
+          </TabsContent>
 
-            {/* Features */}
-            <Card data-testid="card-features">
+          <TabsContent value="profile" className="space-y-6">
+            <Card>
               <CardHeader>
-                <CardTitle>الميزات</CardTitle>
+                <CardTitle>تعديل بياناتي</CardTitle>
               </CardHeader>
-              <CardContent className="space-y-4">
-                <div className="flex items-center justify-between">
-                  <Label>تفعيل التسجيل الجديد</Label>
-                  <Toggle defaultPressed data-testid="toggle-registration" />
+              <CardContent className="space-y-4 max-w-xl">
+                <div className="space-y-2">
+                  <Label>الاسم الكامل</Label>
+                  <Input defaultValue="مدير النظام" />
                 </div>
-                <div className="flex items-center justify-between">
-                  <Label>تفعيل الاشتراكات</Label>
-                  <Toggle defaultPressed data-testid="toggle-subscriptions" />
+                <div className="space-y-2">
+                  <Label>البريد الإلكتروني</Label>
+                  <Input defaultValue="admin@qirox.com" />
                 </div>
-                <div className="flex items-center justify-between">
-                  <Label>تفعيل المتاجر</Label>
-                  <Toggle defaultPressed data-testid="toggle-stores" />
-                </div>
-                <div className="flex items-center justify-between">
-                  <Label>وضع الصيانة</Label>
-                  <Toggle data-testid="toggle-maintenance" />
-                </div>
+                <Button className="w-full gap-2">
+                  <Save className="h-4 w-4" />
+                  حفظ البيانات
+                </Button>
               </CardContent>
             </Card>
-
-            {/* System */}
-            <Card data-testid="card-system">
-              <CardHeader>
-                <CardTitle>النظام</CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <div>
-                  <p className="text-sm text-muted-foreground mb-2">إصدار النظام</p>
-                  <p className="font-medium">v2.1.0</p>
-                </div>
-                <div>
-                  <p className="text-sm text-muted-foreground mb-2">آخر تحديث</p>
-                  <p className="font-medium">2024-12-25</p>
-                </div>
-                <div className="space-y-2 pt-4 border-t">
-                  <Button className="w-full" variant="outline" data-testid="button-backup">
-                    النسخ الاحتياطي
-                  </Button>
-                  <Button className="w-full" variant="destructive" data-testid="button-clear-cache">
-                    مسح الذاكرة المؤقتة
-                  </Button>
-                </div>
-              </CardContent>
-            </Card>
-
-            <Button className="w-full" data-testid="button-save-settings">
-              <Save className="w-4 h-4 mr-2" />
-              حفظ التغييرات
-            </Button>
-          </div>
-        </div>
+          </TabsContent>
+        </Tabs>
       </div>
     </div>
   );
