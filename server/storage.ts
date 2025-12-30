@@ -1,4 +1,4 @@
-import { type User, type InsertUser, contactMessages, insertContactMessageSchema, type Invoice, type InsertInvoice, type Quote, type InsertQuote } from "@shared/schema";
+import { type User, type InsertUser, type ContactMessage, type InsertContactMessage, type Invoice, type InsertInvoice, type Quote, type InsertQuote } from "@shared/schema";
 import { randomUUID } from "crypto";
 import { ContactMessage as ContactMessageModel } from "./models/ContactMessage";
 import { isConnected } from "./db";
@@ -7,8 +7,8 @@ export interface IStorage {
   getUser(id: string): Promise<User | undefined>;
   getUserByUsername(username: string): Promise<User | undefined>;
   createUser(user: InsertUser): Promise<User>;
-  createContactMessage(message: InsertContactMessage): Promise<ContactMessageType>;
-  getContactMessages(): Promise<ContactMessageType[]>;
+  createContactMessage(message: InsertContactMessage): Promise<ContactMessage>;
+  getContactMessages(): Promise<ContactMessage[]>;
   // Finance
   getInvoices(): Promise<Invoice[]>;
   createInvoice(invoice: InsertInvoice): Promise<Invoice>;
@@ -18,7 +18,7 @@ export interface IStorage {
 
 export class MemStorage implements IStorage {
   private users: Map<string, User>;
-  private contactMessages: Map<string, ContactMessageType>;
+  private contactMessages: Map<string, ContactMessage>;
   private invoices: Map<string, Invoice>;
   private quotes: Map<string, Quote>;
 
@@ -46,9 +46,9 @@ export class MemStorage implements IStorage {
     return user;
   }
 
-  async createContactMessage(insertMessage: InsertContactMessage): Promise<ContactMessageType> {
+  async createContactMessage(insertMessage: InsertContactMessage): Promise<ContactMessage> {
     const id = randomUUID();
-    const message: ContactMessageType = {
+    const message: ContactMessage = {
       ...insertMessage,
       id,
       createdAt: new Date(),
@@ -57,7 +57,7 @@ export class MemStorage implements IStorage {
     return message;
   }
 
-  async getContactMessages(): Promise<ContactMessageType[]> {
+  async getContactMessages(): Promise<ContactMessage[]> {
     return Array.from(this.contactMessages.values()).sort(
       (a, b) => b.createdAt.getTime() - a.createdAt.getTime()
     );
@@ -116,7 +116,7 @@ export class MongoStorage implements IStorage {
     return this.memStorage.createUser(insertUser);
   }
 
-  async createContactMessage(insertMessage: InsertContactMessage): Promise<ContactMessageType> {
+  async createContactMessage(insertMessage: InsertContactMessage): Promise<ContactMessage> {
     const company = insertMessage.company ? String(insertMessage.company) : null;
     const budget = insertMessage.budget ? String(insertMessage.budget) : null;
     
@@ -141,7 +141,7 @@ export class MongoStorage implements IStorage {
     };
   }
 
-  async getContactMessages(): Promise<ContactMessageType[]> {
+  async getContactMessages(): Promise<ContactMessage[]> {
     const docs = await ContactMessageModel.find().sort({ createdAt: -1 });
     return docs.map((doc: any) => {
       const company = doc.company ?? null;
