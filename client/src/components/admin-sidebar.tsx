@@ -25,6 +25,10 @@ import {
   Truck,
   Tags,
   Users2,
+  Boxes,
+  FileSpreadsheet,
+  Wrench,
+  ShieldAlert,
 } from "lucide-react";
 import { useAuth } from "@/lib/auth";
 
@@ -50,6 +54,10 @@ const menuItems = [
   { label: "الشحن والتوصيل", href: "/admin/shipping", icon: Truck },
   { label: "الكوبونات والخصومات", href: "/admin/coupons", icon: Tags },
   { label: "الشركاء والمسوقين", href: "/admin/partners", icon: Users2 },
+  { label: "المخزون", href: "/admin/inventory", icon: Boxes },
+  { label: "الفواتير", href: "/admin/invoices", icon: FileSpreadsheet },
+  { label: "الصيانة والتشغيل", href: "/admin/maintenance", icon: Wrench },
+  { label: "الأدوار والصلاحيات", href: "/admin/roles", icon: ShieldAlert },
   { label: "التحليلات", href: "/admin/analytics", icon: BarChart3 },
   { label: "التقارير", href: "/admin/reports", icon: FileText },
   { label: "المتاجر", href: "/admin/stores", icon: Store },
@@ -67,7 +75,7 @@ export function AdminSidebar() {
         <p className="text-sm text-muted-foreground">{user?.name}</p>
       </div>
 
-      <nav className="flex-1 space-y-2">
+      <nav className="flex-1 space-y-1 overflow-y-auto pr-2">
         {menuItems.map((item) => {
           const Icon = item.icon;
           const isActive = location === item.href;
@@ -75,11 +83,11 @@ export function AdminSidebar() {
             <a href={item.href} key={item.href}>
               <Button
                 variant={isActive ? "default" : "ghost"}
-                className="w-full justify-start gap-2"
+                className="w-full justify-start gap-2 h-9"
                 data-testid={`button-admin-${item.label.toLowerCase()}`}
               >
                 <Icon className="w-4 h-4" />
-                {item.label}
+                <span className="text-xs">{item.label}</span>
               </Button>
             </a>
           );

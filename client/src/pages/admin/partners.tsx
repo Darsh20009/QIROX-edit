@@ -3,6 +3,7 @@ import { useLocation } from "wouter";
 import { useEffect } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { AdminSidebar } from "@/components/admin-sidebar";
+import { Button } from "@/components/ui/button";
 import { Globe, Users, TrendingUp } from "lucide-react";
 
 export default function AdminPartnersPage() {

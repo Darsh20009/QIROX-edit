@@ -1,3 +1,5 @@
+import AdminMaintenancePage from "@/pages/admin/maintenance";
+import AdminRolesPage from "@/pages/admin/roles";
 import { Switch, Route } from "wouter";
 import { queryClient } from "./lib/queryClient";
 import { QueryClientProvider } from "@tanstack/react-query";
@@ -50,6 +52,8 @@ import AdminContentPage from "@/pages/admin/content";
 import AdminShippingPage from "@/pages/admin/shipping";
 import AdminCouponsPage from "@/pages/admin/coupons";
 import AdminPartnersPage from "@/pages/admin/partners";
+import AdminInventoryPage from "@/pages/admin/inventory";
+import AdminInvoicesPage from "@/pages/admin/invoices";
 import NotFound from "@/pages/not-found";
 
 function Router() {
@@ -97,6 +101,10 @@ function Router() {
       <Route path="/admin/shipping" component={AdminShippingPage} />
       <Route path="/admin/coupons" component={AdminCouponsPage} />
       <Route path="/admin/partners" component={AdminPartnersPage} />
+      <Route path="/admin/inventory" component={AdminInventoryPage} />
+      <Route path="/admin/invoices" component={AdminInvoicesPage} />
+      <Route path="/admin/maintenance" component={AdminMaintenancePage} />
+      <Route path="/admin/roles" component={AdminRolesPage} />
       <Route path="/employee" component={EmployeeDashboard} />
       <Route path="/admin" component={AdminDashboard} />
       <Route path="/admin-full" component={AdminDashboardFull} />
