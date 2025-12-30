@@ -13,6 +13,8 @@ import {
   LogOut,
   Shield,
   Globe,
+  Database,
+  HelpCircle,
 } from "lucide-react";
 import { useAuth } from "@/lib/auth";
 
@@ -25,6 +27,8 @@ const menuItems = [
   { label: "الأداء", href: "/admin/performance", icon: BarChart3 },
   { label: "الأمان", href: "/admin/security", icon: Shield },
   { label: "اللغات والنطاقات", href: "/admin/localization", icon: Globe },
+  { label: "قاعدة البيانات", href: "/admin/database", icon: Database },
+  { label: "الدعم والرسائل", href: "/admin/support", icon: HelpCircle },
   { label: "التحليلات", href: "/admin/analytics", icon: BarChart3 },
   { label: "التقارير", href: "/admin/reports", icon: FileText },
   { label: "المتاجر", href: "/admin/stores", icon: Store },
