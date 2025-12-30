@@ -34,6 +34,8 @@ import AdminAnalyticsPage from "@/pages/admin/analytics";
 import AdminReportsPage from "@/pages/admin/reports";
 import AdminStoresPage from "@/pages/admin/stores";
 import AdminSettingsPage from "@/pages/admin/settings";
+import AdminPerformancePage from "@/pages/admin/performance";
+import AdminSecurityPage from "@/pages/admin/security";
 import NotFound from "@/pages/not-found";
 
 function Router() {
@@ -65,6 +67,8 @@ function Router() {
       <Route path="/admin/reports" component={AdminReportsPage} />
       <Route path="/admin/stores" component={AdminStoresPage} />
       <Route path="/admin/settings" component={AdminSettingsPage} />
+      <Route path="/admin/performance" component={AdminPerformancePage} />
+      <Route path="/admin/security" component={AdminSecurityPage} />
       <Route path="/employee" component={EmployeeDashboard} />
       <Route path="/admin" component={AdminDashboard} />
       <Route path="/admin-full" component={AdminDashboardFull} />
