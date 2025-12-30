@@ -22,6 +22,7 @@ import { Membership } from "./models/Membership";
 import { extractTenant, verifyTenantAccess, requireTenantRole, type TenantRequest } from "./middleware/tenantMiddleware";
 import tenantsRouter from "./routes/tenants";
 import { Project, Task } from "./models/Project";
+import { getPool } from "./db-postgres";
 
 const rateLimitMap = new Map<string, { count: number; resetTime: number }>();
 const RATE_LIMIT_WINDOW = 60 * 1000;
@@ -953,6 +954,128 @@ export async function registerRoutes(
     const message = `طلب جديد: ${orderId}\nالمبلغ: ${amount} ريال\nيرجى إرسال صورة التحويل هنا.`;
     const whatsappLink = `https://wa.me/966532441566?text=${encodeURIComponent(message)}`;
     res.json({ whatsappLink });
+  });
+
+  // ==================== ADMIN API ROUTES ====================
+
+  app.get("/api/admin/users", authMiddleware, roleMiddleware("admin"), async (_req, res) => {
+    try {
+      const pool = getPool();
+      const result = await pool.query("SELECT * FROM admin_users ORDER BY created_at DESC LIMIT 50");
+      res.json(result.rows);
+    } catch (error) {
+      res.status(500).json({ error: "فشل في جلب المستخدمين" });
+    }
+  });
+
+  app.post("/api/admin/users", authMiddleware, roleMiddleware("admin"), async (req, res) => {
+    try {
+      const { name, email, role } = req.body;
+      const pool = getPool();
+      const result = await pool.query(
+        "INSERT INTO admin_users (name, email, role) VALUES ($1, $2, $3) RETURNING *",
+        [name, email, role]
+      );
+      res.status(201).json(result.rows[0]);
+    } catch (error) {
+      res.status(500).json({ error: "فشل في إنشاء مستخدم" });
+    }
+  });
+
+  app.get("/api/admin/products", authMiddleware, roleMiddleware("admin"), async (_req, res) => {
+    try {
+      const pool = getPool();
+      const result = await pool.query("SELECT * FROM admin_products ORDER BY created_at DESC LIMIT 50");
+      res.json(result.rows);
+    } catch (error) {
+      res.status(500).json({ error: "فشل في جلب المنتجات" });
+    }
+  });
+
+  app.post("/api/admin/products", authMiddleware, roleMiddleware("admin"), async (req, res) => {
+    try {
+      const { name, category, price, stock, status } = req.body;
+      const pool = getPool();
+      const result = await pool.query(
+        "INSERT INTO admin_products (name, category, price, stock, status) VALUES ($1, $2, $3, $4, $5) RETURNING *",
+        [name, category, price, stock, status]
+      );
+      res.status(201).json(result.rows[0]);
+    } catch (error) {
+      res.status(500).json({ error: "فشل في إنشاء منتج" });
+    }
+  });
+
+  app.get("/api/admin/orders", authMiddleware, roleMiddleware("admin"), async (_req, res) => {
+    try {
+      const pool = getPool();
+      const result = await pool.query("SELECT * FROM admin_orders ORDER BY order_date DESC LIMIT 50");
+      res.json(result.rows);
+    } catch (error) {
+      res.status(500).json({ error: "فشل في جلب الطلبات" });
+    }
+  });
+
+  app.post("/api/admin/orders", authMiddleware, roleMiddleware("admin"), async (req, res) => {
+    try {
+      const { order_number, customer_name, total, status } = req.body;
+      const pool = getPool();
+      const result = await pool.query(
+        "INSERT INTO admin_orders (order_number, customer_name, total, status) VALUES ($1, $2, $3, $4) RETURNING *",
+        [order_number, customer_name, total, status]
+      );
+      res.status(201).json(result.rows[0]);
+    } catch (error) {
+      res.status(500).json({ error: "فشل في إنشاء طلب" });
+    }
+  });
+
+  app.get("/api/admin/subscriptions", authMiddleware, roleMiddleware("admin"), async (_req, res) => {
+    try {
+      const pool = getPool();
+      const result = await pool.query("SELECT * FROM admin_subscriptions ORDER BY created_at DESC LIMIT 50");
+      res.json(result.rows);
+    } catch (error) {
+      res.status(500).json({ error: "فشل في جلب الاشتراكات" });
+    }
+  });
+
+  app.post("/api/admin/subscriptions", authMiddleware, roleMiddleware("admin"), async (req, res) => {
+    try {
+      const { subscription_number, plan, billing_cycle, price, status } = req.body;
+      const pool = getPool();
+      const result = await pool.query(
+        "INSERT INTO admin_subscriptions (subscription_number, plan, billing_cycle, price, status) VALUES ($1, $2, $3, $4, $5) RETURNING *",
+        [subscription_number, plan, billing_cycle, price, status]
+      );
+      res.status(201).json(result.rows[0]);
+    } catch (error) {
+      res.status(500).json({ error: "فشل في إنشاء اشتراك" });
+    }
+  });
+
+  app.get("/api/admin/stores", authMiddleware, roleMiddleware("admin"), async (_req, res) => {
+    try {
+      const pool = getPool();
+      const result = await pool.query("SELECT * FROM admin_stores ORDER BY created_at DESC LIMIT 50");
+      res.json(result.rows);
+    } catch (error) {
+      res.status(500).json({ error: "فشل في جلب المتاجر" });
+    }
+  });
+
+  app.post("/api/admin/stores", authMiddleware, roleMiddleware("admin"), async (req, res) => {
+    try {
+      const { name, owner, status } = req.body;
+      const pool = getPool();
+      const result = await pool.query(
+        "INSERT INTO admin_stores (name, owner, status) VALUES ($1, $2, $3) RETURNING *",
+        [name, owner, status]
+      );
+      res.status(201).json(result.rows[0]);
+    } catch (error) {
+      res.status(500).json({ error: "فشل في إنشاء متجر" });
+    }
   });
 
   // ==================== KANBAN BOARD / TASKS ROUTES ====================

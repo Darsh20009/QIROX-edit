@@ -3,23 +3,55 @@ import { Button } from "@/components/ui/button";
 import { AdminSidebar } from "@/components/admin-sidebar";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
-import { Search, Eye, Trash2 } from "lucide-react";
+import { Search, Plus, Eye, Trash2 } from "lucide-react";
+import { useQuery, useMutation } from "@tanstack/react-query";
+import { apiRequestJson, queryClient } from "@/lib/queryClient";
+import { useState } from "react";
+import { useToast } from "@/hooks/use-toast";
 
-const orders = [
-  { id: "ORD-001", customer: "أحمد محمد", total: "2,500 ر.س", status: "مكتمل", date: "2024-12-28" },
-  { id: "ORD-002", customer: "فاطمة علي", total: "1,200 ر.س", status: "قيد الإنجاز", date: "2024-12-29" },
-  { id: "ORD-003", customer: "محمود حسن", total: "3,800 ر.س", status: "معلق", date: "2024-12-30" },
-  { id: "ORD-004", customer: "سارة إبراهيم", total: "950 ر.س", status: "مكتمل", date: "2024-12-29" },
-  { id: "ORD-005", customer: "علي عمر", total: "4,200 ر.س", status: "قيد الإنجاز", date: "2024-12-30" },
-];
-
-const statusColors: Record<string, "default" | "secondary" | "destructive"> = {
-  "مكتمل": "default",
-  "قيد الإنجاز": "secondary",
-  "معلق": "destructive",
-};
+interface Order {
+  id: number;
+  order_number: string;
+  customer_name: string;
+  total: number;
+  status: string;
+  order_date: string;
+}
 
 export default function AdminOrders() {
+  const { toast } = useToast();
+  const [newOrderNumber, setNewOrderNumber] = useState("");
+  const [newCustomerName, setNewCustomerName] = useState("");
+  const [newTotal, setNewTotal] = useState("");
+
+  const { data: orders = [], isLoading } = useQuery<Order[]>({
+    queryKey: ["/api/admin/orders"],
+  });
+
+  const createMutation = useMutation({
+    mutationFn: async () => {
+      return apiRequestJson<Order>("POST", "/api/admin/orders", {
+        order_number: newOrderNumber,
+        customer_name: newCustomerName,
+        total: parseFloat(newTotal),
+        status: "pending",
+      });
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/admin/orders"] });
+      setNewOrderNumber("");
+      setNewCustomerName("");
+      setNewTotal("");
+      toast({ description: "تم إضافة الطلب بنجاح" });
+    },
+  });
+
+  const statusColors: Record<string, "default" | "secondary" | "destructive"> = {
+    pending: "secondary",
+    completed: "default",
+    cancelled: "destructive",
+  };
+
   return (
     <div className="flex h-screen bg-background">
       <AdminSidebar />
@@ -32,6 +64,43 @@ export default function AdminOrders() {
             </div>
           </div>
 
+          <Card className="mb-8">
+            <CardHeader>
+              <CardTitle className="text-lg">إضافة طلب جديد</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="flex gap-2">
+                <Input
+                  placeholder="رقم الطلب"
+                  value={newOrderNumber}
+                  onChange={(e) => setNewOrderNumber(e.target.value)}
+                  data-testid="input-order-number"
+                />
+                <Input
+                  placeholder="اسم العميل"
+                  value={newCustomerName}
+                  onChange={(e) => setNewCustomerName(e.target.value)}
+                  data-testid="input-customer-name"
+                />
+                <Input
+                  type="number"
+                  placeholder="المبلغ"
+                  value={newTotal}
+                  onChange={(e) => setNewTotal(e.target.value)}
+                  data-testid="input-order-total"
+                />
+                <Button
+                  onClick={() => createMutation.mutate()}
+                  disabled={createMutation.isPending || !newOrderNumber || !newCustomerName || !newTotal}
+                  data-testid="button-add-order"
+                >
+                  <Plus className="w-4 h-4 mr-2" />
+                  إضافة
+                </Button>
+              </div>
+            </CardContent>
+          </Card>
+
           <Card>
             <CardHeader>
               <div className="flex gap-2">
@@ -42,43 +111,51 @@ export default function AdminOrders() {
               </div>
             </CardHeader>
             <CardContent>
-              <div className="overflow-x-auto">
-                <table className="w-full">
-                  <thead>
-                    <tr className="border-b">
-                      <th className="text-right p-3 font-medium">رقم الطلب</th>
-                      <th className="text-right p-3 font-medium">العميل</th>
-                      <th className="text-right p-3 font-medium">المبلغ</th>
-                      <th className="text-right p-3 font-medium">الحالة</th>
-                      <th className="text-right p-3 font-medium">التاريخ</th>
-                      <th className="text-right p-3 font-medium">الإجراءات</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {orders.map((order) => (
-                      <tr key={order.id} className="border-b hover:bg-muted/50">
-                        <td className="p-3 font-medium">{order.id}</td>
-                        <td className="p-3">{order.customer}</td>
-                        <td className="p-3 font-medium">{order.total}</td>
-                        <td className="p-3">
-                          <Badge variant={statusColors[order.status] || "secondary"}>
-                            {order.status}
-                          </Badge>
-                        </td>
-                        <td className="p-3 text-muted-foreground">{order.date}</td>
-                        <td className="p-3 flex gap-2">
-                          <Button size="icon" variant="ghost" data-testid={`button-view-order-${order.id}`}>
-                            <Eye className="w-4 h-4" />
-                          </Button>
-                          <Button size="icon" variant="ghost" data-testid={`button-delete-order-${order.id}`}>
-                            <Trash2 className="w-4 h-4 text-destructive" />
-                          </Button>
-                        </td>
+              {isLoading ? (
+                <p className="text-center text-muted-foreground">جاري التحميل...</p>
+              ) : orders.length === 0 ? (
+                <p className="text-center text-muted-foreground">لا توجد طلبات</p>
+              ) : (
+                <div className="overflow-x-auto">
+                  <table className="w-full text-sm">
+                    <thead>
+                      <tr className="border-b">
+                        <th className="text-right p-3 font-medium">رقم الطلب</th>
+                        <th className="text-right p-3 font-medium">العميل</th>
+                        <th className="text-right p-3 font-medium">المبلغ</th>
+                        <th className="text-right p-3 font-medium">الحالة</th>
+                        <th className="text-right p-3 font-medium">التاريخ</th>
+                        <th className="text-right p-3 font-medium">الإجراءات</th>
                       </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
+                    </thead>
+                    <tbody>
+                      {orders.map((order) => (
+                        <tr key={order.id} className="border-b hover:bg-muted/50">
+                          <td className="p-3 font-medium">{order.order_number}</td>
+                          <td className="p-3">{order.customer_name}</td>
+                          <td className="p-3 font-medium">{order.total} ر.س</td>
+                          <td className="p-3">
+                            <Badge variant={statusColors[order.status] || "secondary"}>
+                              {order.status}
+                            </Badge>
+                          </td>
+                          <td className="p-3 text-muted-foreground">
+                            {new Date(order.order_date).toLocaleDateString("ar-SA")}
+                          </td>
+                          <td className="p-3 flex gap-2">
+                            <Button size="icon" variant="ghost">
+                              <Eye className="w-4 h-4" />
+                            </Button>
+                            <Button size="icon" variant="ghost">
+                              <Trash2 className="w-4 h-4 text-destructive" />
+                            </Button>
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              )}
             </CardContent>
           </Card>
         </div>
