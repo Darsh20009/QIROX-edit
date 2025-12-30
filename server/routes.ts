@@ -1,5 +1,6 @@
 import type { Express } from "express";
 import { createServer, type Server } from "http";
+import mongoose from "mongoose";
 import { storage } from "./storage";
 import { insertContactMessageSchema } from "@shared/schema";
 import { ZodError, z } from "zod";
@@ -22,7 +23,6 @@ import { Membership } from "./models/Membership";
 import { extractTenant, verifyTenantAccess, requireTenantRole, type TenantRequest } from "./middleware/tenantMiddleware";
 import tenantsRouter from "./routes/tenants";
 import { Project, Task } from "./models/Project";
-import { getPool } from "./db-postgres";
 
 const rateLimitMap = new Map<string, { count: number; resetTime: number }>();
 const RATE_LIMIT_WINDOW = 60 * 1000;
@@ -956,13 +956,12 @@ export async function registerRoutes(
     res.json({ whatsappLink });
   });
 
-  // ==================== ADMIN API ROUTES ====================
+  // ==================== ADMIN API ROUTES (MongoDB) ====================
 
   app.get("/api/admin/users", authMiddleware, roleMiddleware("admin"), async (_req, res) => {
     try {
-      const pool = getPool();
-      const result = await pool.query("SELECT * FROM admin_users ORDER BY created_at DESC LIMIT 50");
-      res.json(result.rows);
+      const users = await User.find().sort({ createdAt: -1 }).limit(50);
+      res.json(users);
     } catch (error) {
       res.status(500).json({ error: "فشل في جلب المستخدمين" });
     }
@@ -971,12 +970,9 @@ export async function registerRoutes(
   app.post("/api/admin/users", authMiddleware, roleMiddleware("admin"), async (req, res) => {
     try {
       const { name, email, role } = req.body;
-      const pool = getPool();
-      const result = await pool.query(
-        "INSERT INTO admin_users (name, email, role) VALUES ($1, $2, $3) RETURNING *",
-        [name, email, role]
-      );
-      res.status(201).json(result.rows[0]);
+      const user = new User({ name, email, role, password: "default123" });
+      await user.save();
+      res.status(201).json(user);
     } catch (error) {
       res.status(500).json({ error: "فشل في إنشاء مستخدم" });
     }
@@ -984,9 +980,8 @@ export async function registerRoutes(
 
   app.get("/api/admin/products", authMiddleware, roleMiddleware("admin"), async (_req, res) => {
     try {
-      const pool = getPool();
-      const result = await pool.query("SELECT * FROM admin_products ORDER BY created_at DESC LIMIT 50");
-      res.json(result.rows);
+      const products = await Product.find().sort({ createdAt: -1 }).limit(50);
+      res.json(products);
     } catch (error) {
       res.status(500).json({ error: "فشل في جلب المنتجات" });
     }
@@ -995,12 +990,18 @@ export async function registerRoutes(
   app.post("/api/admin/products", authMiddleware, roleMiddleware("admin"), async (req, res) => {
     try {
       const { name, category, price, stock, status } = req.body;
-      const pool = getPool();
-      const result = await pool.query(
-        "INSERT INTO admin_products (name, category, price, stock, status) VALUES ($1, $2, $3, $4, $5) RETURNING *",
-        [name, category, price, stock, status]
-      );
-      res.status(201).json(result.rows[0]);
+      const storeId = (req as any).user?.storeId || new mongoose.Types.ObjectId();
+      const product = new Product({
+        name,
+        category,
+        price,
+        quantity: stock || 0,
+        status: status || "active",
+        storeId,
+        images: [],
+      });
+      await product.save();
+      res.status(201).json(product);
     } catch (error) {
       res.status(500).json({ error: "فشل في إنشاء منتج" });
     }
@@ -1008,9 +1009,8 @@ export async function registerRoutes(
 
   app.get("/api/admin/orders", authMiddleware, roleMiddleware("admin"), async (_req, res) => {
     try {
-      const pool = getPool();
-      const result = await pool.query("SELECT * FROM admin_orders ORDER BY order_date DESC LIMIT 50");
-      res.json(result.rows);
+      const orders = await Order.find().sort({ createdAt: -1 }).limit(50);
+      res.json(orders);
     } catch (error) {
       res.status(500).json({ error: "فشل في جلب الطلبات" });
     }
@@ -1019,12 +1019,20 @@ export async function registerRoutes(
   app.post("/api/admin/orders", authMiddleware, roleMiddleware("admin"), async (req, res) => {
     try {
       const { order_number, customer_name, total, status } = req.body;
-      const pool = getPool();
-      const result = await pool.query(
-        "INSERT INTO admin_orders (order_number, customer_name, total, status) VALUES ($1, $2, $3, $4) RETURNING *",
-        [order_number, customer_name, total, status]
-      );
-      res.status(201).json(result.rows[0]);
+      const storeId = (req as any).user?.storeId || new mongoose.Types.ObjectId();
+      const order = new Order({
+        orderNumber: order_number,
+        customerName: customer_name,
+        customerPhone: "",
+        total,
+        subtotal: total,
+        items: [],
+        status: status || "pending",
+        paymentStatus: "pending",
+        storeId,
+      });
+      await order.save();
+      res.status(201).json(order);
     } catch (error) {
       res.status(500).json({ error: "فشل في إنشاء طلب" });
     }
@@ -1032,9 +1040,8 @@ export async function registerRoutes(
 
   app.get("/api/admin/subscriptions", authMiddleware, roleMiddleware("admin"), async (_req, res) => {
     try {
-      const pool = getPool();
-      const result = await pool.query("SELECT * FROM admin_subscriptions ORDER BY created_at DESC LIMIT 50");
-      res.json(result.rows);
+      const subscriptions = await Subscription.find().sort({ createdAt: -1 }).limit(50);
+      res.json(subscriptions);
     } catch (error) {
       res.status(500).json({ error: "فشل في جلب الاشتراكات" });
     }
@@ -1043,12 +1050,18 @@ export async function registerRoutes(
   app.post("/api/admin/subscriptions", authMiddleware, roleMiddleware("admin"), async (req, res) => {
     try {
       const { subscription_number, plan, billing_cycle, price, status } = req.body;
-      const pool = getPool();
-      const result = await pool.query(
-        "INSERT INTO admin_subscriptions (subscription_number, plan, billing_cycle, price, status) VALUES ($1, $2, $3, $4, $5) RETURNING *",
-        [subscription_number, plan, billing_cycle, price, status]
-      );
-      res.status(201).json(result.rows[0]);
+      const userId = (req as any).user?._id;
+      const subscription = new Subscription({
+        userId,
+        planType: plan || "stores",
+        billingCycle: billing_cycle || "monthly",
+        price,
+        status: status || "active",
+        startDate: new Date(),
+        endDate: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000),
+      });
+      await subscription.save();
+      res.status(201).json(subscription);
     } catch (error) {
       res.status(500).json({ error: "فشل في إنشاء اشتراك" });
     }
@@ -1056,9 +1069,8 @@ export async function registerRoutes(
 
   app.get("/api/admin/stores", authMiddleware, roleMiddleware("admin"), async (_req, res) => {
     try {
-      const pool = getPool();
-      const result = await pool.query("SELECT * FROM admin_stores ORDER BY created_at DESC LIMIT 50");
-      res.json(result.rows);
+      const stores = await Store.find().sort({ createdAt: -1 }).limit(50);
+      res.json(stores);
     } catch (error) {
       res.status(500).json({ error: "فشل في جلب المتاجر" });
     }
@@ -1067,12 +1079,13 @@ export async function registerRoutes(
   app.post("/api/admin/stores", authMiddleware, roleMiddleware("admin"), async (req, res) => {
     try {
       const { name, owner, status } = req.body;
-      const pool = getPool();
-      const result = await pool.query(
-        "INSERT INTO admin_stores (name, owner, status) VALUES ($1, $2, $3) RETURNING *",
-        [name, owner, status]
-      );
-      res.status(201).json(result.rows[0]);
+      const store = new Store({
+        name,
+        owner,
+        status: status || "active",
+      });
+      await store.save();
+      res.status(201).json(store);
     } catch (error) {
       res.status(500).json({ error: "فشل في إنشاء متجر" });
     }
