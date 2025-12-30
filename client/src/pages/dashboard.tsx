@@ -21,7 +21,8 @@ import {
   LogOut,
   Settings,
   TrendingUp,
-  ShoppingCart
+  ShoppingCart,
+  FileText
 } from "lucide-react";
 import qiroxLogo from "@assets/qirox_without_background_1767002019509.png";
 

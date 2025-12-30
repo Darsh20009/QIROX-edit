@@ -1,4 +1,4 @@
-import { type User, type InsertUser, type ContactMessage as ContactMessageType, type InsertContactMessage, type Invoice, type InsertInvoice, type Quote, type InsertQuote, contactMessages, insertContactMessageSchema } from "@shared/schema";
+import { type User, type InsertUser, contactMessages, insertContactMessageSchema, type Invoice, type InsertInvoice, type Quote, type InsertQuote } from "@shared/schema";
 import { randomUUID } from "crypto";
 import { ContactMessage as ContactMessageModel } from "./models/ContactMessage";
 import { isConnected } from "./db";
