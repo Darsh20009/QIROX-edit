@@ -47,6 +47,9 @@ import AdminFinancialsPage from "@/pages/admin/financials";
 import AdminLogsPage from "@/pages/admin/logs";
 import AdminMarketingPage from "@/pages/admin/marketing";
 import AdminContentPage from "@/pages/admin/content";
+import AdminShippingPage from "@/pages/admin/shipping";
+import AdminCouponsPage from "@/pages/admin/coupons";
+import AdminPartnersPage from "@/pages/admin/partners";
 import NotFound from "@/pages/not-found";
 
 function Router() {
@@ -91,6 +94,9 @@ function Router() {
       <Route path="/admin/logs" component={AdminLogsPage} />
       <Route path="/admin/marketing" component={AdminMarketingPage} />
       <Route path="/admin/content" component={AdminContentPage} />
+      <Route path="/admin/shipping" component={AdminShippingPage} />
+      <Route path="/admin/coupons" component={AdminCouponsPage} />
+      <Route path="/admin/partners" component={AdminPartnersPage} />
       <Route path="/employee" component={EmployeeDashboard} />
       <Route path="/admin" component={AdminDashboard} />
       <Route path="/admin-full" component={AdminDashboardFull} />
