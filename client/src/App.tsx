@@ -19,6 +19,7 @@ import NewStore from "@/pages/new-store";
 import Subscribe from "@/pages/subscribe";
 import EmployeeDashboard from "@/pages/employee-dashboard";
 import AdminDashboard from "@/pages/admin-dashboard";
+import AdminDashboardFull from "@/pages/admin-dashboard-full";
 import StoreManage from "@/pages/store-manage";
 import TenantsPage from "@/pages/tenants";
 import TenantDashboard from "@/pages/tenant-dashboard";
@@ -44,6 +45,7 @@ function Router() {
       <Route path="/tenants/:slug" component={TenantDashboard} />
       <Route path="/employee" component={EmployeeDashboard} />
       <Route path="/admin" component={AdminDashboard} />
+      <Route path="/admin-full" component={AdminDashboardFull} />
       <Route component={NotFound} />
     </Switch>
   );

@@ -19,7 +19,7 @@ import { Order, generateOrderNumber } from "./models/Order";
 import { Category } from "./models/Category";
 import { Tenant } from "./models/Tenant";
 import { Membership } from "./models/Membership";
-import { extractTenant, verifyTenantAccess, requireTenantRole, TenantRequest } from "./middleware/tenantMiddleware";
+import { extractTenant, verifyTenantAccess, requireTenantRole, type TenantRequest } from "./middleware/tenantMiddleware";
 import tenantsRouter from "./routes/tenants";
 
 const rateLimitMap = new Map<string, { count: number; resetTime: number }>();
@@ -263,11 +263,12 @@ export async function registerRoutes(
 
   // ==================== STORE ROUTES ====================
 
-  app.post("/api/stores", authMiddleware, async (req: AuthRequest, res) => {
+  app.post("/api/stores", authMiddleware, extractTenant, async (req: TenantRequest, res) => {
     try {
       const data = storeSchema.parse(req.body);
+      const tenantId = req.tenant?.id;
       
-      const existingSlug = await Store.findOne({ slug: data.slug });
+      const existingSlug = await Store.findOne({ slug: data.slug, tenantId });
       if (existingSlug) {
         res.status(400).json({ error: "الرابط المختصر مستخدم مسبقاً" });
         return;
@@ -289,6 +290,7 @@ export async function registerRoutes(
 
       const store = await Store.create({
         userId: req.user!.userId,
+        tenantId: tenantId as any,
         subscriptionId: subscription._id,
         name: data.name,
         nameEn: data.nameEn || undefined,
@@ -319,9 +321,10 @@ export async function registerRoutes(
     }
   });
 
-  app.get("/api/stores", authMiddleware, async (req: AuthRequest, res) => {
+  app.get("/api/stores", authMiddleware, extractTenant, async (req: TenantRequest, res) => {
     try {
-      const stores = await Store.find({ userId: req.user!.userId }).sort({ createdAt: -1 });
+      const tenantId = req.tenant?.id;
+      const stores = await Store.find({ userId: req.user!.userId, tenantId }).sort({ createdAt: -1 });
       res.json({ stores });
     } catch (error) {
       console.error("Get stores error:", error);
@@ -329,11 +332,13 @@ export async function registerRoutes(
     }
   });
 
-  app.get("/api/stores/:id", authMiddleware, async (req: AuthRequest, res) => {
+  app.get("/api/stores/:id", authMiddleware, extractTenant, async (req: TenantRequest, res) => {
     try {
+      const tenantId = req.tenant?.id;
       const store = await Store.findOne({ 
         _id: req.params.id, 
-        userId: req.user!.userId 
+        userId: req.user!.userId,
+        tenantId
       });
       
       if (!store) {
@@ -347,10 +352,11 @@ export async function registerRoutes(
     }
   });
 
-  app.patch("/api/stores/:id", authMiddleware, async (req: AuthRequest, res) => {
+  app.patch("/api/stores/:id", authMiddleware, extractTenant, async (req: TenantRequest, res) => {
     try {
+      const tenantId = req.tenant?.id;
       const store = await Store.findOneAndUpdate(
-        { _id: req.params.id, userId: req.user!.userId },
+        { _id: req.params.id, userId: req.user!.userId, tenantId },
         { $set: req.body },
         { new: true }
       );
