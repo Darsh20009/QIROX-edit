@@ -11,8 +11,8 @@ interface AuthContextType {
   user: User | null;
   token: string | null;
   isLoading: boolean;
-  login: (email: string, password: string) => Promise<void>;
-  register: (email: string, password: string, name: string, phone?: string) => Promise<void>;
+  login: (email: string, password: string) => Promise<{ user: User; token: string }>;
+  register: (email: string, password: string, name: string, phone?: string) => Promise<{ user: User; token: string }>;
   logout: () => void;
 }
 
@@ -76,6 +76,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     localStorage.setItem("qirox-token", data.token);
     setToken(data.token);
     setUser(data.user);
+    return data;
   };
 
   const register = async (email: string, password: string, name: string, phone?: string) => {
@@ -94,6 +95,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     localStorage.setItem("qirox-token", data.token);
     setToken(data.token);
     setUser(data.user);
+    return data;
   };
 
   const logout = () => {

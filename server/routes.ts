@@ -123,7 +123,8 @@ export async function registerRoutes(
         data.email, 
         data.password, 
         data.name, 
-        data.phone
+        data.phone,
+        "customer" // Explicitly set role for public registration
       );
       
       res.status(201).json({

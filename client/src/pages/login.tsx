@@ -22,12 +22,20 @@ export default function Login() {
     setIsLoading(true);
 
     try {
-      await login(email, password);
+      const { user } = await login(email, password);
       toast({
         title: "مرحباً بك!",
         description: "تم تسجيل الدخول بنجاح",
       });
-      setLocation("/dashboard");
+      
+      // Redirect based on role
+      if (user.role === "admin") {
+        setLocation("/admin");
+      } else if (user.role === "employee") {
+        setLocation("/employee");
+      } else {
+        setLocation("/agency/dashboard");
+      }
     } catch (error) {
       toast({
         title: "خطأ",

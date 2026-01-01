@@ -43,12 +43,19 @@ export default function Register() {
     setIsLoading(true);
 
     try {
-      await register(email, password, name, phone || undefined);
+      const { user } = await register(email, password, name, phone || undefined);
       toast({
         title: "مرحباً بك!",
-        description: "تم إنشاء حسابك بنجاح. اختر اشتراكك الآن.",
+        description: "تم إنشاء حسابك بنجاح.",
       });
-      setLocation("/dashboard/subscribe");
+      
+      if (user.role === "admin") {
+        setLocation("/admin");
+      } else if (user.role === "employee") {
+        setLocation("/employee");
+      } else {
+        setLocation("/agency/dashboard");
+      }
     } catch (error) {
       toast({
         title: "خطأ",
