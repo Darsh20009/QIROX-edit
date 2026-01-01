@@ -87,7 +87,8 @@ export async function registerUser(
   password: string,
   name: string,
   phone?: string,
-  role: UserRole = "customer"
+  role: UserRole = "customer",
+  tenantId: string = "default"
 ): Promise<{ user: IUser; token: string }> {
   const existingUser = await User.findOne({ email: email.toLowerCase() });
   if (existingUser) {
@@ -101,6 +102,7 @@ export async function registerUser(
     name,
     phone,
     role,
+    tenantId,
   });
 
   const token = generateToken(user);

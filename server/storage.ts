@@ -61,7 +61,12 @@ export class MemStorage implements IStorage {
 
   async createUser(insertUser: InsertUser): Promise<User> {
     const id = randomUUID();
-    const user: User = { ...insertUser, id };
+    const user: User = { 
+      ...insertUser, 
+      id,
+      role: insertUser.role || "visitor",
+      tenantId: insertUser.tenantId || "default"
+    };
     this.users.set(id, user);
     return user;
   }
@@ -136,7 +141,8 @@ export class MemStorage implements IStorage {
       createdAt: new Date(),
       status: insert.status || "unpaid",
       paidAmount: insert.paidAmount || "0",
-      notes: insert.notes || null
+      notes: insert.notes || null,
+      tenantId: insert.tenantId || "default"
     };
     this.invoices.set(id, invoice);
     return invoice;
@@ -155,7 +161,8 @@ export class MemStorage implements IStorage {
       id, 
       createdAt: new Date(),
       status: insert.status || "scheduled",
-      link: insert.link || null
+      link: insert.link || null,
+      tenantId: insert.tenantId || "default"
     };
     this.meetings.set(id, meeting);
     return meeting;

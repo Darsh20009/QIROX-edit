@@ -375,16 +375,23 @@ export async function registerRoutes(
     }
   });
 
-  // ==================== PROJECT ROUTES ====================
-  app.post("/api/projects", authMiddleware, async (req: AuthRequest, res) => {
+  // ==================== QIROX CORE ROUTES ====================
+
+  app.get("/api/dashboard/stats", authMiddleware, async (req: AuthRequest, res) => {
     try {
-      const project = await storage.createProject({
-        ...req.body,
-        userId: req.user!.userId,
-      });
-      res.status(201).json(project);
+      const projects = await storage.getProjects(req.user!.userId);
+      const invoices = await storage.getInvoices(req.user!.userId);
+      const meetings = await storage.getMeetings(req.user!.userId);
+      
+      const stats = {
+        projectsCount: projects.length,
+        activeProjects: projects.filter(p => p.status !== "completed").length,
+        unpaidInvoices: invoices.filter(i => i.status === "unpaid").length,
+        upcomingMeetings: meetings.filter(m => new Date(m.scheduledAt) > new Date()).length,
+      };
+      res.json(stats);
     } catch (error) {
-      res.status(500).json({ error: "Failed to create project" });
+      res.status(500).json({ error: "Failed to fetch dashboard stats" });
     }
   });
 
@@ -394,6 +401,20 @@ export async function registerRoutes(
       res.json(projects);
     } catch (error) {
       res.status(500).json({ error: "Failed to fetch projects" });
+    }
+  });
+
+  app.post("/api/projects", authMiddleware, async (req: AuthRequest, res) => {
+    try {
+      const user = await User.findById(req.user!.userId);
+      const project = await storage.createProject({
+        ...req.body,
+        userId: req.user!.userId,
+        tenantId: user?.tenantId || "default",
+      });
+      res.status(201).json(project);
+    } catch (error) {
+      res.status(500).json({ error: "Failed to create project" });
     }
   });
 
