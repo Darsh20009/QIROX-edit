@@ -40,3 +40,8 @@ waitForPort = 5000
 
 [agent]
 expertMode = true
+
+[userenv]
+
+[userenv.shared]
+MONGODB_URI = "mongodb+srv://Vercel-Admin-QIROX:TOTY20009a@qirox.5xzw7uq.mongodb.net/?appName=QIROX"
