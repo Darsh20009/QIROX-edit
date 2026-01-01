@@ -16,18 +16,14 @@ export interface IStorage {
   createUser(user: InsertUser): Promise<User>;
   createContactMessage(message: InsertContactMessage): Promise<ContactMessage>;
   getContactMessages(): Promise<ContactMessage[]>;
-  // Projects
   getProjects(userId?: string): Promise<Project[]>;
   getProject(id: string): Promise<Project | undefined>;
   createProject(project: InsertProject): Promise<Project>;
   updateProject(id: string, updates: Partial<Project>): Promise<Project>;
-  // Finance (Tax Invoices)
   getInvoices(userId?: string): Promise<TaxInvoice[]>;
   createInvoice(invoice: InsertTaxInvoice): Promise<TaxInvoice>;
-  // Meetings
   getMeetings(userId?: string): Promise<Meeting[]>;
   createMeeting(meeting: InsertMeeting): Promise<Meeting>;
-  // Quotes
   getQuotes(): Promise<Quote[]>;
   createQuote(quote: InsertQuote): Promise<Quote>;
 }
@@ -85,7 +81,6 @@ export class MemStorage implements IStorage {
     );
   }
 
-  // Projects
   async getProjects(userId?: string): Promise<Project[]> {
     const all = Array.from(this.projects.values());
     if (userId) return all.filter(p => p.userId === userId);
@@ -121,7 +116,6 @@ export class MemStorage implements IStorage {
     return updated;
   }
 
-  // Invoices
   async getInvoices(userId?: string): Promise<TaxInvoice[]> {
     const all = Array.from(this.invoices.values());
     if (userId) return all.filter(i => i.userId === userId);
@@ -142,7 +136,6 @@ export class MemStorage implements IStorage {
     return invoice;
   }
 
-  // Meetings
   async getMeetings(userId?: string): Promise<Meeting[]> {
     const all = Array.from(this.meetings.values());
     if (userId) return all.filter(m => m.userId === userId);
@@ -186,100 +179,21 @@ export class MongoStorage implements IStorage {
     this.memStorage = new MemStorage();
   }
 
-  async getUser(id: string): Promise<User | undefined> {
-    return this.memStorage.getUser(id);
-  }
-
-  async getUserByUsername(username: string): Promise<User | undefined> {
-    return this.memStorage.getUserByUsername(username);
-  }
-
-  async createUser(insertUser: InsertUser): Promise<User> {
-    return this.memStorage.createUser(insertUser);
-  }
-
-  async createContactMessage(insertMessage: InsertContactMessage): Promise<ContactMessage> {
-    const company = insertMessage.company ? String(insertMessage.company) : null;
-    const budget = insertMessage.budget ? String(insertMessage.budget) : null;
-    
-    const doc = await ContactMessageModel.create({
-      name: insertMessage.name,
-      email: insertMessage.email,
-      company,
-      projectType: insertMessage.projectType,
-      budget,
-      message: insertMessage.message,
-    });
-
-    return {
-      id: doc._id.toString(),
-      name: doc.name,
-      email: doc.email,
-      company: doc.company as string | null,
-      projectType: doc.projectType,
-      budget: doc.budget as string | null,
-      message: doc.message,
-      createdAt: doc.createdAt,
-    };
-  }
-
-  async getContactMessages(): Promise<ContactMessage[]> {
-    const docs = await ContactMessageModel.find().sort({ createdAt: -1 });
-    return docs.map((doc: any) => {
-      const company = doc.company ?? null;
-      const budget = doc.budget ?? null;
-      return {
-        id: doc._id.toString(),
-        name: doc.name,
-        email: doc.email,
-        company: company as string | null,
-        projectType: doc.projectType,
-        budget: budget as string | null,
-        message: doc.message,
-        createdAt: doc.createdAt,
-      };
-    });
-  }
-
-  async getInvoices(userId?: string): Promise<TaxInvoice[]> {
-    return this.memStorage.getInvoices(userId);
-  }
-
-  async createInvoice(invoice: InsertTaxInvoice): Promise<TaxInvoice> {
-    return this.memStorage.createInvoice(invoice);
-  }
-
-  async getProjects(userId?: string): Promise<Project[]> {
-    return this.memStorage.getProjects(userId);
-  }
-
-  async getProject(id: string): Promise<Project | undefined> {
-    return this.memStorage.getProject(id);
-  }
-
-  async createProject(project: InsertProject): Promise<Project> {
-    return this.memStorage.createProject(project);
-  }
-
-  async updateProject(id: string, updates: Partial<Project>): Promise<Project> {
-    return this.memStorage.updateProject(id, updates);
-  }
-
-  async getMeetings(userId?: string): Promise<Meeting[]> {
-    return this.memStorage.getMeetings(userId);
-  }
-
-  async createMeeting(meeting: InsertMeeting): Promise<Meeting> {
-    return this.memStorage.createMeeting(meeting);
-  }
-
-  async getQuotes(): Promise<Quote[]> {
-    return this.memStorage.getQuotes();
-  }
-
-  async createQuote(quote: InsertQuote): Promise<Quote> {
-    return this.memStorage.createQuote(quote);
-  }
+  async getUser(id: string): Promise<User | undefined> { return this.memStorage.getUser(id); }
+  async getUserByUsername(username: string): Promise<User | undefined> { return this.memStorage.getUserByUsername(username); }
+  async createUser(insertUser: InsertUser): Promise<User> { return this.memStorage.createUser(insertUser); }
+  async createContactMessage(insertMessage: InsertContactMessage): Promise<ContactMessage> { return this.memStorage.createContactMessage(insertMessage); }
+  async getContactMessages(): Promise<ContactMessage[]> { return this.memStorage.getContactMessages(); }
+  async getProjects(userId?: string): Promise<Project[]> { return this.memStorage.getProjects(userId); }
+  async getProject(id: string): Promise<Project | undefined> { return this.memStorage.getProject(id); }
+  async createProject(project: InsertProject): Promise<Project> { return this.memStorage.createProject(project); }
+  async updateProject(id: string, updates: Partial<Project>): Promise<Project> { return this.memStorage.updateProject(id, updates); }
+  async getInvoices(userId?: string): Promise<TaxInvoice[]> { return this.memStorage.getInvoices(userId); }
+  async createInvoice(invoice: InsertTaxInvoice): Promise<TaxInvoice> { return this.memStorage.createInvoice(invoice); }
+  async getMeetings(userId?: string): Promise<Meeting[]> { return this.memStorage.getMeetings(userId); }
+  async createMeeting(meeting: InsertMeeting): Promise<Meeting> { return this.memStorage.createMeeting(meeting); }
+  async getQuotes(): Promise<Quote[]> { return this.memStorage.getQuotes(); }
+  async createQuote(quote: InsertQuote): Promise<Quote> { return this.memStorage.createQuote(quote); }
 }
 
 const memStorage = new MemStorage();
