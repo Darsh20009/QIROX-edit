@@ -418,23 +418,28 @@ export async function registerRoutes(
     }
   });
 
-  app.patch("/api/projects/:id/approve", authMiddleware, roleMiddleware("admin"), async (req: AuthRequest, res) => {
+  // Audit Log Route
+  app.post("/api/audit-logs", authMiddleware, async (req: AuthRequest, res) => {
     try {
-      const project = await storage.updateProject(req.params.id, { isApproved: "yes" });
-      await storage.createAuditLog({
+      const user = await User.findById(req.user!.userId);
+      const log = await storage.createAuditLog({
         userId: req.user!.userId,
-        action: "PROJECT_APPROVE",
-        details: `Approved project ${req.params.id}`
+        tenantId: user?.tenantId || "default",
+        action: req.body.action,
+        module: req.body.module || "Core",
+        details: req.body.details,
+        ipAddress: req.ip,
       });
-      res.json(project);
+      res.json(log);
     } catch (error) {
-      res.status(500).json({ error: "Failed to approve project" });
+      res.status(500).json({ error: "Failed to create audit log" });
     }
   });
 
-  app.get("/api/admin/audit-logs", authMiddleware, roleMiddleware("admin"), async (_req, res) => {
+  app.get("/api/audit-logs", authMiddleware, async (req: AuthRequest, res) => {
     try {
-      const logs = await storage.getAuditLogs();
+      const user = await User.findById(req.user!.userId);
+      const logs = await storage.getAuditLogs(user?.tenantId);
       res.json(logs);
     } catch (error) {
       res.status(500).json({ error: "Failed to fetch audit logs" });

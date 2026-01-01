@@ -29,6 +29,7 @@ export function Layout({ children }: LayoutProps) {
     { name: "الاجتماعات", href: "/meetings", icon: Video },
     { name: "المشاريع", href: "/agency/dashboard", icon: Package },
     { name: "المتاجر", href: "/store/manage", icon: Store },
+    { name: "السجلات", href: "/audit-logs", icon: Settings },
     { name: "الإعدادات", href: "/admin/settings", icon: Settings },
   ];
 
