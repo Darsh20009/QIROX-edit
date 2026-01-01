@@ -532,9 +532,12 @@ export async function registerRoutes(
   app.post("/api/meetings", authMiddleware, async (req: AuthRequest, res) => {
     try {
       const user = await User.findById(req.user!.userId);
-      // Mock ZEGO link generation for MVP
+      // Generate ZEGO-ready meeting ID
       const meetingId = Math.random().toString(36).substring(7);
-      const meetingLink = `https://qirox.meet/${meetingId}`;
+      const appID = process.env.ZEGO_APP_ID;
+      
+      // Internal QIROX Meet Link
+      const meetingLink = `https://qirox.meet/${meetingId}?appId=${appID}`;
       
       const meeting = await storage.createMeeting({
         ...req.body,
@@ -542,6 +545,16 @@ export async function registerRoutes(
         tenantId: user?.tenantId || "default",
         link: meetingLink
       });
+
+      await storage.createAuditLog({
+        userId: req.user!.userId,
+        tenantId: user?.tenantId || "default",
+        action: "SCHEDULE_MEETING",
+        module: "Meet",
+        details: `Internal meeting scheduled: ${meeting.title} via QIROX Meet`,
+        ipAddress: req.ip,
+      });
+
       res.status(201).json(meeting);
     } catch (error) {
       res.status(500).json({ error: "Failed to schedule meeting" });
