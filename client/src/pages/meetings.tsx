@@ -55,10 +55,15 @@ export default function MeetingsPage() {
 
         <div className="grid gap-6">
           {meetings?.length === 0 ? (
-            <Card className="border-dashed">
+            <Card className="border-dashed bg-muted/30">
               <CardContent className="flex flex-col items-center justify-center py-12">
-                <Video className="h-12 w-12 text-muted-foreground/30 mb-4" />
-                <p className="text-muted-foreground">لا توجد اجتماعات مجدولة حالياً</p>
+                <div className="w-16 h-16 bg-primary/10 rounded-full flex items-center justify-center mb-4">
+                  <Video className="h-8 w-8 text-primary" />
+                </div>
+                <h3 className="text-xl font-bold mb-2">لا توجد اجتماعات مجدولة حالياً</h3>
+                <p className="text-muted-foreground text-center max-w-sm">
+                  سيظهر هنا رابط الاجتماع المباشر عند بدء الجلسة عبر نظام QIROX Meet (ZEGO).
+                </p>
               </CardContent>
             </Card>
           ) : (

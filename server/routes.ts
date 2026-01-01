@@ -149,11 +149,21 @@ export async function registerRoutes(
     }
   });
 
+  // Audit-First: Detailed Logging for Login
   app.post("/api/auth/login", async (req, res) => {
     try {
       const data = loginSchema.parse(req.body);
       const { user, token } = await loginUser(data.email, data.password);
       
+      await storage.createAuditLog({
+        userId: user._id.toString(),
+        tenantId: user.tenantId || "default",
+        action: "USER_LOGIN",
+        module: "Core",
+        details: `User ${user.email} logged in from IP ${req.ip}`,
+        ipAddress: req.ip,
+      });
+
       res.json({
         success: true,
         user: {

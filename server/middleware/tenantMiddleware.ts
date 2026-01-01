@@ -36,6 +36,9 @@ export async function extractTenant(req: TenantRequest, res: Response, next: Nex
         id: tenantSlug,
         slug: tenantSlug,
       };
+      
+      // Strict Isolation: Ensure all queries include tenantId if tenant is extracted
+      // This is a placeholder for logic that would be injected into storage/models
     }
 
     next();
