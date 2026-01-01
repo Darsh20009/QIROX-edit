@@ -73,7 +73,7 @@ export function ClientDashboard() {
           {!projects?.length && (
             <div className="text-center py-20 bg-muted/20 rounded-xl border-2 border-dashed">
               <p className="text-muted-foreground">لا توجد مشاريع قائمة حالياً</p>
-              <Button variant="link" asChild><a href="/agency/onboarding">ابدأ مشروعك الأول الآن</a></Button>
+              <Button variant="ghost" asChild className="p-0 h-auto text-primary font-bold"><a href="/agency/onboarding">ابدأ مشروعك الأول الآن</a></Button>
             </div>
           )}
         </div>
@@ -93,7 +93,7 @@ export function ClientDashboard() {
                   </div>
                   <div className="text-left">
                     <p className="font-bold text-primary">{inv.totalAmount} ر.س</p>
-                    <Badge size="sm" className={inv.status === "paid" ? "bg-green-100 text-green-700" : "bg-orange-100 text-orange-700"}>
+                    <Badge className={inv.status === "paid" ? "bg-green-100 text-green-700" : "bg-orange-100 text-orange-700"}>
                       {inv.status === "paid" ? "مدفوعة" : "بانتظار الدفع"}
                     </Badge>
                   </div>
