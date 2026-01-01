@@ -39,7 +39,7 @@ export function ClientDashboard() {
                     <CardTitle className="text-xl">{project.name}</CardTitle>
                     <p className="text-sm text-muted-foreground mt-1">النوع: {project.type}</p>
                   </div>
-                  <Badge variant="outline" className="bg-background">{project.status}</Badge>
+                    <Badge variant="outline" className="bg-background text-primary border-primary/20">{project.status === "pending" ? "قيد المراجعة" : project.status === "design" ? "مرحلة التصميم" : project.status === "development" ? "مرحلة البرمجة" : project.status}</Badge>
                 </div>
               </CardHeader>
               <CardContent className="pt-6">

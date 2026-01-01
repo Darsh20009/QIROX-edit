@@ -81,11 +81,22 @@ export function ProjectOnboarding() {
               />
               <FormField
                 control={form.control}
+                name="requirements"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>اسم البراند / الهوية البصرية</FormLabel>
+                    <FormControl><Input placeholder="أدخل اسم البراند المعتمد" {...field} /></FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
                 name="description"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>نبذة عن المشروع</FormLabel>
-                    <FormControl><Textarea placeholder="ما هي أهدافك من هذا المشروع؟" className="min-h-[100px]" {...field} /></FormControl>
+                    <FormLabel>شرح فكرة الموقع وصفحاته</FormLabel>
+                    <FormControl><Textarea placeholder="اشرح لنا بالتفصيل ماذا تريد في كل صفحة..." className="min-h-[120px]" {...field} /></FormControl>
                     <FormMessage />
                   </FormItem>
                 )}
