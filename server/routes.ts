@@ -124,7 +124,7 @@ export async function registerRoutes(
         data.password, 
         data.name, 
         data.phone,
-        "customer" // Explicitly set role for public registration
+        "visitor" // Explicitly set role for public registration
       );
       
       res.status(201).json({
@@ -420,7 +420,7 @@ export async function registerRoutes(
       const user = await User.findById(req.user!.userId);
       
       // Restriction: Only employees/admins can provision projects
-      if (user?.role !== "admin" && user?.role !== "employee" && user?.role !== "qirox_pm") {
+      if (user?.role !== "system_admin" && user?.role !== "qirox_pm" && user?.role !== "qirox_specialist") {
         return res.status(403).json({ error: "Only QIROX employees can provision projects" });
       }
 
@@ -447,7 +447,7 @@ export async function registerRoutes(
     }
   });
 
-  app.patch("/api/projects/:id/approve", authMiddleware, roleMiddleware("admin", "employee", "qirox_pm"), async (req: AuthRequest, res) => {
+  app.patch("/api/projects/:id/approve", authMiddleware, roleMiddleware("system_admin", "qirox_pm"), async (req: AuthRequest, res) => {
     try {
       const { status, module } = req.body; // yes, rejected
       const user = await User.findById(req.user!.userId);
@@ -511,7 +511,7 @@ export async function registerRoutes(
     }
   });
 
-  app.post("/api/invoices", authMiddleware, roleMiddleware("admin", "employee"), async (req: AuthRequest, res) => {
+  app.post("/api/invoices", authMiddleware, roleMiddleware("system_admin", "qirox_finance"), async (req: AuthRequest, res) => {
     try {
       const invoice = await storage.createInvoice(req.body);
       res.status(201).json(invoice);
@@ -562,7 +562,7 @@ export async function registerRoutes(
     }
   });
 
-  app.get("/api/admin/subscriptions", authMiddleware, roleMiddleware("admin"), async (_req, res) => {
+  app.get("/api/admin/subscriptions", authMiddleware, roleMiddleware("system_admin"), async (_req, res) => {
     try {
       const subscriptions = await Subscription.find()
         .populate("userId", "name email")
@@ -573,7 +573,7 @@ export async function registerRoutes(
     }
   });
 
-  app.get("/api/admin/stores", authMiddleware, roleMiddleware("admin", "employee"), async (_req, res) => {
+  app.get("/api/admin/stores", authMiddleware, roleMiddleware("system_admin", "qirox_pm"), async (_req, res) => {
     try {
       const stores = await Store.find()
         .populate("userId", "name email")
@@ -584,7 +584,7 @@ export async function registerRoutes(
     }
   });
 
-  app.patch("/api/admin/stores/:id/status", authMiddleware, roleMiddleware("admin", "employee"), async (req, res) => {
+  app.patch("/api/admin/stores/:id/status", authMiddleware, roleMiddleware("system_admin", "qirox_pm"), async (req, res) => {
     try {
       const { status } = req.body;
       const store = await Store.findByIdAndUpdate(
@@ -604,7 +604,7 @@ export async function registerRoutes(
     }
   });
 
-  app.patch("/api/admin/subscriptions/:id/confirm", authMiddleware, roleMiddleware("admin", "employee"), async (req: AuthRequest, res) => {
+  app.patch("/api/admin/subscriptions/:id/confirm", authMiddleware, roleMiddleware("system_admin", "qirox_finance"), async (req: AuthRequest, res) => {
     try {
       const { notes } = req.body;
       const subscription = await Subscription.findById(req.params.id);
@@ -632,7 +632,7 @@ export async function registerRoutes(
     }
   });
 
-  app.get("/api/admin/stats", authMiddleware, roleMiddleware("admin"), async (_req, res) => {
+  app.get("/api/admin/stats", authMiddleware, roleMiddleware("system_admin"), async (_req, res) => {
     try {
       const [totalUsers, totalSubscriptions, activeSubscriptions, totalStores] = await Promise.all([
         User.countDocuments(),
@@ -1215,7 +1215,7 @@ export async function registerRoutes(
     }
   });
 
-  app.get("/api/admin/subscriptions", authMiddleware, roleMiddleware("admin"), async (_req, res) => {
+  app.get("/api/admin/subscriptions", authMiddleware, roleMiddleware("system_admin"), async (_req, res) => {
     try {
       const subscriptions = await Subscription.find().sort({ createdAt: -1 }).limit(50);
       res.json(subscriptions);
