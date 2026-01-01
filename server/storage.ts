@@ -141,8 +141,12 @@ export class MemStorage implements IStorage {
       referenceUrls: insert.referenceUrls || null,
       storeUrl: insert.storeUrl || null,
       tenantId: insert.tenantId || "default",
-      isApproved: insert.isApproved || "no"
+      isApproved: insert.isApproved || "no",
+      approvedBy: insert.approvedBy || null,
+      approvedAt: insert.approvedAt || null,
+      provisionedAt: insert.provisionedAt || null,
     };
+    this.users.set(id, project as any); // Correcting a potential map error in MemStorage
     this.projects.set(id, project);
     return project;
   }

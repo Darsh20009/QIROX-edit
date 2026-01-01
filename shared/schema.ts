@@ -64,7 +64,10 @@ export const projects = pgTable("projects", {
   requirements: text("requirements"),
   referenceUrls: text("reference_urls"),
   storeUrl: text("store_url"),
-  isApproved: text("is_approved").notNull().default("no"), // Approval Gate
+  isApproved: text("is_approved").notNull().default("no"), // Approval Gate: no, yes, rejected
+  approvedBy: varchar("approved_by"), // Employee ID
+  approvedAt: timestamp("approved_at"),
+  provisionedAt: timestamp("provisioned_at"), // When space was created
   createdAt: timestamp("created_at").defaultNow().notNull(),
 });
 

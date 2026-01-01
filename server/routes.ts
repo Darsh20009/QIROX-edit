@@ -407,14 +407,57 @@ export async function registerRoutes(
   app.post("/api/projects", authMiddleware, async (req: AuthRequest, res) => {
     try {
       const user = await User.findById(req.user!.userId);
+      
+      // Restriction: Only employees/admins can provision projects
+      if (user?.role !== "admin" && user?.role !== "employee" && user?.role !== "qirox_pm") {
+        return res.status(403).json({ error: "Only QIROX employees can provision projects" });
+      }
+
       const project = await storage.createProject({
         ...req.body,
+        userId: req.body.userId || req.user!.userId, // Assign to a specific user if provided
+        tenantId: user?.tenantId || "default",
+        isApproved: "yes", // Provisioned by employee means auto-approved
+        provisionedAt: new Date(),
+      });
+
+      await storage.createAuditLog({
         userId: req.user!.userId,
         tenantId: user?.tenantId || "default",
+        action: "PROVISION_PROJECT",
+        module: "Build",
+        details: `Project ${project.id} provisioned for user ${project.userId}`,
+        ipAddress: req.ip,
       });
+
       res.status(201).json(project);
     } catch (error) {
       res.status(500).json({ error: "Failed to create project" });
+    }
+  });
+
+  app.patch("/api/projects/:id/approve", authMiddleware, roleMiddleware("admin", "employee", "qirox_pm"), async (req: AuthRequest, res) => {
+    try {
+      const { status } = req.body; // yes, rejected
+      const user = await User.findById(req.user!.userId);
+      const project = await storage.updateProject(req.params.id, {
+        isApproved: status,
+        approvedBy: req.user!.userId,
+        approvedAt: new Date(),
+      });
+
+      await storage.createAuditLog({
+        userId: req.user!.userId,
+        tenantId: user?.tenantId || "default",
+        action: status === "yes" ? "APPROVE_PROJECT" : "REJECT_PROJECT",
+        module: "Build",
+        details: `Project ${req.params.id} ${status === "yes" ? "approved" : "rejected"}`,
+        ipAddress: req.ip,
+      });
+
+      res.json(project);
+    } catch (error) {
+      res.status(500).json({ error: "Failed to update project status" });
     }
   });
 
