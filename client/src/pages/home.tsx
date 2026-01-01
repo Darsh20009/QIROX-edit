@@ -119,21 +119,36 @@ export default function Home() {
               </span>
             </h1>
             <p className="mt-8 text-lg md:text-xl text-muted-foreground max-w-2xl mx-auto leading-relaxed animate-in fade-in slide-in-from-bottom-6 duration-1000" data-testid="text-hero-subtitle">
-              منصة QIROX تمنحك القوة لبناء متجر إلكتروني احترافي أو مطعم ذكي أو منصة تعليمية متكاملة بلمسات إبداعية وتكاليف مدروسة.
+              منصة QIROX المتكاملة لإدارة أعمالك البرمجية والتقنية. من الفكرة إلى التنفيذ، كل شيء في نظام واحد (One System).
             </p>
             <div className="mt-12 flex flex-col sm:flex-row gap-4 justify-center items-center animate-in fade-in slide-in-from-bottom-8 duration-1000">
               <Link href="/register">
                 <Button size="lg" className="w-full sm:w-auto h-14 px-10 text-lg shadow-xl shadow-primary/20 hover-elevate transition-all duration-300" data-testid="button-start-free">
-                  ابدأ مجاناً الآن
+                  ابدأ مشروعك الآن
                   <ArrowLeft className="w-5 h-5 mr-2" />
                 </Button>
               </Link>
               <Link href="/pricing">
                 <Button variant="outline" size="lg" className="w-full sm:w-auto h-14 px-10 text-lg glass-card hover-elevate transition-all duration-300" data-testid="button-view-pricing">
-                  اكتشف الباقات
+                  شاهد كيف نعمل
                 </Button>
               </Link>
             </div>
+          </div>
+
+          {/* QIROX Modules Grid */}
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mt-24 animate-in fade-in slide-in-from-bottom-10 duration-1000">
+            {[
+              { name: "QIROX Build", desc: "بناء ونشر المواقع" },
+              { name: "QIROX Meet", desc: "اجتماعات ZEGO مشفرة" },
+              { name: "QIROX Requests", desc: "طلبات برمجية فورية" },
+              { name: "QIROX Cloud", desc: "إدارة النطاقات وSSL" },
+            ].map((mod) => (
+              <Card key={mod.name} className="border-primary/10 bg-card/50 backdrop-blur-sm p-6 text-center hover-elevate transition-all">
+                <h3 className="font-bold text-primary mb-2">{mod.name}</h3>
+                <p className="text-xs text-muted-foreground">{mod.desc}</p>
+              </Card>
+            ))}
           </div>
         </div>
       </section>

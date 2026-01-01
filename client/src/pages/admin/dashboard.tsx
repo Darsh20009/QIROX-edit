@@ -72,7 +72,7 @@ export default function AdminDashboard() {
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
-            <Card className="border-primary/20 bg-primary/5">
+            <Card className="border-primary/20 bg-primary/5 hover-elevate transition-all">
               <CardHeader className="pb-2">
                 <CardTitle className="text-xs font-bold text-primary">QIROX Build</CardTitle>
               </CardHeader>
@@ -81,7 +81,7 @@ export default function AdminDashboard() {
                 <p className="text-[10px] text-muted-foreground">مشاريع نشطة</p>
               </CardContent>
             </Card>
-            <Card className="border-primary/20 bg-primary/5">
+            <Card className="border-primary/20 bg-primary/5 hover-elevate transition-all">
               <CardHeader className="pb-2">
                 <CardTitle className="text-xs font-bold text-primary">QIROX Requests</CardTitle>
               </CardHeader>
@@ -90,7 +90,7 @@ export default function AdminDashboard() {
                 <p className="text-[10px] text-muted-foreground">طلبات معلقة</p>
               </CardContent>
             </Card>
-            <Card className="border-primary/20 bg-primary/5">
+            <Card className="border-primary/20 bg-primary/5 hover-elevate transition-all">
               <CardHeader className="pb-2">
                 <CardTitle className="text-xs font-bold text-primary">QIROX Meet</CardTitle>
               </CardHeader>
@@ -99,7 +99,7 @@ export default function AdminDashboard() {
                 <p className="text-[10px] text-muted-foreground">اجتماعات اليوم</p>
               </CardContent>
             </Card>
-            <Card className="border-primary/20 bg-primary/5">
+            <Card className="border-primary/20 bg-primary/5 hover-elevate transition-all">
               <CardHeader className="pb-2">
                 <CardTitle className="text-xs font-bold text-primary">QIROX Finance</CardTitle>
               </CardHeader>

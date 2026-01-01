@@ -437,7 +437,7 @@ export async function registerRoutes(
         tenantId: user.tenantId || "default",
         action: "PROVISION_PROJECT",
         module: "Build",
-        details: `Project ${project.id} provisioned by ${user.email} for user ${project.userId}`,
+        details: `SUCCESS: Project ${project.id} provisioned by ${user.email} for user ${project.userId}. Status: APPROVED. IP: ${req.ip}`,
         ipAddress: req.ip,
       });
 
