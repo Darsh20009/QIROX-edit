@@ -36,22 +36,68 @@ export const insertContactMessageSchema = createInsertSchema(contactMessages).om
 export type ContactMessage = typeof contactMessages.$inferSelect;
 export type InsertContactMessage = z.infer<typeof insertContactMessageSchema>;
 
-export const invoices = pgTable("invoices", {
+export const projects = pgTable("projects", {
   id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
-  orderId: varchar("order_id").notNull(),
-  amount: text("amount").notNull(),
-  status: text("status").notNull().default("unpaid"), // unpaid, paid, cancelled
-  dueDate: timestamp("due_date"),
+  userId: varchar("user_id").notNull(),
+  name: text("name").notNull(),
+  description: text("description"),
+  type: text("project_type").notNull(), // e.g. "E-commerce", "Corporate Website"
+  status: text("status").notNull().default("pending"), // pending, requirements_gathering, design, development, testing, completed
+  progress: text("progress").notNull().default("0"),
+  requirements: text("requirements"), // Detailed selection/info from customer
+  referenceUrls: text("reference_urls"), // Comma-separated or JSON
+  storeUrl: text("store_url"),
   createdAt: timestamp("created_at").defaultNow().notNull(),
 });
 
-export const insertInvoiceSchema = createInsertSchema(invoices).omit({
+export const insertProjectSchema = createInsertSchema(projects).omit({
   id: true,
   createdAt: true,
 });
 
-export type InsertInvoice = z.infer<typeof insertInvoiceSchema>;
-export type Invoice = typeof invoices.$inferSelect;
+export type Project = typeof projects.$inferSelect;
+export type InsertProject = z.infer<typeof insertProjectSchema>;
+
+export const taxInvoices = pgTable("tax_invoices", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  projectId: varchar("project_id").notNull(),
+  userId: varchar("user_id").notNull(),
+  invoiceNumber: text("invoice_number").notNull().unique(),
+  amount: text("amount").notNull(),
+  taxAmount: text("tax_amount").notNull(), // 15% VAT for Saudi
+  totalAmount: text("total_amount").notNull(),
+  status: text("status").notNull().default("unpaid"), // unpaid, partially_paid, paid
+  paidAmount: text("paid_amount").notNull().default("0"),
+  notes: text("notes"),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+});
+
+export const insertTaxInvoiceSchema = createInsertSchema(taxInvoices).omit({
+  id: true,
+  createdAt: true,
+});
+
+export type TaxInvoice = typeof taxInvoices.$inferSelect;
+export type InsertTaxInvoice = z.infer<typeof insertTaxInvoiceSchema>;
+
+export const meetings = pgTable("meetings", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  projectId: varchar("project_id").notNull(),
+  userId: varchar("user_id").notNull(),
+  title: text("title").notNull(),
+  scheduledAt: timestamp("scheduled_at").notNull(),
+  status: text("status").notNull().default("scheduled"), // scheduled, completed, cancelled
+  link: text("link"), // Meeting link (Zoom, GMeet, etc)
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+});
+
+export const insertMeetingSchema = createInsertSchema(meetings).omit({
+  id: true,
+  createdAt: true,
+});
+
+export type Meeting = typeof meetings.$inferSelect;
+export type InsertMeeting = z.infer<typeof insertMeetingSchema>;
 
 export const quotes = pgTable("quotes", {
   id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),

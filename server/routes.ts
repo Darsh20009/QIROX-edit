@@ -374,14 +374,75 @@ export async function registerRoutes(
     }
   });
 
-  // ==================== ADMIN ROUTES ====================
-
-  app.get("/api/admin/users", authMiddleware, roleMiddleware("admin"), async (_req, res) => {
+  // ==================== PROJECT ROUTES ====================
+  app.post("/api/projects", authMiddleware, async (req: AuthRequest, res) => {
     try {
-      const users = await User.find().select("-password").sort({ createdAt: -1 });
-      res.json({ users });
+      const project = await storage.createProject({
+        ...req.body,
+        userId: req.user!.userId,
+      });
+      res.status(201).json(project);
     } catch (error) {
-      res.status(500).json({ error: "فشل في جلب المستخدمين" });
+      res.status(500).json({ error: "Failed to create project" });
+    }
+  });
+
+  app.get("/api/projects", authMiddleware, async (req: AuthRequest, res) => {
+    try {
+      const projects = await storage.getProjects(req.user!.userId);
+      res.json(projects);
+    } catch (error) {
+      res.status(500).json({ error: "Failed to fetch projects" });
+    }
+  });
+
+  app.patch("/api/projects/:id", authMiddleware, async (req: AuthRequest, res) => {
+    try {
+      const project = await storage.updateProject(req.params.id, req.body);
+      res.json(project);
+    } catch (error) {
+      res.status(500).json({ error: "Failed to update project" });
+    }
+  });
+
+  // ==================== INVOICE ROUTES ====================
+  app.get("/api/invoices", authMiddleware, async (req: AuthRequest, res) => {
+    try {
+      const invoices = await storage.getInvoices(req.user!.userId);
+      res.json(invoices);
+    } catch (error) {
+      res.status(500).json({ error: "Failed to fetch invoices" });
+    }
+  });
+
+  app.post("/api/invoices", authMiddleware, roleMiddleware("admin", "employee"), async (req: AuthRequest, res) => {
+    try {
+      const invoice = await storage.createInvoice(req.body);
+      res.status(201).json(invoice);
+    } catch (error) {
+      res.status(500).json({ error: "Failed to create invoice" });
+    }
+  });
+
+  // ==================== MEETING ROUTES ====================
+  app.get("/api/meetings", authMiddleware, async (req: AuthRequest, res) => {
+    try {
+      const meetings = await storage.getMeetings(req.user!.userId);
+      res.json(meetings);
+    } catch (error) {
+      res.status(500).json({ error: "Failed to fetch meetings" });
+    }
+  });
+
+  app.post("/api/meetings", authMiddleware, async (req: AuthRequest, res) => {
+    try {
+      const meeting = await storage.createMeeting({
+        ...req.body,
+        userId: req.user!.userId,
+      });
+      res.status(201).json(meeting);
+    } catch (error) {
+      res.status(500).json({ error: "Failed to schedule meeting" });
     }
   });
 

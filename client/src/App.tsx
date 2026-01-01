@@ -7,6 +7,8 @@ import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { ThemeProvider } from "@/components/theme-provider";
 import { AuthProvider } from "@/lib/auth";
+import { ProjectOnboarding } from "@/pages/project-onboarding";
+import { ClientDashboard } from "@/pages/client-dashboard";
 import Home from "@/pages/home";
 import HowItWorks from "@/pages/how-it-works";
 import Pricing from "@/pages/pricing";
@@ -69,6 +71,8 @@ function Router() {
       <Route path="/login" component={Login} />
       <Route path="/register" component={Register} />
       <Route path="/dashboard" component={Dashboard} />
+      <Route path="/agency/onboarding" component={ProjectOnboarding} />
+      <Route path="/agency/dashboard" component={ClientDashboard} />
       <Route path="/dashboard/stores/new" component={NewStore} />
       <Route path="/dashboard/subscribe" component={Subscribe} />
       <Route path="/dashboard/stores/:storeId" component={StoreManage} />
