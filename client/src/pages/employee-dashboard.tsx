@@ -4,110 +4,19 @@ import { useQuery, useMutation } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
 import { useAuth } from "@/lib/auth";
 import { useToast } from "@/hooks/use-toast";
-import { queryClient, apiRequestJson } from "@/lib/queryClient";
+import { queryClient, apiRequest } from "@/lib/queryClient";
 import { 
-  Store, 
-  ArrowLeft, 
-  Loader2,
-  Package,
-  Coffee,
-  GraduationCap,
-  CheckCircle2,
-  Clock,
-  MessageSquare,
-  CreditCard
+  Briefcase, 
+  CheckCircle2, 
+  Clock, 
+  MessageSquare, 
+  LayoutDashboard,
+  LogOut,
+  ExternalLink,
+  Plus
 } from "lucide-react";
-
-interface StoreData {
-  _id: string;
-  name: string;
-  slug: string;
-  type: string;
-  status: string;
-  createdAt: string;
-  userId: {
-    _id: string;
-    name: string;
-    email: string;
-  };
-}
-
-interface SubscriptionData {
-  _id: string;
-  planType: string;
-  billingCycle: string;
-  status: string;
-  price: number;
-  startDate: string;
-  endDate: string;
-  userId: {
-    _id: string;
-    name: string;
-    email: string;
-  };
-}
-
-interface ContactMessage {
-  id: number;
-  name: string;
-  email: string;
-  phone?: string;
-  message: string;
-  createdAt: string;
-}
-
-const typeIcons = {
-  ecommerce: Package,
-  restaurant: Coffee,
-  education: GraduationCap,
-};
-
-const planIcons = {
-  stores: Package,
-  restaurants: Coffee,
-  education: GraduationCap,
-};
-
-const planNames: Record<string, string> = {
-  stores: "المتاجر",
-  restaurants: "المطاعم",
-  education: "التعليم",
-};
-
-const billingNames: Record<string, string> = {
-  monthly: "شهري",
-  "6months": "6 أشهر",
-  yearly: "سنوي",
-};
-
-const statusColors: Record<string, string> = {
-  active: "bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200",
-  trial: "bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200",
-  pending: "bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200",
-  inactive: "bg-gray-100 text-gray-800 dark:bg-gray-900 dark:text-gray-200",
-  suspended: "bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200",
-  expired: "bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200",
-  cancelled: "bg-gray-100 text-gray-800 dark:bg-gray-900 dark:text-gray-200",
-};
-
-const statusNames: Record<string, string> = {
-  active: "نشط",
-  trial: "تجريبي",
-  pending: "قيد المراجعة",
-  inactive: "غير نشط",
-  suspended: "موقوف",
-  expired: "منتهي",
-  cancelled: "ملغي",
-};
 
 export default function EmployeeDashboard() {
   const { user, isLoading: authLoading, logout } = useAuth();
@@ -119,344 +28,124 @@ export default function EmployeeDashboard() {
       setLocation("/login");
     }
     if (!authLoading && user && user.role !== "employee" && user.role !== "admin") {
-      setLocation("/dashboard");
+      setLocation("/agency/dashboard");
     }
   }, [user, authLoading, setLocation]);
 
-  const { data: storesData, isLoading: storesLoading } = useQuery<{ stores: StoreData[] }>({
-    queryKey: ["/api", "admin", "stores"],
-    enabled: !!user && (user.role === "employee" || user.role === "admin"),
-  });
-
-  const { data: subscriptionsData, isLoading: subsLoading } = useQuery<{ subscriptions: SubscriptionData[] }>({
-    queryKey: ["/api", "admin", "subscriptions"],
-    enabled: !!user && (user.role === "employee" || user.role === "admin"),
-  });
-
-  const { data: messagesData, isLoading: messagesLoading } = useQuery<ContactMessage[]>({
-    queryKey: ["/api", "contact"],
+  const { data: projects, isLoading: projectsLoading } = useQuery<any[]>({
+    queryKey: ["/api/projects"],
     enabled: !!user && (user.role === "employee" || user.role === "admin"),
   });
 
   const updateStatusMutation = useMutation({
-    mutationFn: async ({ storeId, status }: { storeId: string; status: string }) => {
-      return apiRequestJson("PATCH", `/api/admin/stores/${storeId}/status`, { status });
+    mutationFn: async ({ projectId, status }: { projectId: string; status: string }) => {
+      return apiRequest("PATCH", `/api/projects/${projectId}`, { status });
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["/api", "admin", "stores"] });
-      toast({
-        title: "تم التحديث",
-        description: "تم تحديث حالة المتجر بنجاح",
-      });
-    },
-    onError: (error) => {
-      toast({
-        title: "خطأ",
-        description: error instanceof Error ? error.message : "فشل في تحديث الحالة",
-        variant: "destructive",
-      });
+      queryClient.invalidateQueries({ queryKey: ["/api/projects"] });
+      toast({ title: "تم التحديث", description: "تم تحديث حالة المشروع بنجاح" });
     },
   });
 
-  const confirmPaymentMutation = useMutation({
-    mutationFn: async ({ subscriptionId }: { subscriptionId: string }) => {
-      return apiRequestJson("PATCH", `/api/admin/subscriptions/${subscriptionId}/confirm`, {});
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["/api", "admin", "subscriptions"] });
-      queryClient.invalidateQueries({ queryKey: ["/api", "admin", "stats"] });
-      toast({
-        title: "تم التأكيد",
-        description: "تم تأكيد الدفع وتفعيل الاشتراك بنجاح",
-      });
-    },
-    onError: (error) => {
-      toast({
-        title: "خطأ",
-        description: error instanceof Error ? error.message : "فشل في تأكيد الدفع",
-        variant: "destructive",
-      });
-    },
-  });
-
-  if (authLoading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center">
-        <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
-      </div>
-    );
-  }
-
-  if (!user || (user.role !== "employee" && user.role !== "admin")) {
-    return null;
-  }
-
-  const stores = storesData?.stores || [];
-  const subscriptions = subscriptionsData?.subscriptions || [];
-  const messages = messagesData || [];
-  const pendingStores = stores.filter(s => s.status === "pending");
-  const trialSubscriptions = subscriptions.filter(s => s.status === "trial");
+  if (authLoading) return <div className="flex h-screen items-center justify-center">جاري التحميل...</div>;
 
   return (
-    <div className="min-h-screen bg-background">
-      <header className="border-b bg-card">
-        <div className="mx-auto max-w-7xl px-6 py-4 flex items-center justify-between gap-4">
-          <div className="flex items-center gap-4">
-            <Link href="/">
-              <Button variant="ghost" size="icon" data-testid="button-back-home">
-                <ArrowLeft className="h-5 w-5" />
-              </Button>
+    <div className="min-h-screen bg-[#f8fafc]" dir="rtl">
+      <div className="flex">
+        <aside className="w-64 min-h-screen bg-white border-l shadow-sm hidden lg:block">
+          <div className="p-6 border-b">
+            <h1 className="text-xl font-bold text-primary">Qirox Team</h1>
+          </div>
+          <nav className="p-4 space-y-2">
+            <Link href="/employee">
+              <div className="flex items-center gap-3 p-3 bg-primary/10 text-primary rounded-lg cursor-pointer">
+                <LayoutDashboard className="w-5 h-5" />
+                <span className="font-medium">لوحة الموظفين</span>
+              </div>
             </Link>
-            <div>
-              <h1 className="text-xl font-bold" data-testid="text-dashboard-title">لوحة تحكم الموظفين</h1>
-              <p className="text-sm text-muted-foreground">إدارة طلبات العملاء والدعم</p>
+            <div className="flex items-center gap-3 p-3 text-muted-foreground hover:bg-muted rounded-lg cursor-pointer transition-colors">
+              <Briefcase className="w-5 h-5" />
+              <span>مهامي</span>
             </div>
-          </div>
-          <div className="flex items-center gap-4">
-            <span className="text-sm text-muted-foreground" data-testid="text-user-name">
-              مرحباً، {user.name}
-            </span>
-            {user.role === "admin" && (
-              <Link href="/admin">
-                <Button variant="outline" size="sm" data-testid="button-admin-dashboard">
-                  لوحة المدير
-                </Button>
-              </Link>
-            )}
-            <Button 
-              variant="outline" 
-              onClick={logout}
-              data-testid="button-logout"
-            >
-              تسجيل خروج
+            <div className="pt-8 border-t mt-8">
+              <Button variant="ghost" className="w-full justify-start gap-3 text-red-600 hover:text-red-700 hover:bg-red-50" onClick={logout}>
+                <LogOut className="w-5 h-5" />
+                <span>تسجيل الخروج</span>
+              </Button>
+            </div>
+          </nav>
+        </aside>
+
+        <main className="flex-1 p-8">
+          <header className="flex justify-between items-center mb-8">
+            <div>
+              <h1 className="text-3xl font-bold text-slate-900">لوحة الموظفين</h1>
+              <p className="text-slate-500 mt-1">إدارة المشاريع والطلبات المسندة إليك</p>
+            </div>
+            <Button variant="outline" className="gap-2" onClick={() => window.open("https://wa.me/966532441566")}>
+              <MessageSquare className="w-4 h-4" />
+              الدعم الفني
             </Button>
-          </div>
-        </div>
-      </header>
+          </header>
 
-      <main className="mx-auto max-w-7xl px-6 py-8">
-        <div className="grid gap-6 md:grid-cols-4 mb-8">
-          <Card data-testid="card-stats-stores">
-            <CardHeader className="flex flex-row items-center justify-between gap-2 space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">إجمالي المتاجر</CardTitle>
-              <Store className="h-4 w-4 text-muted-foreground" />
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold" data-testid="text-total-stores">{stores.length}</div>
-            </CardContent>
-          </Card>
-
-          <Card data-testid="card-stats-pending">
-            <CardHeader className="flex flex-row items-center justify-between gap-2 space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">متاجر بانتظار المراجعة</CardTitle>
-              <Clock className="h-4 w-4 text-muted-foreground" />
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold" data-testid="text-pending-stores">{pendingStores.length}</div>
-            </CardContent>
-          </Card>
-
-          <Card data-testid="card-stats-trial">
-            <CardHeader className="flex flex-row items-center justify-between gap-2 space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">اشتراكات تجريبية</CardTitle>
-              <CreditCard className="h-4 w-4 text-muted-foreground" />
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold" data-testid="text-trial-subs">{trialSubscriptions.length}</div>
-            </CardContent>
-          </Card>
-
-          <Card data-testid="card-stats-messages">
-            <CardHeader className="flex flex-row items-center justify-between gap-2 space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">رسائل التواصل</CardTitle>
-              <MessageSquare className="h-4 w-4 text-muted-foreground" />
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold" data-testid="text-total-messages">{messages.length}</div>
-            </CardContent>
-          </Card>
-        </div>
-
-        <div className="grid gap-6 lg:grid-cols-2 xl:grid-cols-3">
-          <Card data-testid="card-subscriptions-confirm">
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <CreditCard className="h-5 w-5" />
-                تأكيد المدفوعات
-              </CardTitle>
-              <CardDescription>الاشتراكات التجريبية بانتظار تأكيد الدفع</CardDescription>
-            </CardHeader>
-            <CardContent>
-              {subsLoading ? (
-                <div className="flex justify-center py-8">
-                  <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
-                </div>
-              ) : trialSubscriptions.length === 0 ? (
-                <p className="text-center text-muted-foreground py-8">لا توجد اشتراكات بانتظار التأكيد</p>
-              ) : (
-                <div className="space-y-4 max-h-96 overflow-y-auto">
-                  {trialSubscriptions.map((sub) => {
-                    const PlanIcon = planIcons[sub.planType as keyof typeof planIcons] || Package;
-                    return (
-                      <div
-                        key={sub._id}
-                        className="p-4 rounded-lg border"
-                        data-testid={`card-subscription-${sub._id}`}
-                      >
-                        <div className="flex items-center gap-3 mb-3">
-                          <div className="p-2 bg-muted rounded-lg">
-                            <PlanIcon className="h-5 w-5" />
+          <div className="grid lg:grid-cols-3 gap-8">
+            <div className="lg:col-span-2">
+              <Card className="border-none shadow-sm">
+                <CardHeader>
+                  <CardTitle>قائمة المشاريع</CardTitle>
+                </CardHeader>
+                <CardContent className="p-0">
+                  <div className="divide-y">
+                    {projects?.map((p) => (
+                      <div key={p.id} className="p-6 hover:bg-slate-50 transition-colors">
+                        <div className="flex justify-between items-start mb-4">
+                          <div>
+                            <h3 className="text-lg font-bold text-slate-900">{p.name}</h3>
+                            <p className="text-sm text-slate-500">{p.type}</p>
                           </div>
-                          <div className="flex-1">
-                            <h4 className="font-medium">{sub.userId?.name || "غير معروف"}</h4>
-                            <p className="text-sm text-muted-foreground">{sub.userId?.email}</p>
-                          </div>
-                          <Badge className={statusColors[sub.status] || ""}>
-                            {statusNames[sub.status] || sub.status}
+                          <Badge className="bg-primary/10 text-primary border-none">
+                            {p.status}
                           </Badge>
                         </div>
-                        <div className="text-sm text-muted-foreground mb-3 space-y-1">
-                          <div className="flex justify-between">
-                            <span>النظام:</span>
-                            <span>{planNames[sub.planType] || sub.planType}</span>
-                          </div>
-                          <div className="flex justify-between">
-                            <span>المدة:</span>
-                            <span>{billingNames[sub.billingCycle] || sub.billingCycle}</span>
-                          </div>
-                          <div className="flex justify-between">
-                            <span>المبلغ:</span>
-                            <span className="font-semibold">{sub.price} ريال</span>
-                          </div>
+                        <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 mb-4">
+                          <Button size="sm" variant="outline" onClick={() => updateStatusMutation.mutate({ projectId: p.id, status: "design" })}>تصميم</Button>
+                          <Button size="sm" variant="outline" onClick={() => updateStatusMutation.mutate({ projectId: p.id, status: "development" })}>برمجة</Button>
+                          <Button size="sm" variant="outline" onClick={() => updateStatusMutation.mutate({ projectId: p.id, status: "testing" })}>اختبار</Button>
+                          <Button size="sm" variant="outline" onClick={() => updateStatusMutation.mutate({ projectId: p.id, status: "completed" })}>مكتمل</Button>
                         </div>
-                        <Button
-                          className="w-full"
-                          onClick={() => confirmPaymentMutation.mutate({ subscriptionId: sub._id })}
-                          disabled={confirmPaymentMutation.isPending}
-                          data-testid={`button-confirm-payment-${sub._id}`}
-                        >
-                          {confirmPaymentMutation.isPending ? (
-                            <>
-                              <Loader2 className="ml-2 h-4 w-4 animate-spin" />
-                              جاري التأكيد...
-                            </>
-                          ) : (
-                            <>
-                              <CheckCircle2 className="ml-2 h-4 w-4" />
-                              تأكيد الدفع وتفعيل الاشتراك
-                            </>
-                          )}
-                        </Button>
+                        <div className="flex items-center gap-4">
+                          <div className="flex-1 h-2 bg-slate-100 rounded-full">
+                            <div className="h-full bg-primary rounded-full transition-all" style={{ width: `${p.progress}%` }} />
+                          </div>
+                          <span className="text-sm font-medium">{p.progress}%</span>
+                        </div>
                       </div>
-                    );
-                  })}
-                </div>
-              )}
-            </CardContent>
-          </Card>
+                    ))}
+                  </div>
+                </CardContent>
+              </Card>
+            </div>
 
-          <Card data-testid="card-stores-list">
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <Store className="h-5 w-5" />
-                المتاجر
-              </CardTitle>
-              <CardDescription>إدارة جميع متاجر العملاء</CardDescription>
-            </CardHeader>
-            <CardContent>
-              {storesLoading ? (
-                <div className="flex justify-center py-8">
-                  <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
-                </div>
-              ) : stores.length === 0 ? (
-                <p className="text-center text-muted-foreground py-8">لا توجد متاجر حتى الآن</p>
-              ) : (
-                <div className="space-y-4 max-h-96 overflow-y-auto">
-                  {stores.map((store) => {
-                    const TypeIcon = typeIcons[store.type as keyof typeof typeIcons] || Package;
-                    return (
-                      <div
-                        key={store._id}
-                        className="flex items-center justify-between gap-4 p-4 rounded-lg border"
-                        data-testid={`card-store-${store._id}`}
-                      >
-                        <div className="flex items-center gap-3">
-                          <div className="p-2 bg-muted rounded-lg">
-                            <TypeIcon className="h-5 w-5" />
-                          </div>
-                          <div>
-                            <h4 className="font-medium">{store.name}</h4>
-                            <p className="text-sm text-muted-foreground">
-                              {store.userId?.name || "غير معروف"} - {store.slug}
-                            </p>
-                          </div>
-                        </div>
-                        <div className="flex items-center gap-2">
-                          <Select
-                            value={store.status}
-                            onValueChange={(status) => 
-                              updateStatusMutation.mutate({ storeId: store._id, status })
-                            }
-                            disabled={updateStatusMutation.isPending}
-                          >
-                            <SelectTrigger className="w-32" data-testid={`select-status-${store._id}`}>
-                              <SelectValue />
-                            </SelectTrigger>
-                            <SelectContent>
-                              <SelectItem value="pending">قيد المراجعة</SelectItem>
-                              <SelectItem value="active">نشط</SelectItem>
-                              <SelectItem value="inactive">غير نشط</SelectItem>
-                              <SelectItem value="suspended">موقوف</SelectItem>
-                            </SelectContent>
-                          </Select>
-                        </div>
-                      </div>
-                    );
-                  })}
-                </div>
-              )}
-            </CardContent>
-          </Card>
-
-          <Card data-testid="card-messages-list">
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <MessageSquare className="h-5 w-5" />
-                رسائل التواصل
-              </CardTitle>
-              <CardDescription>رسائل العملاء من صفحة التواصل</CardDescription>
-            </CardHeader>
-            <CardContent>
-              {messagesLoading ? (
-                <div className="flex justify-center py-8">
-                  <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
-                </div>
-              ) : messages.length === 0 ? (
-                <p className="text-center text-muted-foreground py-8">لا توجد رسائل حتى الآن</p>
-              ) : (
-                <div className="space-y-4 max-h-96 overflow-y-auto">
-                  {messages.map((msg) => (
-                    <div
-                      key={msg.id}
-                      className="p-4 rounded-lg border"
-                      data-testid={`card-message-${msg.id}`}
-                    >
-                      <div className="flex items-center justify-between gap-2 mb-2">
-                        <h4 className="font-medium">{msg.name}</h4>
-                        <span className="text-xs text-muted-foreground">
-                          {new Date(msg.createdAt).toLocaleDateString("ar-SA")}
-                        </span>
-                      </div>
-                      <p className="text-sm text-muted-foreground mb-2">{msg.email}</p>
-                      <p className="text-sm">{msg.message}</p>
-                    </div>
-                  ))}
-                </div>
-              )}
-            </CardContent>
-          </Card>
-        </div>
-      </main>
+            <div className="space-y-8">
+              <Card className="border-none shadow-sm">
+                <CardHeader>
+                  <CardTitle>إحصائيات سريعة</CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <div className="flex justify-between p-3 bg-blue-50 rounded-lg">
+                    <span className="text-blue-600">نشط حالياً</span>
+                    <span className="font-bold">{projects?.filter(p => p.status !== "completed").length || 0}</span>
+                  </div>
+                  <div className="flex justify-between p-3 bg-emerald-50 rounded-lg">
+                    <span className="text-emerald-600">تم الانتهاء</span>
+                    <span className="font-bold">{projects?.filter(p => p.status === "completed").length || 0}</span>
+                  </div>
+                </CardContent>
+              </Card>
+            </div>
+          </div>
+        </main>
+      </div>
     </div>
   );
 }

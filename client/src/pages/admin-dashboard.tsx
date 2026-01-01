@@ -9,79 +9,15 @@ import {
   ArrowLeft, 
   Loader2,
   Users,
-  CreditCard,
-  Store,
+  Briefcase,
+  FileText,
   TrendingUp,
-  Package,
-  Coffee,
-  GraduationCap,
-  CheckCircle2,
-  Clock,
-  XCircle
+  Plus,
+  MessageSquare,
+  LayoutDashboard,
+  Settings,
+  LogOut
 } from "lucide-react";
-
-interface Stats {
-  totalUsers: number;
-  totalSubscriptions: number;
-  activeSubscriptions: number;
-  totalStores: number;
-  totalRevenue: number;
-}
-
-interface UserData {
-  _id: string;
-  name: string;
-  email: string;
-  role: string;
-  createdAt: string;
-}
-
-interface SubscriptionData {
-  _id: string;
-  planType: string;
-  billingCycle: string;
-  status: string;
-  price: number;
-  startDate: string;
-  endDate: string;
-  userId: {
-    _id: string;
-    name: string;
-    email: string;
-  };
-}
-
-const planNames: Record<string, string> = {
-  stores: "المتاجر",
-  restaurants: "المطاعم",
-  education: "التعليم",
-};
-
-const planIcons = {
-  stores: Package,
-  restaurants: Coffee,
-  education: GraduationCap,
-};
-
-const statusColors: Record<string, string> = {
-  active: "bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200",
-  trial: "bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200",
-  expired: "bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200",
-  cancelled: "bg-gray-100 text-gray-800 dark:bg-gray-900 dark:text-gray-200",
-};
-
-const statusNames: Record<string, string> = {
-  active: "نشط",
-  trial: "تجريبي",
-  expired: "منتهي",
-  cancelled: "ملغي",
-};
-
-const roleNames: Record<string, string> = {
-  customer: "عميل",
-  employee: "موظف",
-  admin: "مدير",
-};
 
 export default function AdminDashboard() {
   const { user, isLoading: authLoading, logout } = useAuth();
@@ -92,242 +28,197 @@ export default function AdminDashboard() {
       setLocation("/login");
     }
     if (!authLoading && user && user.role !== "admin") {
-      setLocation("/dashboard");
+      setLocation("/agency/dashboard");
     }
   }, [user, authLoading, setLocation]);
 
-  const { data: statsData, isLoading: statsLoading } = useQuery<{ stats: Stats }>({
-    queryKey: ["/api", "admin", "stats"],
+  const { data: projects, isLoading: projectsLoading } = useQuery<any[]>({
+    queryKey: ["/api/projects"],
     enabled: !!user && user.role === "admin",
   });
 
-  const { data: usersData, isLoading: usersLoading } = useQuery<{ users: UserData[] }>({
-    queryKey: ["/api", "admin", "users"],
+  const { data: invoices, isLoading: invoicesLoading } = useQuery<any[]>({
+    queryKey: ["/api/invoices"],
     enabled: !!user && user.role === "admin",
   });
 
-  const { data: subscriptionsData, isLoading: subsLoading } = useQuery<{ subscriptions: SubscriptionData[] }>({
-    queryKey: ["/api", "admin", "subscriptions"],
+  const { data: users, isLoading: usersLoading } = useQuery<any[]>({
+    queryKey: ["/api/admin/users"],
     enabled: !!user && user.role === "admin",
   });
 
   if (authLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
-        <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
+        <Loader2 className="h-8 w-8 animate-spin text-primary" />
       </div>
     );
   }
 
-  if (!user || user.role !== "admin") {
-    return null;
-  }
-
-  const stats = statsData?.stats;
-  const users = usersData?.users || [];
-  const subscriptions = subscriptionsData?.subscriptions || [];
+  const stats = [
+    { title: "إجمالي المشاريع", value: projects?.length || 0, icon: Briefcase, color: "text-blue-600", bg: "bg-blue-50" },
+    { title: "الفواتير الضريبية", value: invoices?.length || 0, icon: FileText, color: "text-emerald-600", bg: "bg-emerald-50" },
+    { title: "النشاط المالي", value: `${invoices?.reduce((acc: any, inv: any) => acc + Number(inv.totalAmount), 0).toLocaleString() || 0} ر.س`, icon: TrendingUp, color: "text-orange-600", bg: "bg-orange-50" },
+    { title: "فريق العمل", value: users?.filter((u: any) => u.role === "employee").length || 0, icon: Users, color: "text-purple-600", bg: "bg-purple-50" },
+  ];
 
   return (
-    <div className="min-h-screen bg-background">
-      <header className="border-b bg-card">
-        <div className="mx-auto max-w-7xl px-6 py-4 flex items-center justify-between gap-4">
-          <div className="flex items-center gap-4">
-            <Link href="/">
-              <Button variant="ghost" size="icon" data-testid="button-back-home">
-                <ArrowLeft className="h-5 w-5" />
-              </Button>
+    <div className="min-h-screen bg-[#f8fafc]" dir="rtl">
+      {/* Sidebar - Integrated for Admin */}
+      <div className="flex">
+        <aside className="w-64 min-h-screen bg-white border-l shadow-sm hidden lg:block">
+          <div className="p-6 border-b">
+            <h1 className="text-xl font-bold text-primary">Qirox Admin</h1>
+          </div>
+          <nav className="p-4 space-y-2">
+            <Link href="/admin">
+              <div className="flex items-center gap-3 p-3 bg-primary/10 text-primary rounded-lg cursor-pointer">
+                <LayoutDashboard className="w-5 h-5" />
+                <span className="font-medium">لوحة التحكم</span>
+              </div>
             </Link>
-            <div>
-              <h1 className="text-xl font-bold" data-testid="text-dashboard-title">لوحة تحكم المدير</h1>
-              <p className="text-sm text-muted-foreground">إحصائيات وإدارة المنصة</p>
+            <Link href="/agency/dashboard">
+              <div className="flex items-center gap-3 p-3 text-muted-foreground hover:bg-muted rounded-lg cursor-pointer transition-colors">
+                <Briefcase className="w-5 h-5" />
+                <span>المشاريع</span>
+              </div>
+            </Link>
+            <Link href="/admin/users">
+              <div className="flex items-center gap-3 p-3 text-muted-foreground hover:bg-muted rounded-lg cursor-pointer transition-colors">
+                <Users className="w-5 h-5" />
+                <span>الموظفين</span>
+              </div>
+            </Link>
+            <Link href="/admin/invoices">
+              <div className="flex items-center gap-3 p-3 text-muted-foreground hover:bg-muted rounded-lg cursor-pointer transition-colors">
+                <FileText className="w-5 h-5" />
+                <span>الفواتير</span>
+              </div>
+            </Link>
+            <div className="pt-8 border-t mt-8">
+              <Button variant="ghost" className="w-full justify-start gap-3 text-red-600 hover:text-red-700 hover:bg-red-50" onClick={logout}>
+                <LogOut className="w-5 h-5" />
+                <span>تسجيل الخروج</span>
+              </Button>
             </div>
-          </div>
-          <div className="flex items-center gap-4">
-            <span className="text-sm text-muted-foreground" data-testid="text-user-name">
-              مرحباً، {user.name}
-            </span>
-            <Link href="/employee">
-              <Button variant="outline" size="sm" data-testid="button-employee-dashboard">
-                لوحة الموظفين
+          </nav>
+        </aside>
+
+        <main className="flex-1 p-8">
+          <header className="flex justify-between items-center mb-8">
+            <div>
+              <h1 className="text-3xl font-bold text-slate-900">مركز التحكم الإداري</h1>
+              <p className="text-slate-500 mt-1">مرحباً بك مجدداً، {user?.name}</p>
+            </div>
+            <div className="flex gap-3">
+              <Button variant="outline" className="gap-2" onClick={() => window.open("https://wa.me/966532441566")}>
+                <MessageSquare className="w-4 h-4" />
+                الدعم الفني
               </Button>
-            </Link>
-            <Button 
-              variant="outline" 
-              onClick={logout}
-              data-testid="button-logout"
-            >
-              تسجيل خروج
-            </Button>
+              <Button asChild className="gap-2">
+                <Link href="/agency/onboarding">
+                  <Plus className="w-4 h-4" />
+                  مشروع جديد
+                </Link>
+              </Button>
+            </div>
+          </header>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+            {stats.map((stat, i) => (
+              <Card key={i} className="border-none shadow-sm hover-elevate overflow-hidden">
+                <CardContent className="p-6">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <p className="text-sm font-medium text-slate-500 mb-1">{stat.title}</p>
+                      <h3 className="text-2xl font-bold text-slate-900">{stat.value}</h3>
+                    </div>
+                    <div className={`p-3 rounded-xl ${stat.bg}`}>
+                      <stat.icon className={`w-6 h-6 ${stat.color}`} />
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            ))}
           </div>
-        </div>
-      </header>
 
-      <main className="mx-auto max-w-7xl px-6 py-8">
-        <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-5 mb-8">
-          <Card data-testid="card-stats-users">
-            <CardHeader className="flex flex-row items-center justify-between gap-2 space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">المستخدمين</CardTitle>
-              <Users className="h-4 w-4 text-muted-foreground" />
-            </CardHeader>
-            <CardContent>
-              {statsLoading ? (
-                <Loader2 className="h-5 w-5 animate-spin" />
-              ) : (
-                <div className="text-2xl font-bold" data-testid="text-total-users">{stats?.totalUsers || 0}</div>
-              )}
-            </CardContent>
-          </Card>
-
-          <Card data-testid="card-stats-subscriptions">
-            <CardHeader className="flex flex-row items-center justify-between gap-2 space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">الاشتراكات</CardTitle>
-              <CreditCard className="h-4 w-4 text-muted-foreground" />
-            </CardHeader>
-            <CardContent>
-              {statsLoading ? (
-                <Loader2 className="h-5 w-5 animate-spin" />
-              ) : (
-                <div className="text-2xl font-bold" data-testid="text-total-subs">{stats?.totalSubscriptions || 0}</div>
-              )}
-            </CardContent>
-          </Card>
-
-          <Card data-testid="card-stats-active">
-            <CardHeader className="flex flex-row items-center justify-between gap-2 space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">اشتراكات نشطة</CardTitle>
-              <CheckCircle2 className="h-4 w-4 text-muted-foreground" />
-            </CardHeader>
-            <CardContent>
-              {statsLoading ? (
-                <Loader2 className="h-5 w-5 animate-spin" />
-              ) : (
-                <div className="text-2xl font-bold" data-testid="text-active-subs">{stats?.activeSubscriptions || 0}</div>
-              )}
-            </CardContent>
-          </Card>
-
-          <Card data-testid="card-stats-stores">
-            <CardHeader className="flex flex-row items-center justify-between gap-2 space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">المتاجر</CardTitle>
-              <Store className="h-4 w-4 text-muted-foreground" />
-            </CardHeader>
-            <CardContent>
-              {statsLoading ? (
-                <Loader2 className="h-5 w-5 animate-spin" />
-              ) : (
-                <div className="text-2xl font-bold" data-testid="text-total-stores">{stats?.totalStores || 0}</div>
-              )}
-            </CardContent>
-          </Card>
-
-          <Card data-testid="card-stats-revenue">
-            <CardHeader className="flex flex-row items-center justify-between gap-2 space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">الإيرادات</CardTitle>
-              <TrendingUp className="h-4 w-4 text-muted-foreground" />
-            </CardHeader>
-            <CardContent>
-              {statsLoading ? (
-                <Loader2 className="h-5 w-5 animate-spin" />
-              ) : (
-                <div className="text-2xl font-bold" data-testid="text-total-revenue">
-                  {stats?.totalRevenue?.toLocaleString("ar-SA") || 0} ر.س
-                </div>
-              )}
-            </CardContent>
-          </Card>
-        </div>
-
-        <div className="grid gap-6 lg:grid-cols-2">
-          <Card data-testid="card-users-list">
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <Users className="h-5 w-5" />
-                المستخدمين
-              </CardTitle>
-              <CardDescription>جميع مستخدمي المنصة</CardDescription>
-            </CardHeader>
-            <CardContent>
-              {usersLoading ? (
-                <div className="flex justify-center py-8">
-                  <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
-                </div>
-              ) : users.length === 0 ? (
-                <p className="text-center text-muted-foreground py-8">لا يوجد مستخدمين</p>
-              ) : (
-                <div className="space-y-4 max-h-96 overflow-y-auto">
-                  {users.map((u) => (
-                    <div
-                      key={u._id}
-                      className="flex items-center justify-between gap-4 p-4 rounded-lg border"
-                      data-testid={`card-user-${u._id}`}
-                    >
-                      <div>
-                        <h4 className="font-medium">{u.name}</h4>
-                        <p className="text-sm text-muted-foreground">{u.email}</p>
+          <div className="grid lg:grid-cols-3 gap-8">
+            <div className="lg:col-span-2">
+              <Card className="border-none shadow-sm h-full">
+                <CardHeader className="border-b bg-white/50">
+                  <div className="flex justify-between items-center">
+                    <CardTitle className="text-lg">آخر المشاريع المطلوبة</CardTitle>
+                    <Button variant="ghost" size="sm" className="text-primary">عرض الكل</Button>
+                  </div>
+                </CardHeader>
+                <CardContent className="p-0">
+                  <div className="divide-y">
+                    {projects?.slice(0, 5).map((p) => (
+                      <div key={p.id} className="p-4 hover:bg-slate-50 transition-colors flex justify-between items-center">
+                        <div className="flex items-center gap-4">
+                          <div className="w-10 h-10 rounded-full bg-slate-100 flex items-center justify-center font-bold text-slate-600">
+                            {p.name[0]}
+                          </div>
+                          <div>
+                            <p className="font-bold text-slate-900">{p.name}</p>
+                            <p className="text-xs text-slate-500">{p.type}</p>
+                          </div>
+                        </div>
+                        <div className="flex items-center gap-4">
+                          <Badge variant="secondary" className="bg-slate-100 text-slate-600 border-none">
+                            {p.status === "pending" ? "قيد المراجعة" : p.status}
+                          </Badge>
+                          <div className="text-left hidden sm:block">
+                            <p className="text-sm font-medium">{p.progress}%</p>
+                            <div className="w-20 h-1.5 bg-slate-100 rounded-full mt-1">
+                              <div className="h-full bg-primary rounded-full" style={{ width: `${p.progress}%` }} />
+                            </div>
+                          </div>
+                        </div>
                       </div>
-                      <div className="flex items-center gap-2">
-                        <Badge variant="secondary">{roleNames[u.role] || u.role}</Badge>
-                        <span className="text-xs text-muted-foreground">
-                          {new Date(u.createdAt).toLocaleDateString("ar-SA")}
-                        </span>
+                    ))}
+                    {!projects?.length && (
+                      <div className="p-8 text-center text-slate-400">
+                        لا توجد طلبات مشاريع حالياً
+                      </div>
+                    )}
+                  </div>
+                </CardContent>
+              </Card>
+            </div>
+
+            <div>
+              <Card className="border-none shadow-sm">
+                <CardHeader className="border-b bg-white/50">
+                  <CardTitle className="text-lg">الفواتير الأخيرة</CardTitle>
+                </CardHeader>
+                <CardContent className="p-4 space-y-4">
+                  {invoices?.slice(0, 4).map((inv) => (
+                    <div key={inv.id} className="flex justify-between items-center p-3 rounded-lg border border-slate-100 hover:border-primary/20 transition-colors">
+                      <div>
+                        <p className="font-bold text-sm">#{inv.invoiceNumber}</p>
+                        <p className="text-xs text-slate-500">{new Date(inv.createdAt).toLocaleDateString("ar-SA")}</p>
+                      </div>
+                      <div className="text-left">
+                        <p className="font-bold text-slate-900">{inv.totalAmount} ر.س</p>
+                        <Badge className={inv.status === "paid" ? "bg-emerald-50 text-emerald-600 border-none" : "bg-orange-50 text-orange-600 border-none"}>
+                          {inv.status === "paid" ? "مدفوعة" : "معلقة"}
+                        </Badge>
                       </div>
                     </div>
                   ))}
-                </div>
-              )}
-            </CardContent>
-          </Card>
-
-          <Card data-testid="card-subscriptions-list">
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <CreditCard className="h-5 w-5" />
-                الاشتراكات
-              </CardTitle>
-              <CardDescription>جميع اشتراكات العملاء</CardDescription>
-            </CardHeader>
-            <CardContent>
-              {subsLoading ? (
-                <div className="flex justify-center py-8">
-                  <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
-                </div>
-              ) : subscriptions.length === 0 ? (
-                <p className="text-center text-muted-foreground py-8">لا يوجد اشتراكات</p>
-              ) : (
-                <div className="space-y-4 max-h-96 overflow-y-auto">
-                  {subscriptions.map((sub) => {
-                    const PlanIcon = planIcons[sub.planType as keyof typeof planIcons] || Package;
-                    return (
-                      <div
-                        key={sub._id}
-                        className="flex items-center justify-between gap-4 p-4 rounded-lg border"
-                        data-testid={`card-subscription-${sub._id}`}
-                      >
-                        <div className="flex items-center gap-3">
-                          <div className="p-2 bg-muted rounded-lg">
-                            <PlanIcon className="h-5 w-5" />
-                          </div>
-                          <div>
-                            <h4 className="font-medium">{sub.userId?.name || "غير معروف"}</h4>
-                            <p className="text-sm text-muted-foreground">
-                              {planNames[sub.planType] || sub.planType} - {sub.price} ر.س
-                            </p>
-                          </div>
-                        </div>
-                        <div className="flex items-center gap-2">
-                          <Badge className={statusColors[sub.status] || ""}>
-                            {statusNames[sub.status] || sub.status}
-                          </Badge>
-                        </div>
-                      </div>
-                    );
-                  })}
-                </div>
-              )}
-            </CardContent>
-          </Card>
-        </div>
-      </main>
+                  {!invoices?.length && (
+                    <div className="py-8 text-center text-slate-400">
+                      لا توجد فواتير صادرة
+                    </div>
+                  )}
+                  <Button variant="outline" className="w-full mt-2">تحميل التقرير المالي</Button>
+                </CardContent>
+              </Card>
+            </div>
+          </div>
+        </main>
+      </div>
     </div>
   );
 }

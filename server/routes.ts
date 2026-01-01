@@ -399,7 +399,21 @@ export async function registerRoutes(
 
   app.patch("/api/projects/:id", authMiddleware, async (req: AuthRequest, res) => {
     try {
-      const project = await storage.updateProject(req.params.id, req.body);
+      const updates = req.body;
+      // Basic progress logic based on status
+      if (updates.status) {
+        const statusMap: Record<string, string> = {
+          "pending": "0",
+          "design": "30",
+          "development": "60",
+          "testing": "90",
+          "completed": "100"
+        };
+        if (statusMap[updates.status]) {
+          updates.progress = statusMap[updates.status];
+        }
+      }
+      const project = await storage.updateProject(req.params.id, updates);
       res.json(project);
     } catch (error) {
       res.status(500).json({ error: "Failed to update project" });
