@@ -14,6 +14,9 @@ export interface IStorage {
   getUser(id: string): Promise<User | undefined>;
   getUserByUsername(username: string): Promise<User | undefined>;
   createUser(user: InsertUser): Promise<User>;
+  getTenants(): Promise<Tenant[]>;
+  getTenant(id: string): Promise<Tenant | undefined>;
+  createTenant(tenant: InsertTenant): Promise<Tenant>;
   createContactMessage(message: InsertContactMessage): Promise<ContactMessage>;
   getContactMessages(): Promise<ContactMessage[]>;
   getProjects(userId?: string): Promise<Project[]>;
@@ -26,27 +29,33 @@ export interface IStorage {
   createMeeting(meeting: InsertMeeting): Promise<Meeting>;
   getQuotes(): Promise<Quote[]>;
   createQuote(quote: InsertQuote): Promise<Quote>;
-  createAuditLog(log: any): Promise<any>;
-  getAuditLogs(): Promise<any[]>;
+  createAuditLog(log: InsertAuditLog): Promise<AuditLog>;
+  getAuditLogs(tenantId?: string): Promise<AuditLog[]>;
+  getModules(tenantId: string): Promise<Module[]>;
+  createModule(module: InsertModule): Promise<Module>;
 }
 
 export class MemStorage implements IStorage {
   private users: Map<string, User>;
+  private tenants: Map<string, Tenant>;
   private contactMessages: Map<string, ContactMessage>;
   private projects: Map<string, Project>;
   private invoices: Map<string, TaxInvoice>;
   private meetings: Map<string, Meeting>;
   private quotes: Map<string, Quote>;
-  private auditLogs: Map<string, any>;
+  private auditLogs: Map<string, AuditLog>;
+  private modules: Map<string, Module>;
 
   constructor() {
     this.users = new Map();
+    this.tenants = new Map();
     this.contactMessages = new Map();
     this.projects = new Map();
     this.invoices = new Map();
     this.meetings = new Map();
     this.quotes = new Map();
     this.auditLogs = new Map();
+    this.modules = new Map();
   }
 
   async getUser(id: string): Promise<User | undefined> {
@@ -65,10 +74,26 @@ export class MemStorage implements IStorage {
       ...insertUser, 
       id,
       role: insertUser.role || "visitor",
-      tenantId: insertUser.tenantId || "default"
+      tenantId: insertUser.tenantId || "default",
+      metadata: insertUser.metadata || null
     };
     this.users.set(id, user);
     return user;
+  }
+
+  async getTenants(): Promise<Tenant[]> {
+    return Array.from(this.tenants.values());
+  }
+
+  async getTenant(id: string): Promise<Tenant | undefined> {
+    return this.tenants.get(id);
+  }
+
+  async createTenant(insert: InsertTenant): Promise<Tenant> {
+    const id = randomUUID();
+    const tenant: Tenant = { ...insert, id, createdAt: new Date(), status: insert.status || "active", config: insert.config || null };
+    this.tenants.set(id, tenant);
+    return tenant;
   }
 
   async createContactMessage(insertMessage: InsertContactMessage): Promise<ContactMessage> {
@@ -184,15 +209,36 @@ export class MemStorage implements IStorage {
     return quote;
   }
 
-  async createAuditLog(log: any): Promise<any> {
+  async createAuditLog(insert: InsertAuditLog): Promise<AuditLog> {
     const id = randomUUID();
-    const auditLog = { ...log, id, timestamp: new Date() };
+    const auditLog: AuditLog = { 
+      ...insert, 
+      id, 
+      timestamp: new Date(),
+      details: insert.details || null,
+      ipAddress: insert.ipAddress || null,
+      module: insert.module || "Core",
+      tenantId: insert.tenantId || "default"
+    };
     this.auditLogs.set(id, auditLog);
     return auditLog;
   }
 
-  async getAuditLogs(): Promise<any[]> {
-    return Array.from(this.auditLogs.values()).sort((a, b) => b.timestamp.getTime() - a.timestamp.getTime());
+  async getAuditLogs(tenantId?: string): Promise<AuditLog[]> {
+    const all = Array.from(this.auditLogs.values());
+    if (tenantId) return all.filter(log => log.tenantId === tenantId);
+    return all.sort((a, b) => b.timestamp.getTime() - a.timestamp.getTime());
+  }
+
+  async getModules(tenantId: string): Promise<Module[]> {
+    return Array.from(this.modules.values()).filter(m => m.tenantId === tenantId);
+  }
+
+  async createModule(insert: InsertModule): Promise<Module> {
+    const id = randomUUID();
+    const module: Module = { ...insert, id, status: insert.status || "active", config: insert.config || null };
+    this.modules.set(id, module);
+    return module;
   }
 }
 
@@ -206,6 +252,9 @@ export class MongoStorage implements IStorage {
   async getUser(id: string): Promise<User | undefined> { return this.memStorage.getUser(id); }
   async getUserByUsername(username: string): Promise<User | undefined> { return this.memStorage.getUserByUsername(username); }
   async createUser(insertUser: InsertUser): Promise<User> { return this.memStorage.createUser(insertUser); }
+  async getTenants(): Promise<Tenant[]> { return this.memStorage.getTenants(); }
+  async getTenant(id: string): Promise<Tenant | undefined> { return this.memStorage.getTenant(id); }
+  async createTenant(tenant: InsertTenant): Promise<Tenant> { return this.memStorage.createTenant(tenant); }
   async createContactMessage(insertMessage: InsertContactMessage): Promise<ContactMessage> { return this.memStorage.createContactMessage(insertMessage); }
   async getContactMessages(): Promise<ContactMessage[]> { return this.memStorage.getContactMessages(); }
   async getProjects(userId?: string): Promise<Project[]> { return this.memStorage.getProjects(userId); }
@@ -218,8 +267,10 @@ export class MongoStorage implements IStorage {
   async createMeeting(meeting: InsertMeeting): Promise<Meeting> { return this.memStorage.createMeeting(meeting); }
   async getQuotes(): Promise<Quote[]> { return this.memStorage.getQuotes(); }
   async createQuote(quote: InsertQuote): Promise<Quote> { return this.memStorage.createQuote(quote); }
-  async createAuditLog(log: any): Promise<any> { return this.memStorage.createAuditLog(log); }
-  async getAuditLogs(): Promise<any[]> { return this.memStorage.getAuditLogs(); }
+  async createAuditLog(log: InsertAuditLog): Promise<AuditLog> { return this.memStorage.createAuditLog(log); }
+  async getAuditLogs(tenantId?: string): Promise<AuditLog[]> { return this.memStorage.getAuditLogs(tenantId); }
+  async getModules(tenantId: string): Promise<Module[]> { return this.memStorage.getModules(tenantId); }
+  async createModule(module: InsertModule): Promise<Module> { return this.memStorage.createModule(module); }
 }
 
 const memStorage = new MemStorage();
@@ -229,6 +280,9 @@ export const storage: IStorage = {
   getUser: (id) => isConnected() ? mongoStorage.getUser(id) : memStorage.getUser(id),
   getUserByUsername: (username) => isConnected() ? mongoStorage.getUserByUsername(username) : memStorage.getUserByUsername(username),
   createUser: (user) => isConnected() ? mongoStorage.createUser(user) : memStorage.createUser(user),
+  getTenants: () => isConnected() ? mongoStorage.getTenants() : memStorage.getTenants(),
+  getTenant: (id) => isConnected() ? mongoStorage.getTenant(id) : memStorage.getTenant(id),
+  createTenant: (tenant) => isConnected() ? mongoStorage.createTenant(tenant) : memStorage.createTenant(tenant),
   createContactMessage: (message) => isConnected() ? mongoStorage.createContactMessage(message) : memStorage.createContactMessage(message),
   getContactMessages: () => isConnected() ? mongoStorage.getContactMessages() : memStorage.getContactMessages(),
   getInvoices: (userId) => isConnected() ? mongoStorage.getInvoices(userId) : memStorage.getInvoices(userId),
@@ -236,11 +290,13 @@ export const storage: IStorage = {
   getQuotes: () => isConnected() ? mongoStorage.getQuotes() : memStorage.getQuotes(),
   createQuote: (quote) => isConnected() ? mongoStorage.createQuote(quote) : memStorage.createQuote(quote),
   createAuditLog: (log) => isConnected() ? mongoStorage.createAuditLog(log) : memStorage.createAuditLog(log),
-  getAuditLogs: () => isConnected() ? mongoStorage.getAuditLogs() : memStorage.getAuditLogs(),
+  getAuditLogs: (tenantId) => isConnected() ? mongoStorage.getAuditLogs(tenantId) : memStorage.getAuditLogs(tenantId),
   getProjects: (userId) => isConnected() ? mongoStorage.getProjects(userId) : memStorage.getProjects(userId),
   getProject: (id) => isConnected() ? mongoStorage.getProject(id) : memStorage.getProject(id),
   createProject: (project) => isConnected() ? mongoStorage.createProject(project) : memStorage.createProject(project),
   updateProject: (id, updates) => isConnected() ? mongoStorage.updateProject(id, updates) : memStorage.updateProject(id, updates),
   getMeetings: (userId) => isConnected() ? mongoStorage.getMeetings(userId) : memStorage.getMeetings(userId),
   createMeeting: (meeting) => isConnected() ? mongoStorage.createMeeting(meeting) : memStorage.createMeeting(meeting),
+  getModules: (tenantId) => isConnected() ? mongoStorage.getModules(tenantId) : memStorage.getModules(tenantId),
+  createModule: (module) => isConnected() ? mongoStorage.createModule(module) : memStorage.createModule(module),
 };
