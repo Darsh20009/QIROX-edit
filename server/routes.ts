@@ -449,20 +449,21 @@ export async function registerRoutes(
 
   app.patch("/api/projects/:id/approve", authMiddleware, roleMiddleware("admin", "employee", "qirox_pm"), async (req: AuthRequest, res) => {
     try {
-      const { status } = req.body; // yes, rejected
+      const { status, module } = req.body; // yes, rejected
       const user = await User.findById(req.user!.userId);
       const project = await storage.updateProject(req.params.id, {
         isApproved: status,
         approvedBy: req.user!.userId,
         approvedAt: new Date(),
+        module: module || "Build"
       });
 
       await storage.createAuditLog({
         userId: req.user!.userId,
         tenantId: user?.tenantId || "default",
         action: status === "yes" ? "APPROVE_PROJECT" : "REJECT_PROJECT",
-        module: "Build",
-        details: `Project ${req.params.id} ${status === "yes" ? "approved" : "rejected"} by ${user?.email}`,
+        module: module || "Build",
+        details: `Project ${req.params.id} ${status === "yes" ? "approved" : "rejected"} by ${user?.email} into module ${module || "Build"}`,
         ipAddress: req.ip,
       });
 

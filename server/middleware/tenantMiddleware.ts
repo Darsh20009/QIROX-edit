@@ -37,8 +37,10 @@ export async function extractTenant(req: TenantRequest, res: Response, next: Nex
         slug: tenantSlug,
       };
       
-      // Strict Isolation: Ensure all queries include tenantId if tenant is extracted
-      // This is a placeholder for logic that would be injected into storage/models
+      // QIROX Cloud: Log subdomain routing for audit purposes
+      console.log(`[QIROX Cloud] Routing request for subdomain: ${tenantSlug}`);
+      
+      // Strict Isolation: Placeholder for future DB query filtering
     }
 
     next();
