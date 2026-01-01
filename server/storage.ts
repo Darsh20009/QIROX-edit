@@ -150,7 +150,7 @@ export class MemStorage implements IStorage {
 
   async getMeetings(userId?: string): Promise<Meeting[]> {
     const all = Array.from(this.meetings.values());
-    if (userId) return all.filter(m => m.userId === userId);
+    if (userId) return all.filter(m => m.userId === userId || m.tenantId === "default");
     return all;
   }
 

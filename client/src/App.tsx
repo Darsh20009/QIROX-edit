@@ -23,6 +23,7 @@ import NewStore from "@/pages/new-store";
 import Subscribe from "@/pages/subscribe";
 import EmployeeDashboard from "@/pages/employee-dashboard";
 import AdminDashboard from "@/pages/admin-dashboard";
+import MeetingsPage from "@/pages/meetings";
 import AdminDashboardFull from "@/pages/admin-dashboard-full";
 import StoreManage from "@/pages/store-manage";
 import Storefront from "@/pages/storefront";
@@ -71,6 +72,7 @@ function Router() {
       <Route path="/login" component={Login} />
       <Route path="/register" component={Register} />
       <Route path="/dashboard" component={Dashboard} />
+      <Route path="/meetings" component={MeetingsPage} />
       <Route path="/agency/onboarding" component={ProjectOnboarding} />
       <Route path="/agency/dashboard" component={ClientDashboard} />
       <Route path="/dashboard/stores/new" component={NewStore} />

@@ -472,9 +472,16 @@ export async function registerRoutes(
 
   app.post("/api/meetings", authMiddleware, async (req: AuthRequest, res) => {
     try {
+      const user = await User.findById(req.user!.userId);
+      // Mock ZEGO link generation for MVP
+      const meetingId = Math.random().toString(36).substring(7);
+      const meetingLink = `https://qirox.meet/${meetingId}`;
+      
       const meeting = await storage.createMeeting({
         ...req.body,
         userId: req.user!.userId,
+        tenantId: user?.tenantId || "default",
+        link: meetingLink
       });
       res.status(201).json(meeting);
     } catch (error) {
