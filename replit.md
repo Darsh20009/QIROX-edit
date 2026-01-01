@@ -3,6 +3,9 @@
 ## Overview
 QIROX is a modular, multi-tenant system built with a security-first and audit-first approach.
 
+## Contact Information
+- **Customer Service**: +2011201921
+
 ## Product Components (QIROX Modules)
 - **QIROX Website**: Marketing and Decision Flow.
 - **QIROX Core**: Authentication, Tenant Management, and Dashboards.
