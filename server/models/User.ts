@@ -10,10 +10,7 @@ export type UserRole =
   | "qirox_pm" 
   | "qirox_specialist"
   | "qirox_finance"
-  | "system_admin"
-  | "customer"
-  | "admin"
-  | "employee";
+  | "system_admin";
 
 export interface IUser extends Document {
   email: string;
@@ -38,9 +35,9 @@ const UserSchema = new Schema<IUser>(
       enum: [
         "visitor", "client_owner", "client_admin", "client_editor",
         "qirox_sales", "qirox_support", "qirox_pm", "qirox_specialist",
-        "qirox_finance", "system_admin", "customer", "admin", "employee"
+        "qirox_finance", "system_admin"
       ],
-      default: "customer" 
+      default: "visitor" 
     },
     isActive: { type: Boolean, default: true },
     tenantId: { type: String, default: "default" },
