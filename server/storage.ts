@@ -71,6 +71,8 @@ export class MemStorage implements IStorage {
     const message: ContactMessage = {
       ...insertMessage,
       id,
+      company: insertMessage.company ?? null,
+      budget: insertMessage.budget ?? null,
       createdAt: new Date(),
     };
     this.contactMessages.set(id, message);
@@ -292,5 +294,10 @@ export const storage: IStorage = {
   getInvoices: () => isConnected() ? mongoStorage.getInvoices() : memStorage.getInvoices(),
   createInvoice: (invoice) => isConnected() ? mongoStorage.createInvoice(invoice) : memStorage.createInvoice(invoice),
   getQuotes: () => isConnected() ? mongoStorage.getQuotes() : memStorage.getQuotes(),
-  createQuote: (quote) => isConnected() ? mongoStorage.createQuote(quote) : memStorage.createQuote(quote),
+  createProject: (project) => isConnected() ? mongoStorage.createProject(project) : memStorage.createProject(project),
+  getProject: (id) => isConnected() ? mongoStorage.getProject(id) : memStorage.getProject(id),
+  getProjects: (userId) => isConnected() ? mongoStorage.getProjects(userId) : memStorage.getProjects(userId),
+  updateProject: (id, updates) => isConnected() ? mongoStorage.updateProject(id, updates) : memStorage.updateProject(id, updates),
+  getMeetings: (userId) => isConnected() ? mongoStorage.getMeetings(userId) : memStorage.getMeetings(userId),
+  createMeeting: (meeting) => isConnected() ? mongoStorage.createMeeting(meeting) : memStorage.createMeeting(meeting),
 };
