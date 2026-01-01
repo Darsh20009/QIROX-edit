@@ -68,6 +68,7 @@ export const projects = pgTable("projects", {
   approvedBy: varchar("approved_by"), // Employee ID
   approvedAt: timestamp("approved_at"),
   provisionedAt: timestamp("provisioned_at"), // When space was created
+  module: text("module").notNull().default("Build"), // QIROX Build, Requests, Ops, etc.
   createdAt: timestamp("created_at").defaultNow().notNull(),
 });
 

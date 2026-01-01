@@ -10,7 +10,9 @@ import {
   Settings, 
   LogOut,
   Menu,
-  X
+  X,
+  MessageSquare,
+  CreditCard
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useState } from "react";
@@ -25,12 +27,12 @@ export function Layout({ children }: LayoutProps) {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
   const navigation = [
-    { name: "لوحة التحكم", href: "/dashboard", icon: LayoutDashboard },
-    { name: "الاجتماعات", href: "/meetings", icon: Video },
-    { name: "المشاريع", href: "/agency/dashboard", icon: Package },
-    { name: "المتاجر", href: "/store/manage", icon: Store },
-    { name: "السجلات", href: "/audit-logs", icon: Settings },
-    { name: "الإعدادات", href: "/admin/settings", icon: Settings },
+    { name: "QIROX Build", href: "/kanban", icon: Package },
+    { name: "QIROX Meet", href: "/meetings", icon: Video },
+    { name: "QIROX Requests", href: "/agency/dashboard", icon: MessageSquare },
+    { name: "QIROX Finance", href: "/admin/financials", icon: CreditCard },
+    { name: "QIROX Ops", href: "/employee", icon: LayoutDashboard },
+    { name: "QIROX Core", href: "/admin/settings", icon: Settings },
   ];
 
   if (!user) {

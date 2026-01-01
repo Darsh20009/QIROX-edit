@@ -395,9 +395,10 @@ export async function registerRoutes(
       
       const stats = {
         projectsCount: projects.length,
-        activeProjects: projects.filter(p => p.status !== "completed").length,
+        activeProjects: projects.filter(p => p.isApproved === "yes" && p.status !== "completed").length,
         unpaidInvoices: invoices.filter(i => i.status === "unpaid").length,
         upcomingMeetings: meetings.filter(m => new Date(m.scheduledAt) > new Date()).length,
+        pendingApprovals: projects.filter(p => p.isApproved === "no").length,
       };
       res.json(stats);
     } catch (error) {

@@ -71,6 +71,45 @@ export default function AdminDashboard() {
             </Card>
           </div>
 
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
+            <Card className="border-primary/20 bg-primary/5">
+              <CardHeader className="pb-2">
+                <CardTitle className="text-xs font-bold text-primary">QIROX Build</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="text-xl font-bold">24</div>
+                <p className="text-[10px] text-muted-foreground">مشاريع نشطة</p>
+              </CardContent>
+            </Card>
+            <Card className="border-primary/20 bg-primary/5">
+              <CardHeader className="pb-2">
+                <CardTitle className="text-xs font-bold text-primary">QIROX Requests</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="text-xl font-bold">12</div>
+                <p className="text-[10px] text-muted-foreground">طلبات معلقة</p>
+              </CardContent>
+            </Card>
+            <Card className="border-primary/20 bg-primary/5">
+              <CardHeader className="pb-2">
+                <CardTitle className="text-xs font-bold text-primary">QIROX Meet</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="text-xl font-bold">5</div>
+                <p className="text-[10px] text-muted-foreground">اجتماعات اليوم</p>
+              </CardContent>
+            </Card>
+            <Card className="border-primary/20 bg-primary/5">
+              <CardHeader className="pb-2">
+                <CardTitle className="text-xs font-bold text-primary">QIROX Finance</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="text-xl font-bold">8</div>
+                <p className="text-[10px] text-muted-foreground">فواتير مستحقة</p>
+              </CardContent>
+            </Card>
+          </div>
+
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
             <Card>
               <CardHeader>

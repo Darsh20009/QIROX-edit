@@ -145,8 +145,9 @@ export class MemStorage implements IStorage {
       approvedBy: insert.approvedBy || null,
       approvedAt: insert.approvedAt || null,
       provisionedAt: insert.provisionedAt || null,
+      module: insert.module || "Build",
     };
-    this.users.set(id, project as any); // Correcting a potential map error in MemStorage
+    this.users.set(id, project as any);
     this.projects.set(id, project);
     return project;
   }
