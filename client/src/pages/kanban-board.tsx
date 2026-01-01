@@ -18,17 +18,17 @@ interface Task {
 }
 
 const statusLabels = {
-  todo: "قائمة المهام",
-  in_progress: "قيد الإنجاز",
-  review: "قيد المراجعة",
-  done: "مكتملة",
+  todo: "تجمع المتطلبات",
+  in_progress: "قيد التصميم",
+  review: "قيد البرمجة",
+  done: "الاختبار",
 };
 
 const statusColors = {
-  todo: "bg-gray-100 dark:bg-gray-900",
-  in_progress: "bg-blue-100 dark:bg-blue-900",
-  review: "bg-yellow-100 dark:bg-yellow-900",
-  done: "bg-green-100 dark:bg-green-900",
+  todo: "bg-muted/30",
+  in_progress: "bg-muted/30",
+  review: "bg-muted/30",
+  done: "bg-muted/30",
 };
 
 export default function KanbanBoard() {
@@ -102,9 +102,10 @@ export default function KanbanBoard() {
   return (
     <div className="p-6 bg-background min-h-screen" data-testid="page-kanban">
       <div className="mb-6">
-        <h1 className="text-3xl font-bold mb-4" data-testid="text-page-title">
-          لوحة مهام المشروع
+        <h1 className="text-3xl font-bold mb-2" data-testid="text-page-title">
+          لوحة المهام (Kanban)
         </h1>
+        <p className="text-muted-foreground mb-6">إدارة مسار عمل مشروعك وفقاً لنظام QIROX الموحد.</p>
         <div className="flex gap-2">
           <Input
             placeholder="أضف مهمة جديدة..."
@@ -127,18 +128,21 @@ export default function KanbanBoard() {
         </div>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
         {(Object.keys(statusLabels) as Array<keyof typeof statusLabels>).map(
           (status) => (
             <div
               key={status}
-              className={`rounded-lg p-4 min-h-96 ${statusColors[status]}`}
+              className={`rounded-xl p-4 min-h-96 border border-dashed ${statusColors[status]}`}
               onDragOver={handleDragOver}
               onDrop={() => handleDrop(status)}
               data-testid={`column-${status}`}
             >
-              <h2 className="font-semibold mb-4 text-lg">
-                {statusLabels[status]} ({tasksByStatus[status].length})
+              <h2 className="font-bold mb-4 text-sm flex items-center justify-between">
+                {statusLabels[status]}
+                <Badge variant="secondary" className="text-[10px] h-4">
+                  {tasksByStatus[status].length}
+                </Badge>
               </h2>
               <div className="space-y-3">
                 {tasksByStatus[status].map((task) => (

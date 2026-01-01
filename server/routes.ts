@@ -432,11 +432,11 @@ export async function registerRoutes(
       });
 
       await storage.createAuditLog({
-        userId: req.user!.userId,
-        tenantId: user?.tenantId || "default",
+        userId: user._id.toString(),
+        tenantId: user.tenantId || "default",
         action: "PROVISION_PROJECT",
         module: "Build",
-        details: `Project ${project.id} provisioned for user ${project.userId}`,
+        details: `Project ${project.id} provisioned by ${user.email} for user ${project.userId}`,
         ipAddress: req.ip,
       });
 
@@ -461,7 +461,7 @@ export async function registerRoutes(
         tenantId: user?.tenantId || "default",
         action: status === "yes" ? "APPROVE_PROJECT" : "REJECT_PROJECT",
         module: "Build",
-        details: `Project ${req.params.id} ${status === "yes" ? "approved" : "rejected"}`,
+        details: `Project ${req.params.id} ${status === "yes" ? "approved" : "rejected"} by ${user?.email}`,
         ipAddress: req.ip,
       });
 
