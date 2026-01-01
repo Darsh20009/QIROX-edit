@@ -4,7 +4,10 @@ import {
   type Project, type InsertProject,
   type TaxInvoice, type InsertTaxInvoice,
   type Meeting, type InsertMeeting,
-  type Quote, type InsertQuote 
+  type Quote, type InsertQuote,
+  type Tenant, type InsertTenant,
+  type AuditLog, type InsertAuditLog,
+  type Module, type InsertModule
 } from "@shared/schema";
 import { randomUUID } from "crypto";
 import { ContactMessage as ContactMessageModel } from "./models/ContactMessage";
