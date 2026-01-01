@@ -107,7 +107,8 @@ export default function EmployeeDashboard() {
                             {p.status}
                           </Badge>
                         </div>
-                        <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 mb-4">
+                        <div className="grid grid-cols-2 sm:grid-cols-5 gap-4 mb-4">
+                          <Button size="sm" variant="outline" onClick={() => updateStatusMutation.mutate({ projectId: p.id, status: "requirements_gathering" })}>متطلبات</Button>
                           <Button size="sm" variant="outline" onClick={() => updateStatusMutation.mutate({ projectId: p.id, status: "design" })}>تصميم</Button>
                           <Button size="sm" variant="outline" onClick={() => updateStatusMutation.mutate({ projectId: p.id, status: "development" })}>برمجة</Button>
                           <Button size="sm" variant="outline" onClick={() => updateStatusMutation.mutate({ projectId: p.id, status: "testing" })}>اختبار</Button>

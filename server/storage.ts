@@ -26,6 +26,8 @@ export interface IStorage {
   createMeeting(meeting: InsertMeeting): Promise<Meeting>;
   getQuotes(): Promise<Quote[]>;
   createQuote(quote: InsertQuote): Promise<Quote>;
+  createAuditLog(log: any): Promise<any>;
+  getAuditLogs(): Promise<any[]>;
 }
 
 export class MemStorage implements IStorage {
@@ -35,6 +37,7 @@ export class MemStorage implements IStorage {
   private invoices: Map<string, TaxInvoice>;
   private meetings: Map<string, Meeting>;
   private quotes: Map<string, Quote>;
+  private auditLogs: Map<string, any>;
 
   constructor() {
     this.users = new Map();
@@ -43,6 +46,7 @@ export class MemStorage implements IStorage {
     this.invoices = new Map();
     this.meetings = new Map();
     this.quotes = new Map();
+    this.auditLogs = new Map();
   }
 
   async getUser(id: string): Promise<User | undefined> {
@@ -102,7 +106,9 @@ export class MemStorage implements IStorage {
       description: insert.description || null,
       requirements: insert.requirements || null,
       referenceUrls: insert.referenceUrls || null,
-      storeUrl: insert.storeUrl || null
+      storeUrl: insert.storeUrl || null,
+      tenantId: insert.tenantId || "default",
+      isApproved: insert.isApproved || "no"
     };
     this.projects.set(id, project);
     return project;
@@ -170,6 +176,17 @@ export class MemStorage implements IStorage {
     this.quotes.set(id, quote);
     return quote;
   }
+
+  async createAuditLog(log: any): Promise<any> {
+    const id = randomUUID();
+    const auditLog = { ...log, id, timestamp: new Date() };
+    this.auditLogs.set(id, auditLog);
+    return auditLog;
+  }
+
+  async getAuditLogs(): Promise<any[]> {
+    return Array.from(this.auditLogs.values()).sort((a, b) => b.timestamp.getTime() - a.timestamp.getTime());
+  }
 }
 
 export class MongoStorage implements IStorage {
@@ -194,6 +211,8 @@ export class MongoStorage implements IStorage {
   async createMeeting(meeting: InsertMeeting): Promise<Meeting> { return this.memStorage.createMeeting(meeting); }
   async getQuotes(): Promise<Quote[]> { return this.memStorage.getQuotes(); }
   async createQuote(quote: InsertQuote): Promise<Quote> { return this.memStorage.createQuote(quote); }
+  async createAuditLog(log: any): Promise<any> { return this.memStorage.createAuditLog(log); }
+  async getAuditLogs(): Promise<any[]> { return this.memStorage.getAuditLogs(); }
 }
 
 const memStorage = new MemStorage();
@@ -209,6 +228,8 @@ export const storage: IStorage = {
   createInvoice: (invoice) => isConnected() ? mongoStorage.createInvoice(invoice) : memStorage.createInvoice(invoice),
   getQuotes: () => isConnected() ? mongoStorage.getQuotes() : memStorage.getQuotes(),
   createQuote: (quote) => isConnected() ? mongoStorage.createQuote(quote) : memStorage.createQuote(quote),
+  createAuditLog: (log) => isConnected() ? mongoStorage.createAuditLog(log) : memStorage.createAuditLog(log),
+  getAuditLogs: () => isConnected() ? mongoStorage.getAuditLogs() : memStorage.getAuditLogs(),
   getProjects: (userId) => isConnected() ? mongoStorage.getProjects(userId) : memStorage.getProjects(userId),
   getProject: (id) => isConnected() ? mongoStorage.getProject(id) : memStorage.getProject(id),
   createProject: (project) => isConnected() ? mongoStorage.createProject(project) : memStorage.createProject(project),

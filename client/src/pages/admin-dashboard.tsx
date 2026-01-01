@@ -1,10 +1,12 @@
 import { useEffect } from "react";
 import { Link, useLocation } from "wouter";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useMutation } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { useAuth } from "@/lib/auth";
+import { useToast } from "@/hooks/use-toast";
+import { queryClient, apiRequest } from "@/lib/queryClient";
 import { 
   ArrowLeft, 
   Loader2,
@@ -16,12 +18,15 @@ import {
   MessageSquare,
   LayoutDashboard,
   Settings,
-  LogOut
+  LogOut,
+  Clock,
+  ShieldCheck
 } from "lucide-react";
 
 export default function AdminDashboard() {
   const { user, isLoading: authLoading, logout } = useAuth();
   const [, setLocation] = useLocation();
+  const { toast } = useToast();
 
   useEffect(() => {
     if (!authLoading && !user) {
@@ -45,6 +50,16 @@ export default function AdminDashboard() {
   const { data: users, isLoading: usersLoading } = useQuery<any[]>({
     queryKey: ["/api/admin/users"],
     enabled: !!user && user.role === "admin",
+  });
+
+  const approveMutation = useMutation({
+    mutationFn: async (projectId: string) => {
+      return apiRequest("PATCH", `/api/projects/${projectId}/approve`, {});
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/projects"] });
+      toast({ title: "تم الاعتماد", description: "تم تفعيل المشروع بنجاح (Approval Gate)" });
+    }
   });
 
   if (authLoading) {
@@ -93,6 +108,12 @@ export default function AdminDashboard() {
               <div className="flex items-center gap-3 p-3 text-muted-foreground hover:bg-muted rounded-lg cursor-pointer transition-colors">
                 <FileText className="w-5 h-5" />
                 <span>الفواتير</span>
+              </div>
+            </Link>
+            <Link href="/admin/audit-logs">
+              <div className="flex items-center gap-3 p-3 text-muted-foreground hover:bg-muted rounded-lg cursor-pointer transition-colors">
+                <Clock className="w-5 h-5" />
+                <span>سجل الأحداث</span>
               </div>
             </Link>
             <div className="pt-8 border-t mt-8">
@@ -165,6 +186,18 @@ export default function AdminDashboard() {
                           </div>
                         </div>
                         <div className="flex items-center gap-4">
+                          {p.isApproved === "no" && (
+                            <Button 
+                              size="sm" 
+                              variant="default" 
+                              className="bg-emerald-600 hover:bg-emerald-700"
+                              onClick={() => approveMutation.mutate(p.id)}
+                              disabled={approveMutation.isPending}
+                            >
+                              <ShieldCheck className="w-4 h-4 ml-1" />
+                              اعتماد
+                            </Button>
+                          )}
                           <Badge variant="secondary" className="bg-slate-100 text-slate-600 border-none">
                             {p.status === "pending" ? "قيد المراجعة" : p.status}
                           </Badge>

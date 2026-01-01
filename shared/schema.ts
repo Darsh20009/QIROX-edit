@@ -39,15 +39,25 @@ export type InsertContactMessage = z.infer<typeof insertContactMessageSchema>;
 export const projects = pgTable("projects", {
   id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
   userId: varchar("user_id").notNull(),
+  tenantId: varchar("tenant_id").notNull().default("default"),
   name: text("name").notNull(),
   description: text("description"),
-  type: text("project_type").notNull(), // e.g. "E-commerce", "Corporate Website"
-  status: text("status").notNull().default("pending"), // pending, requirements_gathering, design, development, testing, completed
+  type: text("project_type").notNull(),
+  status: text("status").notNull().default("pending"),
   progress: text("progress").notNull().default("0"),
-  requirements: text("requirements"), // Detailed selection/info from customer
-  referenceUrls: text("reference_urls"), // Comma-separated or JSON
+  requirements: text("requirements"),
+  referenceUrls: text("reference_urls"),
   storeUrl: text("store_url"),
+  isApproved: text("is_approved").notNull().default("no"), // Approval Gate
   createdAt: timestamp("created_at").defaultNow().notNull(),
+});
+
+export const auditLogs = pgTable("audit_logs", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  userId: varchar("user_id").notNull(),
+  action: text("action").notNull(),
+  details: text("details"),
+  timestamp: timestamp("timestamp").defaultNow().notNull(),
 });
 
 export const insertProjectSchema = createInsertSchema(projects).omit({
@@ -62,6 +72,7 @@ export const taxInvoices = pgTable("tax_invoices", {
   id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
   projectId: varchar("project_id").notNull(),
   userId: varchar("user_id").notNull(),
+  tenantId: varchar("tenant_id").notNull().default("default"),
   invoiceNumber: text("invoice_number").notNull().unique(),
   amount: text("amount").notNull(),
   taxAmount: text("tax_amount").notNull(), // 15% VAT for Saudi
@@ -84,6 +95,7 @@ export const meetings = pgTable("meetings", {
   id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
   projectId: varchar("project_id").notNull(),
   userId: varchar("user_id").notNull(),
+  tenantId: varchar("tenant_id").notNull().default("default"),
   title: text("title").notNull(),
   scheduledAt: timestamp("scheduled_at").notNull(),
   status: text("status").notNull().default("scheduled"), // scheduled, completed, cancelled

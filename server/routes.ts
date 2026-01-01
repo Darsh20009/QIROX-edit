@@ -397,26 +397,26 @@ export async function registerRoutes(
     }
   });
 
-  app.patch("/api/projects/:id", authMiddleware, async (req: AuthRequest, res) => {
+  app.patch("/api/projects/:id/approve", authMiddleware, roleMiddleware("admin"), async (req: AuthRequest, res) => {
     try {
-      const updates = req.body;
-      // Basic progress logic based on status
-      if (updates.status) {
-        const statusMap: Record<string, string> = {
-          "pending": "0",
-          "design": "30",
-          "development": "60",
-          "testing": "90",
-          "completed": "100"
-        };
-        if (statusMap[updates.status]) {
-          updates.progress = statusMap[updates.status];
-        }
-      }
-      const project = await storage.updateProject(req.params.id, updates);
+      const project = await storage.updateProject(req.params.id, { isApproved: "yes" });
+      await storage.createAuditLog({
+        userId: req.user!.userId,
+        action: "PROJECT_APPROVE",
+        details: `Approved project ${req.params.id}`
+      });
       res.json(project);
     } catch (error) {
-      res.status(500).json({ error: "Failed to update project" });
+      res.status(500).json({ error: "Failed to approve project" });
+    }
+  });
+
+  app.get("/api/admin/audit-logs", authMiddleware, roleMiddleware("admin"), async (_req, res) => {
+    try {
+      const logs = await storage.getAuditLogs();
+      res.json(logs);
+    } catch (error) {
+      res.status(500).json({ error: "Failed to fetch audit logs" });
     }
   });
 

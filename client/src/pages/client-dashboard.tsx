@@ -114,8 +114,11 @@ export function ClientDashboard() {
                   <p className="font-medium text-sm">{meeting.title}</p>
                   <p className="text-xs text-muted-foreground">{format(new Date(meeting.scheduledAt), "PPP p", { locale: ar })}</p>
                   {meeting.link && (
-                    <Button size="sm" className="w-full" variant="secondary" asChild>
-                      <a href={meeting.link} target="_blank" rel="noopener noreferrer">انضم للاجتماع</a>
+                    <Button size="sm" className="w-full bg-indigo-600 hover:bg-indigo-700" asChild>
+                      <a href={`https://meet.qirox.com/${meeting.id}`} target="_blank" rel="noopener noreferrer">
+                        <MessageSquare className="w-4 h-4 ml-2" />
+                        QIROX Meet (ZEGO)
+                      </a>
                     </Button>
                   )}
                 </Card>
