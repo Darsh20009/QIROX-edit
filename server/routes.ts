@@ -466,9 +466,8 @@ export async function registerRoutes(
       const project = await storage.updateProject(req.params.id, {
         isApproved: status,
         approvedBy: req.user!.userId,
-        approvedAt: new Date(),
-        module: module || "Build"
       });
+
 
       await storage.createAuditLog({
         userId: req.user!.userId,
