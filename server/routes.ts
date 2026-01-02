@@ -397,7 +397,37 @@ export async function registerRoutes(
     }
   });
 
-  // ==================== QIROX CORE ROUTES ====================
+  // ==================== QIROX CLOUD ROUTES ====================
+  app.get("/api/cloud/tenant-status", authMiddleware, async (req: AuthRequest, res) => {
+    try {
+      const user = await User.findById(req.user!.userId);
+      if (!user) return res.status(404).json({ error: "User not found" });
+
+      const tenant = await storage.getTenant(user.tenantId || "default");
+      if (!tenant) return res.status(404).json({ error: "Tenant not found" });
+
+      res.json({
+        slug: tenant.slug,
+        subdomain: `${tenant.slug}.qirox.com`,
+        status: "active",
+        ssl: "valid",
+        dns: "configured"
+      });
+    } catch (error) {
+      res.status(500).json({ error: "Failed to fetch cloud status" });
+    }
+  });
+
+  app.post("/api/cloud/validate-slug", async (req, res) => {
+    try {
+      const { slug } = req.body;
+      const existing = await storage.getTenantBySlug(slug);
+      res.json({ available: !existing });
+    } catch (error) {
+      res.status(500).json({ error: "Validation failed" });
+    }
+  });
+
 
   app.get("/api/dashboard/stats", authMiddleware, async (req: AuthRequest, res) => {
     try {
