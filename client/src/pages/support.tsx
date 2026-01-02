@@ -43,7 +43,7 @@ export default function Support() {
         <div className="mx-auto max-w-7xl px-6">
           <div className="text-center mb-20">
             <h1 className="text-4xl md:text-5xl font-bold mb-6">الدعم الفني البشري</h1>
-            <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
+            <p className="text-lg text-muted-foreground max-w-2xl mx-auto leading-relaxed">
               نحن لا نستخدم الردود الآلية المعقدة. ستحصل دائماً على مساعدة من إنسان حقيقي يفهم احتياجاتك.
             </p>
           </div>
@@ -52,7 +52,7 @@ export default function Support() {
             {supportOptions.map((option) => {
               const Icon = option.icon;
               return (
-                <Card key={option.title} className="hover-elevate border-0 shadow-sm bg-muted/30">
+                <Card key={option.title} className="hover-elevate border-0 shadow-sm bg-muted/30 no-default-hover-elevate">
                   <CardContent className="p-8 text-center">
                     <div className="w-12 h-12 rounded-xl bg-primary/10 text-primary flex items-center justify-center mx-auto mb-6">
                       <Icon className="w-6 h-6" />

@@ -77,6 +77,27 @@ const stats = [
   { value: "100%", label: "ملكية كاملة" },
 ];
 
+const caseStudies = [
+  {
+    title: "منصة إمداد التقنية",
+    type: "Business Systems",
+    result: "أتمتة 90% من العمليات الإدارية",
+    image: "https://images.unsplash.com/photo-1460925895917-afdab827c52f?auto=format&fit=crop&q=80&w=800",
+  },
+  {
+    title: "متجر رداء النخبة",
+    type: "Store",
+    result: "زيادة المبيعات بنسبة 150%",
+    image: "https://images.unsplash.com/photo-1441986300917-64674bd600d8?auto=format&fit=crop&q=80&w=800",
+  },
+  {
+    title: "تطبيق وصلني",
+    type: "Custom Build",
+    result: "خدمة 10,000 مستخدم نشط",
+    image: "https://images.unsplash.com/photo-1512428559087-560fa5ceab42?auto=format&fit=crop&q=80&w=800",
+  },
+];
+
 const features = [
   {
     icon: Shield,
@@ -240,6 +261,37 @@ export default function Home() {
           </section>
 
           <section className="py-20 md:py-28 bg-muted/30">
+            <div className="mx-auto max-w-7xl px-6">
+              <div className="text-center mb-16">
+                <Badge variant="outline" className="mb-4">قصص النجاح</Badge>
+                <h2 className="text-3xl md:text-4xl font-bold text-foreground">
+                  مشاريع تم بناؤها بواسطة QIROX
+                </h2>
+              </div>
+
+              <div className="grid md:grid-cols-3 gap-8">
+                {caseStudies.map((study) => (
+                  <Card key={study.title} className="overflow-hidden border-0 shadow-md group">
+                    <div className="aspect-video overflow-hidden">
+                      <img 
+                        src={study.image} 
+                        alt={study.title} 
+                        className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
+                        loading="lazy"
+                      />
+                    </div>
+                    <CardContent className="p-6">
+                      <Badge className="mb-3">{study.type}</Badge>
+                      <h3 className="text-xl font-bold mb-2">{study.title}</h3>
+                      <p className="text-primary font-medium text-sm">{study.result}</p>
+                    </CardContent>
+                  </Card>
+                ))}
+              </div>
+            </div>
+          </section>
+
+          <section className="py-20 md:py-28">
             <div className="mx-auto max-w-7xl px-6">
               <div className="text-center mb-16">
                 <Badge variant="outline" className="mb-4">لماذا QIROX؟</Badge>

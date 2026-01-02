@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+  <url><loc>https://qirox.replit.app/</loc><priority>1.0</priority></url>
+  <url><loc>https://qirox.replit.app/build</loc><priority>0.8</priority></url>
+  <url><loc>https://qirox.replit.app/systems</loc><priority>0.8</priority></url>
+  <url><loc>https://qirox.replit.app/stores</loc><priority>0.8</priority></url>
+  <url><loc>https://qirox.replit.app/custom</loc><priority>0.8</priority></url>
+  <url><loc>https://qirox.replit.app/how-it-works</loc><priority>0.7</priority></url>
+  <url><loc>https://qirox.replit.app/pricing</loc><priority>0.7</priority></url>
+  <url><loc>https://qirox.replit.app/about</loc><priority>0.6</priority></url>
+  <url><loc>https://qirox.replit.app/contact</loc><priority>0.6</priority></url>
+  <url><loc>https://qirox.replit.app/support</loc><priority>0.6</priority></url>
+</urlset>

@@ -1,0 +1,3 @@
+User-agent: *
+Allow: /
+Sitemap: https://qirox.replit.app/sitemap.xml
