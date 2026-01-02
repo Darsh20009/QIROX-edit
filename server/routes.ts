@@ -21,7 +21,7 @@ import { Category } from "./models/Category";
 import { Tenant } from "./models/Tenant";
 import { Membership } from "./models/Membership";
 import { extractTenant, verifyTenantAccess, requireTenantRole, type TenantRequest } from "./middleware/tenantMiddleware";
-import tenantsRouter from "./routes/tenants";
+// import tenantsRouter from "./routes/tenants"; // Removed
 import { Project, Task } from "./models/Project";
 
 const rateLimitMap = new Map<string, { count: number; resetTime: number }>();
@@ -112,7 +112,7 @@ export async function registerRoutes(
 ): Promise<Server> {
   
   // ==================== TENANT ROUTES ====================
-  app.use("/api/tenants", extractTenant, tenantsRouter);
+  // app.use("/api/tenants", extractTenant, tenantsRouter); // Removed
 
   // ==================== AUTH ROUTES ====================
   
