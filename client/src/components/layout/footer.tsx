@@ -1,6 +1,6 @@
 import { Link } from "wouter";
 import qiroxLogo from "@assets/qirox_without_background_1767002019509.png";
-import { Twitter, Instagram, Linkedin, Mail, Phone, MapPin } from "lucide-react";
+import { Twitter, Instagram, Mail, Phone, MapPin } from "lucide-react";
 
 const footerLinks = {
   product: [
@@ -40,9 +40,6 @@ export function Footer() {
               </a>
               <a href="https://www.instagram.com/qirox.tec/" target="_blank" rel="noopener noreferrer" className="w-12 h-12 rounded-xl bg-background flex items-center justify-center text-muted-foreground hover:bg-primary hover:text-white transition-all shadow-sm">
                 <Instagram className="w-5 h-5" />
-              </a>
-              <a href="#" className="w-12 h-12 rounded-xl bg-background flex items-center justify-center text-muted-foreground hover:bg-primary hover:text-white transition-all shadow-sm">
-                <Linkedin className="w-5 h-5" />
               </a>
             </div>
           </div>
