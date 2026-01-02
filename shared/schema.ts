@@ -1,5 +1,5 @@
 import { sql } from "drizzle-orm";
-import { pgTable, text, varchar, timestamp } from "drizzle-orm/pg-core";
+import { pgTable, text, varchar, timestamp, integer, boolean } from "drizzle-orm/pg-core";
 import { createInsertSchema } from "drizzle-zod";
 import { z } from "zod";
 
@@ -128,13 +128,6 @@ export const quotes = pgTable("quotes", {
   createdAt: timestamp("created_at").defaultNow().notNull(),
 });
 
-export const insertTenantSchema = createInsertSchema(tenants).omit({
-  id: true,
-  createdAt: true,
-});
-export type Tenant = typeof tenants.$inferSelect;
-export type InsertTenant = z.infer<typeof insertTenantSchema>;
-
 export const insertUserSchema = createInsertSchema(users).pick({
   username: true,
   password: true,
@@ -145,18 +138,42 @@ export const insertUserSchema = createInsertSchema(users).pick({
 export type User = typeof users.$inferSelect;
 export type InsertUser = z.infer<typeof insertUserSchema>;
 
+export const insertServiceSchema = createInsertSchema(services).pick({
+  name: true,
+  description: true,
+  price: true,
+  category: true,
+  features: true,
+  isActive: true,
+});
+export type Service = typeof services.$inferSelect;
+export type InsertService = z.infer<typeof insertServiceSchema>;
+
+export const insertOrderSchema = createInsertSchema(orders).pick({
+  orderNumber: true,
+  userId: true,
+  serviceId: true,
+  status: true,
+  totalAmount: true,
+});
+export type Order = typeof orders.$inferSelect;
+export type InsertOrder = z.infer<typeof insertOrderSchema>;
+
+export const insertEnrollmentSchema = createInsertSchema(enrollments).pick({
+  userId: true,
+  courseId: true,
+  progress: true,
+  status: true,
+});
+export type Enrollment = typeof enrollments.$inferSelect;
+export type InsertEnrollment = z.infer<typeof insertEnrollmentSchema>;
+
 export const insertAuditLogSchema = createInsertSchema(auditLogs).omit({
   id: true,
   timestamp: true,
 });
 export type AuditLog = typeof auditLogs.$inferSelect;
 export type InsertAuditLog = z.infer<typeof insertAuditLogSchema>;
-
-export const insertModuleSchema = createInsertSchema(modules).omit({
-  id: true,
-});
-export type Module = typeof modules.$inferSelect;
-export type InsertModule = z.infer<typeof insertModuleSchema>;
 
 export const insertContactMessageSchema = createInsertSchema(contactMessages).omit({
   id: true,

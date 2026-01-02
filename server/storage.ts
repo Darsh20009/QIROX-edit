@@ -5,21 +5,16 @@ import {
   type TaxInvoice, type InsertTaxInvoice,
   type Meeting, type InsertMeeting,
   type Quote, type InsertQuote,
-  type Tenant, type InsertTenant,
   type AuditLog, type InsertAuditLog,
-  type Module, type InsertModule
+  type Service, type InsertService,
+  type Order, type InsertOrder,
+  type Enrollment, type InsertEnrollment
 } from "@shared/schema";
-import { randomUUID } from "crypto";
-import { ContactMessage as ContactMessageModel } from "./models/ContactMessage";
-import { isConnected } from "./db";
 
 export interface IStorage {
   getUser(id: string): Promise<User | undefined>;
   getUserByUsername(username: string): Promise<User | undefined>;
   createUser(user: InsertUser): Promise<User>;
-  getTenants(): Promise<Tenant[]>;
-  getTenant(id: string): Promise<Tenant | undefined>;
-  createTenant(tenant: InsertTenant): Promise<Tenant>;
   createContactMessage(message: InsertContactMessage): Promise<ContactMessage>;
   getContactMessages(): Promise<ContactMessage[]>;
   getProjects(userId?: string): Promise<Project[]>;
@@ -34,31 +29,39 @@ export interface IStorage {
   createQuote(quote: InsertQuote): Promise<Quote>;
   createAuditLog(log: InsertAuditLog): Promise<AuditLog>;
   getAuditLogs(tenantId?: string): Promise<AuditLog[]>;
-  getModules(tenantId: string): Promise<Module[]>;
-  createModule(module: InsertModule): Promise<Module>;
+  
+  // New methods
+  getServices(): Promise<Service[]>;
+  createService(service: InsertService): Promise<Service>;
+  getOrders(userId?: string): Promise<Order[]>;
+  createOrder(order: InsertOrder): Promise<Order>;
+  getEnrollments(userId?: string): Promise<Enrollment[]>;
+  createEnrollment(enrollment: InsertEnrollment): Promise<Enrollment>;
 }
 
 export class MemStorage implements IStorage {
   private users: Map<string, User>;
-  private tenants: Map<string, Tenant>;
   private contactMessages: Map<string, ContactMessage>;
   private projects: Map<string, Project>;
   private invoices: Map<string, TaxInvoice>;
   private meetings: Map<string, Meeting>;
   private quotes: Map<string, Quote>;
   private auditLogs: Map<string, AuditLog>;
-  private modules: Map<string, Module>;
+  private services: Map<string, Service>;
+  private orders: Map<string, Order>;
+  private enrollments: Map<string, Enrollment>;
 
   constructor() {
     this.users = new Map();
-    this.tenants = new Map();
     this.contactMessages = new Map();
     this.projects = new Map();
     this.invoices = new Map();
     this.meetings = new Map();
     this.quotes = new Map();
     this.auditLogs = new Map();
-    this.modules = new Map();
+    this.services = new Map();
+    this.orders = new Map();
+    this.enrollments = new Map();
   }
 
   async getUser(id: string): Promise<User | undefined> {
@@ -82,21 +85,6 @@ export class MemStorage implements IStorage {
     };
     this.users.set(id, user);
     return user;
-  }
-
-  async getTenants(): Promise<Tenant[]> {
-    return Array.from(this.tenants.values());
-  }
-
-  async getTenant(id: string): Promise<Tenant | undefined> {
-    return this.tenants.get(id);
-  }
-
-  async createTenant(insert: InsertTenant): Promise<Tenant> {
-    const id = randomUUID();
-    const tenant: Tenant = { ...insert, id, createdAt: new Date(), status: insert.status || "active", config: insert.config || null };
-    this.tenants.set(id, tenant);
-    return tenant;
   }
 
   async createContactMessage(insertMessage: InsertContactMessage): Promise<ContactMessage> {
@@ -147,7 +135,6 @@ export class MemStorage implements IStorage {
       provisionedAt: insert.provisionedAt || null,
       module: insert.module || "Build",
     };
-    this.users.set(id, project as any);
     this.projects.set(id, project);
     return project;
   }
@@ -183,7 +170,7 @@ export class MemStorage implements IStorage {
 
   async getMeetings(userId?: string): Promise<Meeting[]> {
     const all = Array.from(this.meetings.values());
-    if (userId) return all.filter(m => m.userId === userId || m.tenantId === userId); // Basic tenant isolation
+    if (userId) return all.filter(m => m.userId === userId || m.tenantId === userId);
     return all;
   }
 
@@ -238,15 +225,41 @@ export class MemStorage implements IStorage {
     return all.sort((a, b) => b.timestamp.getTime() - a.timestamp.getTime());
   }
 
-  async getModules(tenantId: string): Promise<Module[]> {
-    return Array.from(this.modules.values()).filter(m => m.tenantId === tenantId);
+  async getServices(): Promise<Service[]> {
+    return Array.from(this.services.values());
   }
 
-  async createModule(insert: InsertModule): Promise<Module> {
+  async createService(insert: InsertService): Promise<Service> {
     const id = randomUUID();
-    const module: Module = { ...insert, id, status: insert.status || "active", config: insert.config || null };
-    this.modules.set(id, module);
-    return module;
+    const service: Service = { ...insert, id, isActive: insert.isActive ?? true, features: insert.features ?? null };
+    this.services.set(id, service);
+    return service;
+  }
+
+  async getOrders(userId?: string): Promise<Order[]> {
+    const all = Array.from(this.orders.values());
+    if (userId) return all.filter(o => o.userId === userId);
+    return all;
+  }
+
+  async createOrder(insert: InsertOrder): Promise<Order> {
+    const id = randomUUID();
+    const order: Order = { ...insert, id, createdAt: new Date(), status: insert.status ?? "pending", userId: insert.userId ?? null, serviceId: insert.serviceId ?? null };
+    this.orders.set(id, order);
+    return order;
+  }
+
+  async getEnrollments(userId?: string): Promise<Enrollment[]> {
+    const all = Array.from(this.enrollments.values());
+    if (userId) return all.filter(e => e.userId === userId);
+    return all;
+  }
+
+  async createEnrollment(insert: InsertEnrollment): Promise<Enrollment> {
+    const id = randomUUID();
+    const enrollment: Enrollment = { ...insert, id, enrolledAt: new Date(), progress: insert.progress ?? 0, status: insert.status ?? "active" };
+    this.enrollments.set(id, enrollment);
+    return enrollment;
   }
 }
 
