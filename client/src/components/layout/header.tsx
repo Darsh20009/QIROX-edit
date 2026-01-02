@@ -55,10 +55,6 @@ export function Header() {
             <Link href="/how-it-works">
               <Button variant="ghost" className="text-sm">كيف يعمل</Button>
             </Link>
-            <Link href="/pricing">
-              <Button variant="ghost" className="text-sm">الأسعار</Button>
-            </Link>
-          </nav>
 
           <div className="flex items-center gap-2">
             <ThemeToggle />

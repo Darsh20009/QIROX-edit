@@ -1,6 +1,4 @@
 import AdminMaintenancePage from "@/pages/admin/maintenance";
-import AdminRolesPage from "@/pages/admin/roles";
-import { Switch, Route } from "wouter";
 import { queryClient } from "./lib/queryClient";
 import { QueryClientProvider } from "@tanstack/react-query";
 import { Toaster } from "@/components/ui/toaster";
@@ -69,9 +67,6 @@ function Router() {
       <Route path="/custom" component={Home} />
       <Route path="/how-it-works" component={HowItWorks} />
       <Route path="/pricing" component={Pricing} />
-      <Route path="/about" component={About} />
-      <Route path="/contact" component={Contact} />
-      <Route path="/terms" component={Terms} />
       <Route path="/privacy" component={Privacy} />
       <Route path="/login" component={Login} />
       <Route path="/register" component={Register} />
