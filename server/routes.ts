@@ -410,7 +410,7 @@ export async function registerRoutes(
       // or a cloud-native routing service. Here we simulate the status based on DB data.
       res.json({
         slug: tenant.slug,
-        subdomain: `${tenant.slug}.qirox.com`,
+        subdomain: `${tenant.slug}.qirox.online`,
         status: "active",
         ssl: "valid", // Placeholder for Auto SSL verification
         dns: "configured", // Placeholder for DNS propagation check
