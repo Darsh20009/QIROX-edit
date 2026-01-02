@@ -156,160 +156,108 @@ export default function Home() {
         title={selected?.title} 
         description={selected?.description}
       />
-      {/* Creative Hero Section */}
-      <section className="relative min-h-screen flex items-center pt-20 overflow-hidden bg-white dark:bg-[#050505] transition-colors duration-500">
-        <div className="absolute inset-0 z-0">
-          <div className="absolute top-0 right-0 w-[800px] h-[800px] bg-primary/20 dark:bg-primary/20 light:bg-primary/10 rounded-full blur-[150px] -translate-y-1/2 translate-x-1/2 opacity-50 dark:opacity-100" />
-          <div className="absolute bottom-0 left-0 w-[600px] h-[600px] bg-emerald-500/10 dark:bg-emerald-500/10 light:bg-emerald-500/5 rounded-full blur-[120px] translate-y-1/2 -translate-x-1/2 opacity-50 dark:opacity-100" />
-          <div className="absolute inset-0 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-10 mix-blend-overlay pointer-events-none" />
+      {/* Refined Hero Section */}
+      <section className="relative min-h-[90vh] flex items-center pt-24 overflow-hidden">
+        <div className="absolute inset-0 -z-10">
+          <div className="absolute top-0 right-0 w-2/3 h-2/3 bg-primary/5 rounded-full blur-[120px] -translate-y-1/3 translate-x-1/3" />
+          <div className="absolute bottom-0 left-0 w-1/2 h-1/2 bg-accent/5 rounded-full blur-[100px] translate-y-1/3 -translate-x-1/4" />
         </div>
 
-        <div className="container relative z-10 mx-auto px-6 grid lg:grid-cols-2 gap-12 items-center">
-          <div className="text-right space-y-8 animate-fade-in">
-            <Badge variant="outline" className="whitespace-nowrap inline-flex items-center font-semibold transition-colors focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 hover-elevate border [border-color:var(--badge-outline)] shadow-xs px-4 py-2 border-primary/30 text-primary-foreground bg-primary/5 rounded-full text-lg ml-[152px] mr-[152px]">
+        <div className="container mx-auto px-6 grid lg:grid-cols-2 gap-16 items-center">
+          <div className="text-right space-y-8">
+            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-primary/10 text-primary text-sm font-medium">
+              <span className="relative flex h-2 w-2">
+                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-primary opacity-75"></span>
+                <span className="relative inline-flex rounded-full h-2 w-2 bg-primary"></span>
+              </span>
               {BRAND.slogan}
-            </Badge>
+            </div>
             
-            <h1 className="text-5xl md:text-7xl lg:text-8xl font-black text-slate-900 dark:text-white leading-tight tracking-tighter">
-              {selected ? `ابنِ ${selected.title}` : "نظام ذكي"}
-              <span className="block text-primary drop-shadow-[0_0_15px_rgba(var(--primary),0.3)]">
-                {selected ? selected.titleEn : "لمستقبل عملك"}
+            <h1 className="text-6xl md:text-8xl font-black tracking-tight leading-[1.1]">
+              {selected ? `ابنِ ${selected.title}` : "مستقبلك الرقمي"}
+              <span className="block text-primary">
+                {selected ? selected.titleEn : "يبدأ من هنا"}
               </span>
             </h1>
 
-            <p className="text-xl md:text-2xl text-gray-400 max-w-xl leading-relaxed">
-              {selected ? selected.description : "نحن لا نبني مجرد أكواد، بل نصمم تجارب تقنية تعزز من كفاءة أعمالك وتجعلها أكثر إنسانية وإبداعاً."}
+            <p className="text-xl text-muted-foreground max-w-xl leading-relaxed font-medium">
+              {selected ? selected.description : "نحول أفكارك الطموحة إلى واقع ملموس من خلال حلول تقنية متطورة تجمع بين الذكاء والجمال."}
             </p>
 
-            <div className="flex flex-col sm:flex-row gap-4 pt-4">
+            <div className="flex flex-wrap gap-4 pt-4">
               <Link href="/register">
-                <Button size="lg" className="h-16 px-10 text-xl font-bold rounded-2xl bg-primary hover:bg-primary/90 text-white shadow-[0_0_30px_rgba(var(--primary),0.3)] transition-all hover:scale-105 active-elevate-2">
-                  ابدأ رحلتك الإبداعية
-                  <ArrowLeft className="mr-3 w-6 h-6" />
+                <Button size="lg" className="h-14 px-8 text-lg font-bold rounded-xl shadow-lg shadow-primary/20 hover:shadow-primary/30 transition-all hover:-translate-y-0.5" data-testid="button-register">
+                  ابدأ مشروعك الآن
+                  <ArrowLeft className="mr-2 w-5 h-5" />
                 </Button>
               </Link>
               {!selected && (
                 <Link href="/how-it-works">
-                  <Button variant="outline" size="lg" className="h-16 px-10 text-xl font-bold rounded-2xl border-white/10 text-white hover:bg-white/5 backdrop-blur-sm">
-                    استكشف كيف نعمل
+                  <Button variant="outline" size="lg" className="h-14 px-8 text-lg font-bold rounded-xl border-2" data-testid="button-how-it-works">
+                    كيف نعمل؟
                   </Button>
                 </Link>
               )}
             </div>
+            
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-8 pt-12 border-t border-border/50">
+              {stats.map((stat) => (
+                <div key={stat.label}>
+                  <div className="text-3xl font-black text-primary">{stat.value}</div>
+                  <div className="text-sm text-muted-foreground font-medium">{stat.label}</div>
+                </div>
+              ))}
+            </div>
           </div>
 
-          <div className="relative group perspective-1000">
-            <div className="relative z-10 transition-transform duration-700 group-hover:rotate-y-6 group-hover:scale-105">
+          <div className="relative group">
+            <div className="relative z-10 rounded-[2.5rem] overflow-hidden shadow-2xl transition-transform duration-500 group-hover:scale-[1.02]">
               <img 
                 src={qiroxHero} 
-                alt="QIROX Futuristic Interaction" 
-                className="rounded-3xl shadow-2xl border border-white/5 mt-[81px] mb-[81px]"
+                alt="QIROX Experience" 
+                className="w-full object-cover"
               />
-              <div className="absolute -inset-4 bg-primary/20 blur-2xl -z-10 rounded-full group-hover:opacity-100 opacity-0 transition-opacity" />
+              <div className="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent" />
             </div>
-            
-            {/* Floating UI Elements */}
-            <div className="absolute -top-6 -right-6 p-6 glass-card rounded-2xl border border-white/10 animate-bounce-slow hidden md:block">
-              <div className="flex items-center gap-4">
-                <div className="w-3 h-3 rounded-full bg-emerald-500 animate-pulse" />
-                <span className="text-white font-bold text-lg">الأنظمة متصلة</span>
-              </div>
-            </div>
+            <div className="absolute -inset-1 bg-primary/20 blur-2xl -z-10 rounded-[3rem] opacity-50 group-hover:opacity-100 transition-opacity" />
           </div>
         </div>
       </section>
-      {/* Control & Intelligence Section */}
-      <section className="py-24 bg-white dark:bg-[#0a0a0a] overflow-hidden">
-        <div className="container mx-auto px-6">
-          <div className="grid lg:grid-cols-2 gap-16 items-center">
-            <div className="order-2 lg:order-1 relative group">
-              <div className="relative rounded-3xl overflow-hidden shadow-2xl border border-primary/10">
-                <img 
-                  src={qiroxControl} 
-                  alt="QIROX Control Center" 
-                  className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
-                />
-                <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent" />
-                <div className="absolute bottom-8 right-8 left-8 text-right">
-                  <Badge className="mb-4 bg-primary text-white border-0">مركز التحكم الذكي</Badge>
-                  <h3 className="text-2xl font-bold text-white mb-2">إدارة متكاملة بلمسة واحدة</h3>
-                  <p className="text-white/70">كل تفاصيل عملك تحت سيطرتك، بكل بساطة واحترافية.</p>
-                </div>
-              </div>
-            </div>
 
-            <div className="order-1 lg:order-2 space-y-8 text-right">
-              <div className="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-primary/10 text-primary mb-4">
-                <Zap className="w-8 h-8" />
-              </div>
-              <h2 className="text-4xl md:text-5xl font-black text-foreground leading-tight">
-                احترافية تفوق <br />
-                <span className="text-primary">التوقعات</span>
-              </h2>
-              <p className="text-lg text-muted-foreground leading-relaxed">
-                في QIROX، نؤمن أن التقنية يجب أن تكون في خدمة الإنسان. نظامنا مصمم ليعطيك القوة والتحكم، مع واجهة مستخدم إبداعية تجعل العمل متعة لا تنتهي.
-              </p>
-              
-              <div className="grid gap-6">
-                {[
-                  { title: "بناء الأنظمة", desc: "تصميم أنظمة معقدة بواجهة بسيطة." },
-                  { title: "الذكاء الاصطناعي", desc: "أتمتة ذكية تتعلم من أداء عملك." },
-                  { title: "الأمان المطلق", desc: "حماية بياناتك هي أولويتنا القصوى." }
-                ].map((item, i) => (
-                  <div key={i} className="flex gap-4 items-start p-4 rounded-2xl hover:bg-muted/50 transition-colors border border-transparent hover:border-border">
-                    <div className="flex-1 text-right">
-                      <h4 className="font-bold text-lg mb-1">{item.title}</h4>
-                      <p className="text-muted-foreground text-sm">{item.desc}</p>
-                    </div>
-                    <div className="w-2 h-2 rounded-full bg-primary mt-3" />
-                  </div>
-                ))}
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
-      {/* Existing Options Grid */}
-      <section className="py-24 bg-muted/30">
-        <div className="mx-auto max-w-7xl px-6 text-right">
-          <div className="text-center mb-16">
-            <h2 className="text-3xl md:text-5xl font-black text-foreground mb-4">
-              {selected ? "مميزات الحل المختار" : "اختر مسارك للإبداع"}
+      {/* Reimagined Features Grid */}
+      <section className="py-32 bg-secondary/30">
+        <div className="container mx-auto px-6">
+          <div className="text-center max-w-3xl mx-auto mb-20 space-y-4">
+            <h2 className="text-4xl md:text-5xl font-black tracking-tight">
+              {selected ? "باقة متكاملة لنجاحك" : "لماذا يختارنا الرواد؟"}
             </h2>
-            <p className="text-muted-foreground text-lg max-w-2xl mx-auto">
-              حلول تقنية مصممة لتنمو مع طموحك. اختر ما يناسب أهدافك اليوم.
+            <p className="text-lg text-muted-foreground font-medium leading-relaxed">
+              نحن لا نقدم مجرد خدمة، بل شراكة استراتيجية تضمن لك التميز في السوق الرقمي.
             </p>
           </div>
 
-          <div className={`grid gap-8 ${selected ? "max-w-2xl mx-auto" : "md:grid-cols-2 lg:grid-cols-4"}`}>
+          <div className={`grid gap-6 ${selected ? "max-w-4xl mx-auto md:grid-cols-2" : "md:grid-cols-2 lg:grid-cols-4"}`}>
             {displayOptions.map((option) => {
               const Icon = option.icon;
               return (
                 <Card
                   key={option.id}
-                  className="relative overflow-hidden cursor-pointer transition-all duration-500 hover-elevate group border-border/50 bg-background/80 backdrop-blur-sm rounded-3xl"
+                  className="group relative border-none bg-background shadow-sm hover:shadow-xl transition-all duration-300 rounded-3xl overflow-hidden cursor-pointer"
                   onClick={() => setSelectedOption(option.id)}
+                  data-testid={`card-service-${option.id}`}
                 >
-                  <CardContent className="p-8">
-                    <div className="inline-flex items-center justify-center w-16 h-16 rounded-2xl mb-6 bg-primary/10 text-primary group-hover:bg-primary group-hover:text-white transition-all duration-300">
-                      <Icon className="w-8 h-8" />
+                  <CardContent className="p-10">
+                    <div className="w-14 h-14 rounded-2xl bg-primary/5 text-primary flex items-center justify-center mb-8 group-hover:bg-primary group-hover:text-white transition-colors">
+                      <Icon className="w-7 h-7" />
                     </div>
-                    <h3 className="text-2xl font-bold text-foreground mb-3">{option.title}</h3>
-                    <p className="text-muted-foreground mb-6 leading-relaxed">
+                    <h3 className="text-2xl font-bold mb-4">{option.title}</h3>
+                    <p className="text-muted-foreground mb-8 line-clamp-3 leading-relaxed">
                       {option.description}
                     </p>
-                    <div className="flex items-baseline gap-2 mb-8">
-                      <span className="text-4xl font-black text-primary">{option.price}</span>
-                      {option.price !== "اتصل بنا" && <span className="text-sm text-muted-foreground">ريال/شهر</span>}
+                    <div className="flex items-center justify-between mt-auto pt-6 border-t border-border/50">
+                      <div className="text-2xl font-black text-primary">{option.price}</div>
+                      <ArrowLeft className="w-5 h-5 text-muted-foreground group-hover:text-primary transition-colors translate-x-2 group-hover:translate-x-0" />
                     </div>
-                    <ul className="space-y-4">
-                      {option.features.map((feature) => (
-                        <li key={feature} className="flex items-center gap-3 text-sm font-medium">
-                          <CheckCircle2 className="w-5 h-5 text-emerald-500 flex-shrink-0" />
-                          <span>{feature}</span>
-                        </li>
-                      ))}
-                    </ul>
                   </CardContent>
                 </Card>
               );
@@ -317,26 +265,72 @@ export default function Home() {
           </div>
         </div>
       </section>
-      <section className="py-24">
-        <div className="mx-auto max-w-7xl px-6">
-          <div className="relative rounded-[40px] bg-primary p-12 md:p-24 text-center overflow-hidden shadow-2xl shadow-primary/40">
-            <div className="absolute inset-0 bg-gradient-to-tr from-black/20 via-transparent to-white/10 pointer-events-none" />
-            <div className="relative z-10 space-y-8">
-              <h2 className="text-4xl md:text-6xl font-black text-white leading-tight">
-                هل أنت مستعد <br /> لنقل عملك للمستقبل؟
+
+      {/* Control Section Update */}
+      <section className="py-32 overflow-hidden">
+        <div className="container mx-auto px-6">
+          <div className="grid lg:grid-cols-2 gap-24 items-center">
+            <div className="order-2 lg:order-1 relative">
+              <div className="relative rounded-[3rem] overflow-hidden shadow-2xl">
+                <img 
+                  src={qiroxControl} 
+                  alt="QIROX Control" 
+                  className="w-full object-cover"
+                />
+              </div>
+              <div className="absolute -bottom-10 -left-10 p-10 bg-background rounded-[2rem] shadow-2xl border border-border/40 hidden xl:block max-w-xs">
+                <p className="text-lg font-bold mb-2">ذكاء اصطناعي متقدم</p>
+                <p className="text-sm text-muted-foreground">نظامنا يتعلم من عملك ليقترح لك أفضل الحلول للأتمتة والنمو.</p>
+              </div>
+            </div>
+
+            <div className="order-1 lg:order-2 space-y-10">
+              <h2 className="text-5xl md:text-6xl font-black leading-[1.1]">
+                قوة التحكم في <br />
+                <span className="text-primary text-glow">راحة يدك</span>
               </h2>
-              <p className="text-white/80 text-xl max-w-2xl mx-auto">
-                انضم إلى أكثر من 500 شركة بدأت رحلتها الرقمية مع QIROX.
+              <p className="text-xl text-muted-foreground font-medium leading-relaxed">
+                في QIROX، نؤمن أن التقنية المعقدة يجب أن تأتي بواجهة بسيطة. نحن نوفر لك لوحة تحكم شاملة تجعلك تدير إمبراطوريتك الرقمية بكل هدوء وثقة.
               </p>
-              <div className="flex flex-col sm:flex-row gap-6 justify-center pt-8">
+              
+              <div className="grid gap-4">
+                {[
+                  { title: "بناء الأنظمة", desc: "تصميم أنظمة معقدة بواجهة بديهية." },
+                  { title: "الأمان السيبراني", desc: "تشفير عسكري لحماية بيانات عملائك." },
+                  { title: "التوسع السحابي", desc: "نظام ينمو معك، من فكرة إلى عالمية." }
+                ].map((item, i) => (
+                  <div key={i} className="flex gap-6 items-center p-6 rounded-[1.5rem] bg-secondary/50 hover:bg-secondary transition-colors group">
+                    <div className="w-3 h-12 bg-primary/20 group-hover:bg-primary transition-colors rounded-full" />
+                    <div className="flex-1">
+                      <h4 className="font-bold text-xl mb-1">{item.title}</h4>
+                      <p className="text-muted-foreground font-medium">{item.desc}</p>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* CTA Section */}
+      <section className="py-32">
+        <div className="container mx-auto px-6">
+          <div className="relative rounded-[4rem] bg-primary p-16 md:p-32 text-center overflow-hidden shadow-2xl shadow-primary/20">
+            <div className="absolute inset-0 bg-gradient-to-tr from-black/20 to-white/10" />
+            <div className="relative z-10 space-y-12">
+              <h2 className="text-5xl md:text-7xl font-black text-white leading-tight">
+                جاهز لصناعة <br /> قصتك القادمة؟
+              </h2>
+              <div className="flex flex-col sm:flex-row gap-6 justify-center">
                 <Link href="/register">
-                  <Button size="lg" className="h-20 px-12 text-2xl font-black rounded-3xl bg-white text-primary hover:bg-white/90 shadow-xl transition-all hover:scale-105">
-                    ابدأ مجاناً الآن
+                  <Button size="lg" className="h-20 px-12 text-2xl font-black rounded-2xl bg-white text-primary hover:bg-white/90 shadow-2xl transition-all hover:scale-105" data-testid="button-cta-start">
+                    ابدأ الآن مجاناً
                   </Button>
                 </Link>
                 <Link href="/contact">
-                  <Button variant="outline" size="lg" className="h-20 px-12 text-2xl font-black rounded-3xl border-white/20 text-white hover:bg-white/10 backdrop-blur-md">
-                    تحدث معنا
+                  <Button variant="outline" size="lg" className="h-20 px-12 text-2xl font-black rounded-2xl border-white/20 text-white hover:bg-white/10 backdrop-blur-md" data-testid="button-cta-contact">
+                    تواصل معنا
                   </Button>
                 </Link>
               </div>
