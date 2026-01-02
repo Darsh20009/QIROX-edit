@@ -11,7 +11,7 @@ export function SplashScreen({ onComplete }: { onComplete: () => void }) {
     return () => clearTimeout(timer);
   }, [onComplete]);
 
-  // Q shape using blocks (5x5 grid approximation)
+  // Q shape using blocks (Matte White Style)
   const qBlocks = [
     { x: 1, y: 0 }, { x: 2, y: 0 }, { x: 3, y: 0 },
     { x: 0, y: 1 }, { x: 4, y: 1 },
@@ -20,7 +20,6 @@ export function SplashScreen({ onComplete }: { onComplete: () => void }) {
     { x: 1, y: 4 }, { x: 2, y: 4 }, { x: 3, y: 4 }, { x: 4, y: 4 }, { x: 5, y: 5 }
   ];
 
-  // Random worker silhouettes positions
   const workers = [
     { id: 1, x: -150, y: -100, delay: 0.2 },
     { id: 2, x: 180, y: 120, delay: 0.8 },
@@ -38,7 +37,7 @@ export function SplashScreen({ onComplete }: { onComplete: () => void }) {
             rotate: [0, 45, 0],
           }}
           transition={{ duration: 15, repeat: Infinity, ease: "linear" }}
-          className="absolute top-[-20%] left-[-10%] w-[60%] h-[60%] bg-primary/20 rounded-full blur-[150px]"
+          className="absolute top-[-20%] left-[-10%] w-[60%] h-[60%] bg-white/5 rounded-full blur-[150px]"
         />
         <motion.div
           animate={{
@@ -46,7 +45,7 @@ export function SplashScreen({ onComplete }: { onComplete: () => void }) {
             rotate: [45, 0, 45],
           }}
           transition={{ duration: 18, repeat: Infinity, ease: "linear" }}
-          className="absolute bottom-[-20%] right-[-10%] w-[60%] h-[60%] bg-purple-600/10 rounded-full blur-[150px]"
+          className="absolute bottom-[-20%] right-[-10%] w-[60%] h-[60%] bg-white/5 rounded-full blur-[150px]"
         />
       </div>
 
@@ -69,13 +68,13 @@ export function SplashScreen({ onComplete }: { onComplete: () => void }) {
             }}
             className="absolute"
           >
-            <div className="w-8 h-12 bg-white/20 blur-[1px] rounded-full relative">
-              <div className="absolute top-0 left-1/2 -translate-x-1/2 w-4 h-4 bg-white/30 rounded-full" />
+            <div className="w-8 h-12 bg-white/10 blur-[1px] rounded-full relative">
+              <div className="absolute top-0 left-1/2 -translate-x-1/2 w-4 h-4 bg-white/20 rounded-full" />
             </div>
           </motion.div>
         ))}
 
-        {/* Animated Q Construction */}
+        {/* Animated Q Construction (Matte White) */}
         <div className="relative w-40 h-40 mb-12">
           {qBlocks.map((block, i) => (
             <motion.div
@@ -88,7 +87,7 @@ export function SplashScreen({ onComplete }: { onComplete: () => void }) {
                 type: "spring",
                 stiffness: 100,
               }}
-              className="absolute w-6 h-6 bg-primary rounded-[2px] shadow-[0_0_20px_rgba(var(--primary),0.6)]"
+              className="absolute w-6 h-6 bg-[#E0E0E0] rounded-[2px] shadow-[0_0_10px_rgba(255,255,255,0.1)]"
               style={{
                 left: 0,
                 top: 0,
@@ -97,35 +96,22 @@ export function SplashScreen({ onComplete }: { onComplete: () => void }) {
           ))}
         </div>
 
-        {/* Company Name reveal */}
-        <motion.div
-          initial={{ opacity: 0, scale: 0.9 }}
-          animate={{ opacity: 1, scale: 1 }}
-          transition={{ delay: 3.2, duration: 1.2, ease: "easeOut" }}
-          onAnimationComplete={() => setShowCompany(true)}
-          className="flex items-center gap-1"
-        >
-          <span className="text-7xl font-black text-white tracking-tighter drop-shadow-[0_0_30px_rgba(255,255,255,0.2)]">
-            <span className="text-primary">Q</span>
-            <AnimatePresence mode="wait">
-              {showCompany && (
-                <motion.span
-                  initial={{ opacity: 0, width: 0 }}
-                  animate={{ opacity: 1, width: "auto" }}
-                  transition={{ duration: 0.8, ease: "circOut" }}
-                  className="inline-block overflow-hidden"
-                >
-                  IROX
-                </motion.span>
-              )}
-            </AnimatePresence>
-          </span>
-        </motion.div>
+        {/* Company Name reveal - Single Unified Flow */}
+        <div className="flex items-center">
+          <motion.span
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 3.2, duration: 0.8 }}
+            className="text-7xl font-black text-[#F5F5F5] tracking-tighter"
+          >
+            QIROX
+          </motion.span>
+        </div>
 
         {/* Slogan */}
         <motion.p
           initial={{ opacity: 0, y: 10 }}
-          animate={{ opacity: 0.5, y: 0 }}
+          animate={{ opacity: 0.4, y: 0 }}
           transition={{ delay: 4.2, duration: 1 }}
           className="text-white/60 mt-6 font-medium tracking-[0.3em] uppercase text-xs"
         >
