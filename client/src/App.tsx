@@ -59,6 +59,7 @@ import AdminPartnersPage from "@/pages/admin/partners";
 import AdminInventoryPage from "@/pages/admin/inventory";
 import AdminInvoicesPage from "@/pages/admin/invoices";
 import NotFound from "@/pages/not-found";
+import { HelmetProvider } from "react-helmet-async";
 
 function Router() {
   return (
@@ -127,16 +128,18 @@ function Router() {
 
 function App() {
   return (
-    <QueryClientProvider client={queryClient}>
-      <ThemeProvider>
-        <AuthProvider>
-          <TooltipProvider>
-            <Router />
-            <Toaster />
-          </TooltipProvider>
-        </AuthProvider>
-      </ThemeProvider>
-    </QueryClientProvider>
+    <HelmetProvider>
+      <QueryClientProvider client={queryClient}>
+        <ThemeProvider>
+          <AuthProvider>
+            <TooltipProvider>
+              <Router />
+              <Toaster />
+            </TooltipProvider>
+          </AuthProvider>
+        </ThemeProvider>
+      </QueryClientProvider>
+    </HelmetProvider>
   );
 }
 

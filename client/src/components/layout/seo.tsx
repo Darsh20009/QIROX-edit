@@ -1,4 +1,5 @@
 import { BRAND } from "@shared/branding";
+import { Helmet } from "react-helmet-async";
 
 export function SEO({ title, description, image }: { title?: string; description?: string; image?: string }) {
   const pageTitle = title ? `${title} | ${BRAND.name}` : `${BRAND.name} - ${BRAND.slogan}`;
