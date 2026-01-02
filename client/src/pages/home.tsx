@@ -156,7 +156,6 @@ export default function Home() {
         title={selected?.title} 
         description={selected?.description}
       />
-      
       {/* Creative Hero Section */}
       <section className="relative min-h-screen flex items-center pt-20 overflow-hidden bg-[#050505]">
         <div className="absolute inset-0 z-0">
@@ -203,7 +202,7 @@ export default function Home() {
               <img 
                 src={qiroxHero} 
                 alt="QIROX Futuristic Interaction" 
-                className="rounded-3xl shadow-2xl border border-white/5"
+                className="rounded-3xl shadow-2xl border border-white/5 mt-[81px] mb-[81px]"
               />
               <div className="absolute -inset-4 bg-primary/20 blur-2xl -z-10 rounded-full group-hover:opacity-100 opacity-0 transition-opacity" />
             </div>
@@ -218,7 +217,6 @@ export default function Home() {
           </div>
         </div>
       </section>
-
       {/* Control & Intelligence Section */}
       <section className="py-24 bg-white dark:bg-[#0a0a0a] overflow-hidden">
         <div className="container mx-auto px-6">
@@ -270,7 +268,6 @@ export default function Home() {
           </div>
         </div>
       </section>
-
       {/* Existing Options Grid */}
       <section className="py-24 bg-muted/30">
         <div className="mx-auto max-w-7xl px-6 text-right">
@@ -319,7 +316,6 @@ export default function Home() {
           </div>
         </div>
       </section>
-
       <section className="py-24">
         <div className="mx-auto max-w-7xl px-6">
           <div className="relative rounded-[40px] bg-primary p-12 md:p-24 text-center overflow-hidden shadow-2xl shadow-primary/40">
