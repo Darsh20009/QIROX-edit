@@ -124,9 +124,19 @@ export async function registerRoutes(
         data.password, 
         data.name, 
         data.phone,
-        "visitor" // Explicitly set role for public registration
+        "visitor", // Explicitly set role for public registration
+        "default"
       );
       
+      await storage.createAuditLog({
+        userId: user._id.toString(),
+        tenantId: user.tenantId || "default",
+        action: "USER_REGISTER",
+        module: "Core",
+        details: `User ${user.email} registered. Role: visitor`,
+        ipAddress: req.ip,
+      });
+
       res.status(201).json({
         success: true,
         user: {
@@ -134,6 +144,7 @@ export async function registerRoutes(
           email: user.email,
           name: user.name,
           role: user.role,
+          tenantId: user.tenantId
         },
         token,
       });
@@ -171,6 +182,7 @@ export async function registerRoutes(
           email: user.email,
           name: user.name,
           role: user.role,
+          tenantId: user.tenantId
         },
         token,
       });
