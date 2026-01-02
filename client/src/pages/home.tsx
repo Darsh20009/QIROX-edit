@@ -157,19 +157,20 @@ export default function Home() {
         description={selected?.description}
       />
       {/* Creative Hero Section */}
-      <section className="relative min-h-screen flex items-center pt-20 overflow-hidden bg-[#050505]">
+      <section className="relative min-h-screen flex items-center pt-20 overflow-hidden bg-white dark:bg-[#050505] transition-colors duration-500">
         <div className="absolute inset-0 z-0">
-          <div className="absolute top-0 right-0 w-[800px] h-[800px] bg-primary/20 rounded-full blur-[150px] -translate-y-1/2 translate-x-1/2" />
-          <div className="absolute bottom-0 left-0 w-[600px] h-[600px] bg-emerald-500/10 rounded-full blur-[120px] translate-y-1/2 -translate-x-1/2" />
+          <div className="absolute top-0 right-0 w-[800px] h-[800px] bg-primary/20 dark:bg-primary/20 light:bg-primary/10 rounded-full blur-[150px] -translate-y-1/2 translate-x-1/2 opacity-50 dark:opacity-100" />
+          <div className="absolute bottom-0 left-0 w-[600px] h-[600px] bg-emerald-500/10 dark:bg-emerald-500/10 light:bg-emerald-500/5 rounded-full blur-[120px] translate-y-1/2 -translate-x-1/2 opacity-50 dark:opacity-100" />
+          <div className="absolute inset-0 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-10 mix-blend-overlay pointer-events-none" />
         </div>
 
         <div className="container relative z-10 mx-auto px-6 grid lg:grid-cols-2 gap-12 items-center">
           <div className="text-right space-y-8 animate-fade-in">
-            <Badge variant="outline" className="ml-[152px] mr-[152px] px-4 py-2 border-primary/30 text-primary-foreground bg-primary/5 rounded-full text-lg">
+            <Badge variant="outline" className="whitespace-nowrap inline-flex items-center font-semibold transition-colors focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 hover-elevate border [border-color:var(--badge-outline)] shadow-xs px-4 py-2 border-primary/30 text-primary-foreground bg-primary/5 rounded-full text-lg ml-[152px] mr-[152px]">
               {BRAND.slogan}
             </Badge>
             
-            <h1 className="text-5xl md:text-7xl lg:text-8xl font-black text-white leading-tight tracking-tighter">
+            <h1 className="text-5xl md:text-7xl lg:text-8xl font-black text-slate-900 dark:text-white leading-tight tracking-tighter">
               {selected ? `ابنِ ${selected.title}` : "نظام ذكي"}
               <span className="block text-primary drop-shadow-[0_0_15px_rgba(var(--primary),0.3)]">
                 {selected ? selected.titleEn : "لمستقبل عملك"}
