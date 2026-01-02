@@ -156,36 +156,11 @@ export default function Home() {
         title={selected?.title} 
         description={selected?.description}
       />
-      {/* Refined Hero Section with Vibrant Background */}
+      {/* Refined Hero Section */}
       <section className="relative min-h-[90vh] flex items-center pt-24 overflow-hidden">
-        {/* Animated Background Blobs */}
-        <div className="absolute inset-0 -z-10 overflow-hidden">
-          <motion.div 
-            animate={{
-              scale: [1, 1.2, 1],
-              x: [0, 100, 0],
-              y: [0, 50, 0],
-            }}
-            transition={{ duration: 20, repeat: Infinity, ease: "linear" }}
-            className="absolute top-0 right-0 w-[500px] h-[500px] bg-primary/20 rounded-full blur-[120px]" 
-          />
-          <motion.div 
-            animate={{
-              scale: [1.2, 1, 1.2],
-              x: [0, -100, 0],
-              y: [0, -50, 0],
-            }}
-            transition={{ duration: 25, repeat: Infinity, ease: "linear" }}
-            className="absolute bottom-0 left-0 w-[400px] h-[400px] bg-purple-500/10 rounded-full blur-[100px]" 
-          />
-          <motion.div 
-            animate={{
-              scale: [1, 1.5, 1],
-              opacity: [0.1, 0.3, 0.1],
-            }}
-            transition={{ duration: 15, repeat: Infinity, ease: "linear" }}
-            className="absolute top-1/2 left-1/4 w-[300px] h-[300px] bg-blue-500/10 rounded-full blur-[80px]" 
-          />
+        <div className="absolute inset-0 -z-10">
+          <div className="absolute top-0 right-0 w-2/3 h-2/3 bg-primary/5 rounded-full blur-[120px] -translate-y-1/3 translate-x-1/3" />
+          <div className="absolute bottom-0 left-0 w-1/2 h-1/2 bg-accent/5 rounded-full blur-[100px] translate-y-1/3 -translate-x-1/4" />
         </div>
 
         <div className="container mx-auto px-6 grid lg:grid-cols-2 gap-16 items-center">
@@ -197,7 +172,7 @@ export default function Home() {
               </span>
               {BRAND.slogan}
             </div>
-
+            
             <h1 className="text-6xl md:text-8xl font-black tracking-tight leading-[1.1]">
               {selected ? `ابنِ ${selected.title}` : "مستقبلك الرقمي"}
               <span className="block text-primary">
@@ -224,7 +199,7 @@ export default function Home() {
                 </Link>
               )}
             </div>
-
+            
             <div className="grid grid-cols-2 md:grid-cols-4 gap-8 pt-12 border-t border-border/50">
               {stats.map((stat) => (
                 <div key={stat.label}>
@@ -317,7 +292,7 @@ export default function Home() {
               <p className="text-xl text-muted-foreground font-medium leading-relaxed">
                 في QIROX، نؤمن أن التقنية المعقدة يجب أن تأتي بواجهة بسيطة. نحن نوفر لك لوحة تحكم شاملة تجعلك تدير إمبراطوريتك الرقمية بكل هدوء وثقة.
               </p>
-
+              
               <div className="grid gap-4">
                 {[
                   { title: "بناء الأنظمة", desc: "تصميم أنظمة معقدة بواجهة بديهية." },
@@ -366,3 +341,4 @@ export default function Home() {
     </Layout>
   );
 }
+
