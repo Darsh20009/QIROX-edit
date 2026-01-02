@@ -249,12 +249,12 @@ export default function Pricing() {
                             <span className="text-5xl font-bold text-foreground" data-testid={`text-plan-price-${category.id}-${index}`}>
                               {plan.price}
                             </span>
-                            <span className="text-lg text-muted-foreground">ريال</span>
+                            <span className="text-lg text-muted-foreground font-medium">ريال</span>
                           </div>
                         </div>
                         {plan.savings && (
                           <div className="text-center mb-6">
-                            <Badge variant="secondary" className="bg-emerald-100 text-emerald-700 dark:bg-emerald-900/50 dark:text-emerald-300">
+                            <Badge variant="outline" className="border-emerald-200 bg-emerald-50 text-emerald-700 dark:border-emerald-800 dark:bg-emerald-900/30 dark:text-emerald-300 rounded-full px-4">
                               {plan.savings}
                             </Badge>
                           </div>
@@ -262,11 +262,11 @@ export default function Pricing() {
                         <Link href="/register" className="block">
                           <Button
                             variant={plan.popular ? "default" : "outline"}
-                            className="w-full h-12 text-base font-semibold"
+                            className={`w-full h-12 text-base font-bold rounded-full transition-all duration-300 ${plan.popular ? "shadow-lg shadow-primary/20" : ""}`}
                             data-testid={`button-subscribe-${category.id}-${index}`}
                           >
-                            ابدأ الآن
-                            <ArrowLeft className="w-5 h-5" />
+                            اشترك الآن
+                            <ArrowLeft className="mr-2 w-5 h-5" />
                           </Button>
                         </Link>
                       </CardContent>

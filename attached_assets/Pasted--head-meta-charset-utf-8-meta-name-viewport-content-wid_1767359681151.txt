@@ -1,0 +1,87 @@
+<head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><link rel="stylesheet" href="/_next/static/css/ce4adad0e15b325d.css" data-precedence="next"><link rel="stylesheet" href="/_next/static/css/418239fbbb1366b2.css" data-precedence="next"><link rel="stylesheet" href="/_next/static/css/15a460f12b20e8b4.css" data-precedence="next"><link rel="preload" as="script" fetchpriority="low" href="/_next/static/chunks/webpack-1767256449093.js"><script type="text/javascript" crossorigin="anonymous" async="" src="https://us-assets.i.posthog.com/static/array.js"></script><script async="" src="https://www.clarity.ms/tag/pimvkixk1w"></script><script src="/_next/static/chunks/4bd1b696-1767256449093.js" async=""></script><script src="/_next/static/chunks/1517-1767256449093.js" async=""></script><script src="/_next/static/chunks/main-app-1767256449093.js" async=""></script><script src="/_next/static/chunks/c857e369-1767256449093.js" async=""></script><link rel="preload" href="https://www.googletagmanager.com/gtm.js?id=GTM-WX9SHGB" as="script"><title>باقات زد أسعار الاشتراك في منصة زد للتجارة الإلكترونية | زد		</title><meta name="description" content="تعرّف على باقات وأسعار الاشتراك في منصة زد، واختر الخطة الأنسب لاحتياجات متجرك الإلكتروني، مع مزايا متنوعة لدعم نمو أعمالك في التجارة الإلكترونية.			"><meta property="og:title" content="باقات زد أسعار الاشتراك في منصة زد للتجارة الإلكترونية | زد		"><meta property="og:description" content="تعرّف على باقات وأسعار الاشتراك في منصة زد، واختر الخطة الأنسب لاحتياجات متجرك الإلكتروني، مع مزايا متنوعة لدعم نمو أعمالك في التجارة الإلكترونية.			"><meta property="og:image" content="https://zid-website.directus.app/assets/8d89020a-624a-45ea-b8c5-ec58ff28acc6"><meta name="twitter:card" content="summary_large_image"><meta name="twitter:title" content="باقات زد أسعار الاشتراك في منصة زد للتجارة الإلكترونية | زد		"><meta name="twitter:description" content="تعرّف على باقات وأسعار الاشتراك في منصة زد، واختر الخطة الأنسب لاحتياجات متجرك الإلكتروني، مع مزايا متنوعة لدعم نمو أعمالك في التجارة الإلكترونية.			"><meta name="twitter:image" content="https://zid-website.directus.app/assets/8d89020a-624a-45ea-b8c5-ec58ff28acc6"><link rel="icon" href="/favicon.ico" type="image/x-icon" sizes="16x16"><link rel="icon" href="/icon.ico?bdd52ca915a4cd06" type="image/x-icon" sizes="16x16"><script id="hyros-tracking">
+                var head = document.head;
+                var script = document.createElement('script');
+                script.type = 'text/javascript';
+                script.src = "https://212819.t.hyros.com/v1/lst/universal-script?ph=0d23e1d90b74bd6dceaacb1b6009668558d8bb9a62677aef4df04fc7fd68cebb&tag=!clicked&ref_url=" + encodeURI(document.URL);
+                head.appendChild(script);
+              </script><style id="hb-stylesheet"></style><script type="text/javascript" src="https://212819.t.hyros.com/v1/lst/universal-script?ph=0d23e1d90b74bd6dceaacb1b6009668558d8bb9a62677aef4df04fc7fd68cebb&amp;tag=!clicked&amp;ref_url=https://zid.sa/ar/pricing/?utm_source=Google&amp;utm_medium=CPC&amp;utm_campaign=BRAND_PURE_SEM&amp;utm_id=825&amp;utm_content=ad2&amp;gc_id=20774683438&amp;h_ga_id=156619569258&amp;h_ad_id=698994576141&amp;h_keyword_id=kwd-354867522613&amp;h_keyword=%25D8%25B2%25D8%25AF&amp;h_placement=&amp;gad_source=1&amp;gad_campaignid=20774683438&amp;gbraid=0AAAAAplyj_-hjrJpSBFUOjktj7Hr9yjiw"></script><script id="microsoft-clarity" defer="">
+          (function(c,l,a,r,i,t,y){
+            c[a]=c[a]||function(){(c[a].q=c[a].q||[]).push(arguments)};
+            t=l.createElement(r);
+            t.async=1;
+            t.src="https://www.clarity.ms/tag/"+i;
+            y=l.getElementsByTagName(r)[0];
+            y.parentNode.insertBefore(t,y);
+          })(window, document, "clarity", "script", "pimvkixk1w");
+        </script><script src="/_next/static/chunks/polyfills-42372ed130431b0a.js" nomodule=""></script><style type="text/css">.rfm-marquee-container {
+  overflow-x: hidden;
+  display: flex;
+  flex-direction: row;
+  position: relative;
+  width: var(--width);
+  transform: var(--transform);
+}
+.rfm-marquee-container:hover div {
+  animation-play-state: var(--pause-on-hover);
+}
+.rfm-marquee-container:active div {
+  animation-play-state: var(--pause-on-click);
+}
+
+.rfm-overlay {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+}
+.rfm-overlay::before, .rfm-overlay::after {
+  background: linear-gradient(to right, var(--gradient-color), rgba(255, 255, 255, 0));
+  content: "";
+  height: 100%;
+  position: absolute;
+  width: var(--gradient-width);
+  z-index: 2;
+  pointer-events: none;
+  touch-action: none;
+}
+.rfm-overlay::after {
+  right: 0;
+  top: 0;
+  transform: rotateZ(180deg);
+}
+.rfm-overlay::before {
+  left: 0;
+  top: 0;
+}
+
+.rfm-marquee {
+  flex: 0 0 auto;
+  min-width: var(--min-width);
+  z-index: 1;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  animation: scroll var(--duration) linear var(--delay) var(--iteration-count);
+  animation-play-state: var(--play);
+  animation-delay: var(--delay);
+  animation-direction: var(--direction);
+}
+@keyframes scroll {
+  0% {
+    transform: translateX(0%);
+  }
+  100% {
+    transform: translateX(-100%);
+  }
+}
+
+.rfm-initial-child-container {
+  flex: 0 0 auto;
+  display: flex;
+  min-width: auto;
+  flex-direction: row;
+  align-items: center;
+}
+
+.rfm-child {
+  transform: var(--transform);
+}</style></head>
