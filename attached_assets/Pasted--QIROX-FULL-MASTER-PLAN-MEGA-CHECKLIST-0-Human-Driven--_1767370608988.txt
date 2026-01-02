@@ -1,0 +1,190 @@
+✅ QIROX — FULL MASTER PLAN (MEGA CHECKLIST)
+0) المبادئ الحاكمة (غير قابلة للنقاش)
+
+⬜ Human-Driven: أي نشر/تغيير/حذف/تفعيل يتم بموافقة بشرية (Approval Gate)
+
+⬜ One System: الموقع العام + المنصة + لوحة التحكم = نفس الـ Design System ونفس العقل
+
+⬜ Modular: كل شيء Module (Pages/Blocks/Orders/Meetings/Payments/Projects)
+
+⬜ Multi-Tenant: كل عميل = Tenant (عزل بيانات منطقي + صلاحيات صارمة)
+
+⬜ Audit-First: كل حدث يتسجل (Who/What/When/Where)
+
+⬜ Security-First: Rate limits + tokens + encryption + permissions
+
+⬜ MongoDB Only: كل الكيانات في Mongo
+
+⬜ Employee-Provisioned Projects: الموظف هو الذي ينشئ Project Space للعميل
+
+⬜ Meetings Internal: QIROX Meet عبر ZEGO فقط، لا روابط خارجية
+
+1) تأسيس المنتج (Product Definition)
+1.1 تعريف مكونات QIROX
+
+⬜ QIROX Website (Marketing + Decision Flow)
+
+⬜ QIROX Core (Auth + Tenants + Dashboard)
+
+⬜ QIROX Build (Builder + Publish)
+
+⬜ QIROX Cloud (Subdomain + Domains + SSL + Routing)
+
+⬜ QIROX Requests (طلبات خدمات + طلبات برمجية)
+
+⬜ QIROX Ops (CRM + Support + Projects + Tasks + Delivery)
+
+⬜ QIROX Finance (Quotes + Invoices + Payments)
+
+⬜ QIROX Meet (ZEGO meetings + notes + timeline)
+
+1.2 تحديد أدوار المستخدمين (Roles)
+
+⬜ Visitor
+
+⬜ Client Owner
+
+⬜ Client Admin
+
+⬜ Client Editor
+
+⬜ QIROX Sales
+
+⬜ QIROX Support
+
+⬜ QIROX Project Manager
+
+⬜ QIROX Specialist (Dev/Design)
+
+⬜ QIROX Finance
+
+⬜ System Admin
+
+1.3 حدود النسخة الأولى (MVP)
+
+⬜ MVP = Website + Auth + Tenant + Subdomain + Builder Basic + Orders + Dev Requests + Quotes/Invoices/Payments + Projects/Tasks + Delivery + Meet (ZEGO)
+
+⬜ Phase 2 = Marketplace + Plugins + Open-source hub + Meet recording + advanced analytics
+
+⬜ Phase 3 = Ecosystem عالمي
+
+2) الهوية (Brand System)
+2.1 Logo Pack (موجود عندك)
+
+⬜ Wordmark أسود/أبيض
+
+⬜ Transparent background (PNG/SVG)
+
+⬜ Safe area + min size
+
+⬜ Favicon + App icon
+
+⬜ Usage examples (Docs, Dashboard, App, Posters)
+
+2.2 Colors + Typography
+
+⬜ Primary: Black/White
+
+⬜ Secondary: Grays
+
+⬜ Accent: Deep Green (اختياري)
+
+⬜ Typeface عربي/إنجليزي رسمي
+
+2.3 Brand Voice
+
+⬜ جُمل ممنوعة (AI hype / autopilot / magic)
+
+⬜ جُمل ثابتة (Build systems. Stay human.)
+
+⬜ Copy Library للـ pages
+
+3) موقع الشركة العام (Marketing Website)
+3.1 Sitemap
+
+⬜ Home (Statement + Decision Flow)
+
+⬜ What to build (Company/Platform/System/Store/Custom)
+
+⬜ How it works (Human-driven)
+
+⬜ Pricing
+
+⬜ Case Studies (من مشاريعك)
+
+⬜ Developers (Phase 2)
+
+⬜ Support
+
+⬜ About
+
+⬜ Contact
+
+⬜ Terms/Privacy
+
+3.2 Decision Flow بدل Navbar التقليدي
+
+⬜ أول سؤال: “What are you trying to build?”
+
+⬜ اختيار → يفلتر الصفحة ويغير الأمثلة والـ CTA
+
+⬜ CTA واحد واضح: Start / Create Account
+
+3.3 Landing Templates حسب نوع الزائر
+
+⬜ Builder landing
+
+⬜ Business systems landing
+
+⬜ Store landing
+
+⬜ Custom build landing
+
+3.4 SEO + Performance
+
+⬜ Meta + OG لكل صفحة
+
+⬜ Sitemap.xml + robots.txt
+
+⬜ Core Web Vitals
+
+⬜ Image compression + lazy load
+
+4) النظام الأساسي (QIROX Core)
+4.1 Auth
+
+⬜ Signup
+
+⬜ Login
+
+⬜ Reset password
+
+⬜ Email verification
+
+⬜ Session management
+
+⬜ Device history + logout all
+
+4.2 RBAC
+
+⬜ Permission matrix
+
+⬜ Route guards
+
+⬜ API guards
+
+⬜ Admin override مع audit
+
+4.3 Tenancy (Multi-tenant)
+
+⬜ Tenant entity
+
+⬜ Tenant users
+
+⬜ Tenant settings
+
+⬜ Data isolation (tenantId everywhere + indexes)
+
+⬜ Tenant audit logs
+
+⬜ Tenant storage (files)
