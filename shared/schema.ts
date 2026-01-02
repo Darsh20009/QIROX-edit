@@ -68,6 +68,7 @@ export type InsertTenant = z.infer<typeof insertTenantSchema>;
 export const insertUserSchema = createInsertSchema(users).pick({
   username: true,
   password: true,
+  email: true,
   role: true,
   tenantId: true,
   metadata: true,
