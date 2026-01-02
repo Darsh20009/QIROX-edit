@@ -37,6 +37,22 @@ export function Layout({ children }: LayoutProps) {
     { name: "QIROX Core", href: "/admin/settings", icon: Settings },
   ];
 
+  const handleDownload = () => {
+    // Creative download logic
+    const link = document.createElement('a');
+    link.href = '#'; // Placeholder for actual tool URL
+    link.download = 'qirox-tool.exe';
+    document.body.appendChild(link);
+    // Visual feedback
+    const logo = document.getElementById('interactive-logo');
+    if (logo) {
+      logo.classList.add('animate-bounce');
+      setTimeout(() => logo.classList.remove('animate-bounce'), 1000);
+    }
+    // We can't actually trigger a real download without a file, but we can show the intent
+    alert('بدء تحميل أداة QIROX الذكية...');
+  };
+
   if (!user) {
     return (
       <div className="min-h-screen flex flex-col bg-background selection:bg-primary/20">
@@ -56,15 +72,20 @@ export function Layout({ children }: LayoutProps) {
   return (
     <div className="min-h-screen bg-background flex flex-col">
       {/* Refined Sidebar for Desktop */}
-      <div className="hidden md:flex w-72 flex-col fixed inset-y-0 right-0 border-l border-border/40 bg-card/50 backdrop-blur-xl">
+      <div className="hidden md:flex w-72 flex-col fixed inset-y-0 right-0 border-l border-border/40 bg-card/30 backdrop-blur-2xl glass-morphism">
         <div className="flex-1 flex flex-col pt-8 pb-4 overflow-y-auto">
           <div className="flex items-center px-8 mb-12">
-            <Link href="/" className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-xl bg-primary flex items-center justify-center text-white shadow-lg shadow-primary/20">
-                <span className="text-2xl font-black">Q</span>
+            <div 
+              id="interactive-logo"
+              onClick={handleDownload}
+              className="flex items-center gap-3 cursor-pointer group"
+              title="تحميل الأداة الذكية"
+            >
+              <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-primary via-purple-600 to-blue-600 flex items-center justify-center text-white shadow-xl shadow-primary/30 transform transition-transform group-hover:scale-110 active:scale-95 animate-pulse-glow">
+                <span className="text-3xl font-black italic">Q</span>
               </div>
-              <span className="text-2xl font-black tracking-tighter">QIROX</span>
-            </Link>
+              <span className="text-2xl font-black tracking-tighter text-gradient">QIROX</span>
+            </div>
           </div>
           
           <nav className="flex-1 px-4 space-y-2">

@@ -190,37 +190,42 @@ export default function Home() {
         </div>
 
         <div className="container mx-auto px-6 grid lg:grid-cols-2 gap-16 items-center">
-          <div className="text-right space-y-8">
-            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-primary/10 text-primary text-sm font-medium">
-              <span className="relative flex h-2 w-2">
+          <div className="text-right space-y-8 animate-float">
+            <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full glass-morphism text-primary text-sm font-bold border-primary/20">
+              <span className="relative flex h-3 w-3">
                 <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-primary opacity-75"></span>
-                <span className="relative inline-flex rounded-full h-2 w-2 bg-primary"></span>
+                <span className="relative inline-flex rounded-full h-3 w-3 bg-primary"></span>
               </span>
               {BRAND.slogan}
             </div>
 
-            <h1 className="text-6xl md:text-8xl font-black tracking-tight leading-[1.1]">
-              {selected ? `ابنِ ${selected.title}` : "مستقبلك الرقمي"}
-              <span className="block text-primary">
-                {selected ? selected.titleEn : "يبدأ من هنا"}
+            <h1 className="text-6xl md:text-8xl font-black tracking-tight leading-tight">
+              نصمم <span className="text-gradient">المستقبل</span> <br />
+              بذكاء <span className="relative inline-block">
+                QIROX
+                <motion.span 
+                  className="absolute -bottom-2 left-0 w-full h-3 bg-primary/20 -z-10 rounded-full"
+                  initial={{ width: 0 }}
+                  animate={{ width: "100%" }}
+                  transition={{ delay: 1, duration: 1 }}
+                />
               </span>
             </h1>
 
-            <p className="text-xl text-muted-foreground max-w-xl leading-relaxed font-medium">
-              {selected ? selected.description : "نحول أفكارك الطموحة إلى واقع ملموس من خلال حلول تقنية متطورة تجمع بين الذكاء والجمال."}
+            <p className="text-xl text-muted-foreground leading-relaxed max-w-xl mr-0">
+              {BRAND.copy.hero.subtitle}
             </p>
 
-            <div className="flex flex-wrap gap-4 pt-4">
+            <div className="flex flex-row-reverse gap-6 pt-8">
               <Link href="/register">
-                <Button size="lg" className="h-14 px-8 text-lg font-bold rounded-xl shadow-lg shadow-primary/20 hover:shadow-primary/30 transition-all hover:-translate-y-0.5" data-testid="button-register">
-                  ابدأ مشروعك الآن
-                  <ArrowLeft className="mr-2 w-5 h-5" />
+                <Button size="lg" className="h-14 px-10 rounded-2xl font-black text-lg shadow-2xl shadow-primary/40 hover:scale-105 transition-transform" data-testid="button-start">
+                  ابدأ رحلتك
                 </Button>
               </Link>
               {!selected && (
                 <Link href="/how-it-works">
-                  <Button variant="outline" size="lg" className="h-14 px-8 text-lg font-bold rounded-xl border-2" data-testid="button-how-it-works">
-                    كيف نعمل؟
+                  <Button size="lg" variant="outline" className="h-14 px-10 rounded-2xl font-black text-lg glass-morphism hover:bg-primary/5" data-testid="button-info">
+                    تعرف علينا
                   </Button>
                 </Link>
               )}
@@ -228,8 +233,8 @@ export default function Home() {
 
             <div className="grid grid-cols-2 md:grid-cols-4 gap-8 pt-12 border-t border-border/50">
               {stats.map((stat) => (
-                <div key={stat.label}>
-                  <div className="text-3xl font-black text-primary">{stat.value}</div>
+                <div key={stat.label} className="hover-elevate p-4 rounded-2xl">
+                  <div className="text-3xl font-black text-gradient">{stat.value}</div>
                   <div className="text-sm text-muted-foreground font-medium">{stat.label}</div>
                 </div>
               ))}
@@ -272,17 +277,17 @@ export default function Home() {
                   onClick={() => setSelectedOption(option.id)}
                   data-testid={`card-service-${option.id}`}
                 >
-                  <CardContent className="p-10">
-                    <div className="w-14 h-14 rounded-2xl bg-primary/5 text-primary flex items-center justify-center mb-8 group-hover:bg-primary group-hover:text-white transition-colors">
+                  <CardContent className="p-10 glass-morphism">
+                    <div className="w-14 h-14 rounded-2xl bg-primary/5 text-primary flex items-center justify-center mb-8 group-hover:bg-primary group-hover:text-white transition-all group-hover:scale-110 group-hover:rotate-3 shadow-neon">
                       <Icon className="w-7 h-7" />
                     </div>
-                    <h3 className="text-2xl font-bold mb-4">{option.title}</h3>
+                    <h3 className="text-2xl font-bold mb-4 group-hover:text-primary transition-colors">{option.title}</h3>
                     <p className="text-muted-foreground mb-8 line-clamp-3 leading-relaxed">
                       {option.description}
                     </p>
                     <div className="flex items-center justify-between mt-auto pt-6 border-t border-border/50">
-                      <div className="text-2xl font-black text-primary">{option.price}</div>
-                      <ArrowLeft className="w-5 h-5 text-muted-foreground group-hover:text-primary transition-colors translate-x-2 group-hover:translate-x-0" />
+                      <div className="text-2xl font-black text-gradient">{option.price}</div>
+                      <ArrowLeft className="w-5 h-5 text-muted-foreground group-hover:text-primary transition-all translate-x-2 group-hover:translate-x-0" />
                     </div>
                   </CardContent>
                 </Card>
