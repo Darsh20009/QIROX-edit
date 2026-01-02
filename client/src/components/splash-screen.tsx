@@ -7,7 +7,7 @@ export function SplashScreen({ onComplete }: { onComplete: () => void }) {
   useEffect(() => {
     const timer = setTimeout(() => {
       onComplete();
-    }, 4500);
+    }, 5500);
     return () => clearTimeout(timer);
   }, [onComplete]);
 
@@ -20,25 +20,78 @@ export function SplashScreen({ onComplete }: { onComplete: () => void }) {
     { x: 1, y: 4 }, { x: 2, y: 4 }, { x: 3, y: 4 }, { x: 4, y: 4 }, { x: 5, y: 5 }
   ];
 
+  // Random worker silhouettes positions
+  const workers = [
+    { id: 1, x: -150, y: -100, delay: 0.2 },
+    { id: 2, x: 180, y: 120, delay: 0.8 },
+    { id: 3, x: -200, y: 150, delay: 1.4 },
+    { id: 4, x: 220, y: -130, delay: 2.0 },
+  ];
+
   return (
-    <div className="fixed inset-0 z-[100] bg-black flex flex-col items-center justify-center overflow-hidden">
-      <div className="relative flex flex-col items-center">
+    <div className="fixed inset-0 z-[100] bg-[#050505] flex flex-col items-center justify-center overflow-hidden">
+      {/* Premium Mesh Background */}
+      <div className="absolute inset-0 z-0">
+        <motion.div
+          animate={{
+            scale: [1, 1.2, 1],
+            rotate: [0, 45, 0],
+          }}
+          transition={{ duration: 15, repeat: Infinity, ease: "linear" }}
+          className="absolute top-[-20%] left-[-10%] w-[60%] h-[60%] bg-primary/20 rounded-full blur-[150px]"
+        />
+        <motion.div
+          animate={{
+            scale: [1.2, 1, 1.2],
+            rotate: [45, 0, 45],
+          }}
+          transition={{ duration: 18, repeat: Infinity, ease: "linear" }}
+          className="absolute bottom-[-20%] right-[-10%] w-[60%] h-[60%] bg-purple-600/10 rounded-full blur-[150px]"
+        />
+      </div>
+
+      <div className="relative z-10 flex flex-col items-center">
+        {/* Workers Building the Logo */}
+        {workers.map((worker) => (
+          <motion.div
+            key={worker.id}
+            initial={{ opacity: 0, scale: 0.8 }}
+            animate={{ 
+              opacity: [0, 0.4, 0],
+              x: [worker.x, worker.x + (worker.id % 2 === 0 ? 20 : -20)],
+              y: [worker.y, worker.y - 30],
+            }}
+            transition={{
+              duration: 2,
+              delay: worker.delay,
+              repeat: Infinity,
+              repeatDelay: 1,
+            }}
+            className="absolute"
+          >
+            <div className="w-8 h-12 bg-white/20 blur-[1px] rounded-full relative">
+              <div className="absolute top-0 left-1/2 -translate-x-1/2 w-4 h-4 bg-white/30 rounded-full" />
+            </div>
+          </motion.div>
+        ))}
+
         {/* Animated Q Construction */}
-        <div className="relative w-32 h-32 mb-8">
+        <div className="relative w-40 h-40 mb-12">
           {qBlocks.map((block, i) => (
             <motion.div
               key={i}
-              initial={{ opacity: 0, scale: 0, rotate: -45 }}
-              animate={{ opacity: 1, scale: 1, rotate: 0 }}
+              initial={{ opacity: 0, scale: 0, y: -100, x: block.x * 20 - 50 }}
+              animate={{ opacity: 1, scale: 1, y: block.y * 1.8 * 16, x: block.x * 1.8 * 16 }}
               transition={{
-                duration: 0.5,
-                delay: i * 0.1,
-                ease: "easeOut"
+                duration: 0.8,
+                delay: i * 0.15,
+                type: "spring",
+                stiffness: 100,
               }}
-              className="absolute w-6 h-6 bg-primary rounded-sm shadow-[0_0_15px_rgba(var(--primary),0.5)]"
+              className="absolute w-6 h-6 bg-primary rounded-[2px] shadow-[0_0_20px_rgba(var(--primary),0.6)]"
               style={{
-                left: `${block.x * 1.6}rem`,
-                top: `${block.y * 1.6}rem`,
+                left: 0,
+                top: 0,
               }}
             />
           ))}
@@ -46,20 +99,21 @@ export function SplashScreen({ onComplete }: { onComplete: () => void }) {
 
         {/* Company Name reveal */}
         <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 2.5, duration: 1 }}
+          initial={{ opacity: 0, scale: 0.9 }}
+          animate={{ opacity: 1, scale: 1 }}
+          transition={{ delay: 3.2, duration: 1.2, ease: "easeOut" }}
           onAnimationComplete={() => setShowCompany(true)}
           className="flex items-center gap-1"
         >
-          <span className="text-6xl font-black text-white tracking-tighter">
+          <span className="text-7xl font-black text-white tracking-tighter drop-shadow-[0_0_30px_rgba(255,255,255,0.2)]">
             <span className="text-primary">Q</span>
-            <AnimatePresence>
+            <AnimatePresence mode="wait">
               {showCompany && (
                 <motion.span
-                  initial={{ opacity: 0, x: -20 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  className="inline-block"
+                  initial={{ opacity: 0, width: 0 }}
+                  animate={{ opacity: 1, width: "auto" }}
+                  transition={{ duration: 0.8, ease: "circOut" }}
+                  className="inline-block overflow-hidden"
                 >
                   IROX
                 </motion.span>
@@ -70,23 +124,21 @@ export function SplashScreen({ onComplete }: { onComplete: () => void }) {
 
         {/* Slogan */}
         <motion.p
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 0.6 }}
-          transition={{ delay: 3.5, duration: 1 }}
-          className="text-white/60 mt-4 font-medium tracking-[0.2em] uppercase text-sm"
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 0.5, y: 0 }}
+          transition={{ delay: 4.2, duration: 1 }}
+          className="text-white/60 mt-6 font-medium tracking-[0.3em] uppercase text-xs"
         >
           Build systems. Stay human.
         </motion.p>
       </div>
 
-      {/* Background ambient pulse */}
+      {/* Finishing Flash */}
       <motion.div
-        animate={{
-          scale: [1, 1.2, 1],
-          opacity: [0.1, 0.2, 0.1],
-        }}
-        transition={{ duration: 4, repeat: Infinity }}
-        className="absolute inset-0 bg-primary/5 blur-[120px] rounded-full"
+        initial={{ opacity: 0 }}
+        animate={{ opacity: [0, 0.4, 0] }}
+        transition={{ delay: 5, duration: 0.5 }}
+        className="absolute inset-0 bg-white z-[110] pointer-events-none"
       />
     </div>
   );
