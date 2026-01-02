@@ -6,6 +6,7 @@ import { Badge } from "@/components/ui/badge";
 import { Layout } from "@/components/layout/layout";
 import { BRAND } from "@shared/branding";
 import { SEO } from "@/components/layout/seo";
+import { motion, AnimatePresence } from "framer-motion";
 import {
   Monitor,
   Database,
