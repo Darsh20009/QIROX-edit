@@ -165,7 +165,7 @@ export default function Home() {
 
         <div className="container relative z-10 mx-auto px-6 grid lg:grid-cols-2 gap-12 items-center">
           <div className="text-right space-y-8 animate-fade-in">
-            <Badge variant="outline" className="px-4 py-2 border-primary/30 text-primary-foreground bg-primary/5 rounded-full text-lg">
+            <Badge variant="outline" className="ml-[152px] mr-[152px] px-4 py-2 border-primary/30 text-primary-foreground bg-primary/5 rounded-full text-lg">
               {BRAND.slogan}
             </Badge>
             
