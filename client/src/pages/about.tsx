@@ -1,90 +1,68 @@
 import { Layout } from "@/components/layout/layout";
-import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
-import { CheckCircle2, ArrowLeft, Target, Eye, Heart } from "lucide-react";
+import { Button } from "@/components/ui/button";
 import { Link } from "wouter";
-
-const values = [
-  {
-    icon: Target,
-    title: "الهدف قبل الربح",
-    description: "نحن نبني أنظمة تخدم احتياجات بشرية حقيقية. يجب أن يجعل كل مشروع عمل شخص ما أسهل أو أعماله أفضل.",
-  },
-  {
-    icon: Eye,
-    title: "شفافية مطلقة",
-    description: "لا توجد صناديق سوداء أو عمليات خفية. ترى كل قرار، وتوافق على كل تغيير، وتفهم بالضبط ما تحصل عليه.",
-  },
-  {
-    icon: Heart,
-    title: "التواصل البشري",
-    description: "يجب أن تعزز التكنولوجيا القدرة البشرية، لا أن تحل محلها. نحن نبني أدوات تبقي البشر في القيادة.",
-  },
-];
+import { Users, Rocket, Target, Heart, ArrowLeft } from "lucide-react";
 
 export default function About() {
+  const values = [
+    { icon: Rocket, title: "الابتكار", desc: "نسعى دائماً لتقديم حلول خارج الصندوق تتجاوز المألوف." },
+    { icon: Target, title: "الدقة", desc: "نهتم بأدق التفاصيل لضمان جودة استثنائية في كل سطر برمج." },
+    { icon: Heart, title: "الشغف", desc: "نعمل بشغف لنحول أفكار عملائنا إلى قصص نجاح ملهمة." },
+    { icon: Users, title: "العميل أولاً", desc: "رضا عملائنا هو البوصلة التي توجه جميع قراراتنا." }
+  ];
+
   return (
     <Layout>
-      <section className="py-20 md:py-28">
+      <section className="py-24 md:py-32 relative overflow-hidden">
         <div className="mx-auto max-w-7xl px-6 text-center">
-          <h1 className="text-4xl md:text-5xl font-bold tracking-tight text-foreground">
-            عن QIROX
+          <h1 className="text-5xl md:text-7xl font-black tracking-tight text-foreground leading-tight mb-8">
+            نحن نصنع <span className="text-primary text-glow">المستقبل الرقمي</span>
           </h1>
-          <p className="mt-6 text-lg text-muted-foreground max-w-3xl mx-auto">
-            نؤمن بأن أفضل التقنيات هي التي تخدم الإنسان. لهذا السبب نبني أنظمة تضع الناس في المركز.
+          <p className="text-xl text-muted-foreground font-medium max-w-3xl mx-auto leading-relaxed">
+            QIROX هي شركة تقنية سعودية رائدة، تأسست بهدف تمكين الشركات والأفراد من امتلاك أدوات تقنية متطورة تنافس عالمياً.
           </p>
         </div>
       </section>
 
-      <section className="py-16 md:py-20 border-t border-border">
+      <section className="py-24 bg-secondary/30">
         <div className="mx-auto max-w-7xl px-6">
-          <div className="grid md:grid-cols-2 gap-12 items-center">
-            <div className="text-right">
-              <h2 className="text-2xl md:text-3xl font-semibold text-foreground mb-6">
-                قصتنا
-              </h2>
-              <div className="space-y-4 text-muted-foreground">
-                <p>
-                  تأسست QIROX بناءً على ملاحظة بسيطة: مع تزايد قوة التكنولوجيا، غالباً ما تصبح أقل إنسانية. الأتمتة تعد بالكفاءة ولكنها تسبب القلق.
-                </p>
-                <p>
-                  بدأنا QIROX لتقديم بديل. مكان تكون فيه التكنولوجيا أداة، وليست بديلاً. حيث يكون لكل نظام نبنيه إشراف بشري واضح.
-                </p>
-              </div>
-            </div>
-            <div>
-              <Card>
-                <CardContent className="p-8 text-center">
-                  <blockquote className="text-lg text-foreground italic">
-                    "ابنِ أنظمة.. وابقَ إنساناً"
-                  </blockquote>
+          <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-8">
+            {values.map((value, i) => (
+              <Card key={i} className="border-none bg-background shadow-sm rounded-3xl p-8 text-right hover:shadow-xl transition-all group">
+                <CardContent className="p-0">
+                  <div className="w-16 h-16 rounded-2xl bg-primary/10 flex items-center justify-center text-primary mb-8 group-hover:bg-primary group-hover:text-white transition-colors">
+                    <value.icon className="w-8 h-8" />
+                  </div>
+                  <h3 className="text-2xl font-black mb-4">{value.title}</h3>
+                  <p className="text-muted-foreground font-medium leading-relaxed">{value.desc}</p>
                 </CardContent>
               </Card>
-            </div>
+            ))}
           </div>
         </div>
       </section>
 
-      <section className="py-16 md:py-20 bg-card border-t border-border">
+      <section className="py-32">
         <div className="mx-auto max-w-7xl px-6">
-          <div className="grid md:grid-cols-3 gap-8">
-            {values.map((value, index) => {
-              const Icon = value.icon;
-              return (
-                <div key={value.title} className="text-center">
-                  <div className="inline-flex items-center justify-center w-14 h-14 rounded-lg bg-muted mb-5">
-                    <Icon className="w-7 h-7 text-primary" />
-                  </div>
-                  <h3 className="text-lg font-semibold text-foreground mb-2">
-                    {value.title}
-                  </h3>
-                  <p className="text-muted-foreground">
-                    {value.description}
-                  </p>
-                </div>
-              );
-            })}
+          <div className="relative rounded-[4rem] bg-primary p-16 md:p-32 text-center overflow-hidden shadow-2xl shadow-primary/20">
+            <div className="relative z-10 space-y-12">
+              <h2 className="text-5xl md:text-7xl font-black text-white leading-tight">
+                جاهز لتكون <br /> جزءاً من القصة؟
+              </h2>
+              <div className="flex flex-col sm:flex-row gap-6 justify-center">
+                <Link href="/register">
+                  <Button size="lg" className="h-20 px-12 text-2xl font-black rounded-2xl bg-white text-primary hover:bg-white/90 shadow-2xl transition-all hover:scale-105">
+                    ابدأ مشروعك الآن
+                  </Button>
+                </Link>
+                <Link href="/contact">
+                  <Button variant="outline" size="lg" className="h-20 px-12 text-2xl font-black rounded-2xl border-white/20 text-white hover:bg-white/10 backdrop-blur-md">
+                    تواصل معنا
+                  </Button>
+                </Link>
+              </div>
+            </div>
           </div>
         </div>
       </section>

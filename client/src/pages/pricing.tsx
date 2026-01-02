@@ -169,38 +169,43 @@ export default function Pricing() {
 
   return (
     <Layout>
-      <section className="py-20 md:py-28">
+      <section className="py-24 md:py-32 relative overflow-hidden">
+        <div className="absolute inset-0 -z-10">
+          <div className="absolute top-0 right-0 w-1/2 h-1/2 bg-primary/5 rounded-full blur-[120px]" />
+          <div className="absolute bottom-0 left-0 w-1/3 h-1/3 bg-accent/5 rounded-full blur-[100px]" />
+        </div>
+        
         <div className="mx-auto max-w-7xl px-6">
-          <div className="max-w-3xl mx-auto text-center">
-            <Badge variant="secondary" className="mb-6 px-4 py-2" data-testid="badge-pricing-intro">
-              أقل الأسعار في السوق
-            </Badge>
-            <h1 className="text-4xl md:text-5xl font-bold tracking-tight text-foreground" data-testid="text-pricing-title">
-              خطط اشتراك مرنة
+          <div className="max-w-3xl mx-auto text-center space-y-8">
+            <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-primary/10 text-primary text-sm font-bold uppercase tracking-widest" data-testid="badge-pricing-intro">
+              شفافية مطلقة في الأسعار
+            </div>
+            <h1 className="text-5xl md:text-7xl font-black tracking-tight leading-tight" data-testid="text-pricing-title">
+              استثمر في <span className="text-primary text-glow">نمو عملك</span>
             </h1>
-            <p className="mt-6 text-lg text-muted-foreground max-w-2xl mx-auto" data-testid="text-pricing-subtitle">
-              اختر النظام المناسب لعملك بأسعار تنافسية. ابدأ تجربتك المجانية اليوم.
+            <p className="text-xl text-muted-foreground font-medium leading-relaxed" data-testid="text-pricing-subtitle">
+              خطط مدروسة بعناية لتناسب كل مرحلة من مراحل تطور مشروعك. ابدأ اليوم بأسعار تبدأ من 100 ريال فقط.
             </p>
           </div>
         </div>
       </section>
 
-      <section className="pb-20 md:pb-28">
+      <section className="pb-32">
         <div className="mx-auto max-w-7xl px-6">
           <Tabs value={selectedCategory} onValueChange={(v) => setSelectedCategory(v as PlanCategory)} className="w-full">
-            <div className="flex justify-center mb-12">
-              <TabsList className="h-14 p-1.5" data-testid="tabs-plan-categories">
+            <div className="flex justify-center mb-20">
+              <TabsList className="h-20 p-2 bg-secondary/50 rounded-2xl border border-border/40" data-testid="tabs-plan-categories">
                 {planCategories.map((category) => {
                   const Icon = category.icon;
                   return (
                     <TabsTrigger
                       key={category.id}
                       value={category.id}
-                      className="px-6 py-3 data-[state=active]:shadow-sm"
+                      className="px-10 py-4 data-[state=active]:bg-background data-[state=active]:shadow-xl rounded-xl transition-all font-black text-lg gap-3"
                       data-testid={`tab-category-${category.id}`}
                     >
-                      <Icon className="w-5 h-5" />
-                      <span className="hidden sm:inline font-medium">{category.name}</span>
+                      <Icon className="w-6 h-6" />
+                      <span className="hidden sm:inline">{category.name}</span>
                     </TabsTrigger>
                   );
                 })}
@@ -208,65 +213,60 @@ export default function Pricing() {
             </div>
 
             {planCategories.map((category) => (
-              <TabsContent key={category.id} value={category.id}>
-                <div className="text-center mb-12">
-                  <h2 className="text-2xl md:text-3xl font-bold text-foreground mb-3" data-testid={`text-category-name-${category.id}`}>
-                    {category.name}
-                  </h2>
-                  <p className="text-muted-foreground" data-testid={`text-category-desc-${category.id}`}>
-                    {category.description}
-                  </p>
-                </div>
-
-                <div className="grid md:grid-cols-3 gap-6 mb-12">
+              <TabsContent key={category.id} value={category.id} className="animate-in fade-in slide-in-from-bottom-4 duration-500">
+                <div className="grid md:grid-cols-3 gap-8 mb-20">
                   {category.plans.map((plan, index) => (
                     <Card
                       key={plan.duration}
-                      className={`relative border-0 shadow-md transition-all duration-300 ${plan.popular ? "ring-2 ring-primary shadow-lg scale-[1.02]" : "hover-elevate"}`}
+                      className={`relative border-none bg-background shadow-sm transition-all duration-500 rounded-[2.5rem] p-4 ${plan.popular ? "ring-4 ring-primary shadow-2xl scale-[1.05] z-10" : "hover:shadow-xl hover:-translate-y-2"}`}
                       data-testid={`card-plan-${category.id}-${index}`}
                     >
                       {plan.popular && (
-                        <div className="absolute -top-4 left-1/2 -translate-x-1/2">
-                          <Badge className="px-4 py-1.5 text-sm" data-testid={`badge-popular-${category.id}`}>
-                            الأكثر شعبية
+                        <div className="absolute -top-6 left-1/2 -translate-x-1/2">
+                          <Badge className="px-6 py-2 text-sm font-black rounded-full bg-primary text-white shadow-lg shadow-primary/20" data-testid={`badge-popular-${category.id}`}>
+                            الخيار المفضل
                           </Badge>
                         </div>
                       )}
-                      <CardContent className="p-8 pt-10">
-                        <div className="text-center mb-6">
-                          <h3 className="text-lg font-bold text-foreground mb-1" data-testid={`text-plan-duration-${category.id}-${index}`}>
+                      <CardContent className="p-10 text-center flex flex-col h-full">
+                        <div className="mb-10">
+                          <h3 className="text-2xl font-black mb-2" data-testid={`text-plan-duration-${category.id}-${index}`}>
                             {plan.duration}
                           </h3>
-                          <p className="text-sm text-muted-foreground">{plan.durationEn}</p>
+                          <p className="text-muted-foreground font-medium uppercase tracking-widest text-xs">{plan.durationEn}</p>
                         </div>
-                        <div className="text-center mb-6">
+
+                        <div className="mb-12">
                           {plan.originalPrice && (
-                            <span className="text-lg text-muted-foreground line-through block mb-1">
+                            <span className="text-lg text-muted-foreground/60 line-through block mb-2 font-medium">
                               {plan.originalPrice} ريال
                             </span>
                           )}
-                          <div className="flex items-baseline justify-center gap-1">
-                            <span className="text-5xl font-bold text-foreground" data-testid={`text-plan-price-${category.id}-${index}`}>
+                          <div className="flex items-baseline justify-center gap-2">
+                            <span className="text-7xl font-black tracking-tighter" data-testid={`text-plan-price-${category.id}-${index}`}>
                               {plan.price}
                             </span>
-                            <span className="text-lg text-muted-foreground font-medium">ريال</span>
+                            <span className="text-xl text-muted-foreground font-black">ريال</span>
                           </div>
                         </div>
+
                         {plan.savings && (
-                          <div className="text-center mb-6">
-                            <Badge variant="outline" className="border-emerald-200 bg-emerald-50 text-emerald-700 dark:border-emerald-800 dark:bg-emerald-900/30 dark:text-emerald-300 rounded-full px-4">
+                          <div className="mb-12">
+                            <div className="inline-block px-4 py-2 rounded-xl bg-emerald-500/10 text-emerald-600 font-black text-sm">
                               {plan.savings}
-                            </Badge>
+                            </div>
                           </div>
                         )}
-                        <Link href="/register" className="block">
+
+                        <Link href="/register" className="mt-auto block">
                           <Button
+                            size="lg"
                             variant={plan.popular ? "default" : "outline"}
-                            className={`w-full h-12 text-base font-bold rounded-full transition-all duration-300 ${plan.popular ? "shadow-lg shadow-primary/20" : ""}`}
+                            className={`w-full h-16 text-xl font-black rounded-2xl transition-all shadow-lg ${plan.popular ? "shadow-primary/20" : "border-2"}`}
                             data-testid={`button-subscribe-${category.id}-${index}`}
                           >
-                            اشترك الآن
-                            <ArrowLeft className="mr-2 w-5 h-5" />
+                            ابدأ الآن
+                            <ArrowLeft className="mr-2 w-6 h-6" />
                           </Button>
                         </Link>
                       </CardContent>
@@ -274,83 +274,60 @@ export default function Pricing() {
                   ))}
                 </div>
 
-                <Card className="border-0 shadow-sm bg-muted/30">
-                  <CardContent className="p-8">
-                    <h3 className="text-xl font-bold text-foreground mb-8 text-center">
-                      جميع الميزات المتضمنة
-                    </h3>
-                    <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-4">
-                      {category.features.map((feature, index) => (
-                        <div
-                          key={feature}
-                          className="flex items-center gap-3"
-                          data-testid={`feature-${category.id}-${index}`}
-                        >
-                          <CheckCircle2 className="w-5 h-5 text-primary flex-shrink-0" />
-                          <span className="text-foreground">{feature}</span>
+                <div className="bg-secondary/30 rounded-[3rem] p-12 md:p-20">
+                  <h3 className="text-3xl font-black mb-16 text-center">كل ما ستحصل عليه</h3>
+                  <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-12">
+                    {category.features.map((feature, index) => (
+                      <div
+                        key={feature}
+                        className="flex items-center gap-6 group"
+                        data-testid={`feature-${category.id}-${index}`}
+                      >
+                        <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center text-primary group-hover:bg-primary group-hover:text-white transition-colors">
+                          <CheckCircle2 className="w-6 h-6" />
                         </div>
-                      ))}
-                    </div>
-                  </CardContent>
-                </Card>
+                        <span className="text-lg font-bold text-foreground/80">{feature}</span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
               </TabsContent>
             ))}
           </Tabs>
         </div>
       </section>
 
-      <section className="py-20 md:py-28 bg-muted/30">
-        <div className="mx-auto max-w-3xl px-6">
-          <div className="text-center mb-12">
-            <div className="inline-flex items-center justify-center w-14 h-14 rounded-xl bg-primary/10 mb-6">
-              <HelpCircle className="w-7 h-7 text-primary" />
+      <section className="py-32 bg-secondary/20">
+        <div className="mx-auto max-w-4xl px-6">
+          <div className="text-center mb-20 space-y-4">
+            <div className="w-20 h-20 rounded-3xl bg-primary/10 flex items-center justify-center text-primary mx-auto mb-8 shadow-inner">
+              <HelpCircle className="w-10 h-10" />
             </div>
-            <h2 className="text-2xl md:text-3xl font-bold text-foreground">
-              الأسئلة الشائعة
+            <h2 className="text-4xl md:text-5xl font-black tracking-tight">
+              أسئلة قد تدور بذهنك
             </h2>
+            <p className="text-lg text-muted-foreground font-medium">نحن هنا لتوضيح كل شيء قبل أن تبدأ.</p>
           </div>
 
-          <Accordion type="single" collapsible className="space-y-3">
+          <Accordion type="single" collapsible className="space-y-4">
             {faqs.map((faq, index) => (
               <AccordionItem
                 key={index}
                 value={`item-${index}`}
-                className="border-0 bg-background rounded-xl px-6 shadow-sm"
+                className="border-none bg-background rounded-3xl px-8 shadow-sm transition-all hover:shadow-md"
               >
                 <AccordionTrigger
-                  className="text-right font-semibold text-foreground hover:no-underline py-5"
+                  className="text-right font-black text-xl text-foreground hover:no-underline py-8"
                   data-testid={`accordion-faq-${index}`}
                 >
                   {faq.question}
                 </AccordionTrigger>
-                <AccordionContent className="text-muted-foreground text-right pb-5 leading-relaxed" data-testid={`text-faq-answer-${index}`}>
+                <AccordionContent className="text-muted-foreground text-right pb-8 text-lg font-medium leading-relaxed" data-testid={`text-faq-answer-${index}`}>
                   {faq.answer}
                 </AccordionContent>
               </AccordionItem>
             ))}
           </Accordion>
-        </div>
-      </section>
-
-      <section className="py-20 md:py-28">
-        <div className="mx-auto max-w-7xl px-6">
-          <div className="relative rounded-2xl bg-gradient-to-l from-primary to-primary/80 p-12 md:p-16 text-center overflow-hidden">
-            <div className="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNjAiIGhlaWdodD0iNjAiIHZpZXdCb3g9IjAgMCA2MCA2MCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48ZyBmaWxsPSJub25lIiBmaWxsLXJ1bGU9ImV2ZW5vZGQiPjxnIGZpbGw9IiNmZmYiIGZpbGwtb3BhY2l0eT0iMC4xIj48cGF0aCBkPSJNMzYgMzRjMC0yLjIwOS0xLjc5MS00LTQtNHMtNCAxLjc5MS00IDQgMS43OTEgNCA0IDQgNC0xLjc5MSA0LTR6Ii8+PC9nPjwvZz48L3N2Zz4=')] opacity-30" />
-            <div className="relative">
-              <h2 className="text-3xl md:text-4xl font-bold text-primary-foreground mb-4">
-                ابدأ تجربتك المجانية اليوم
-              </h2>
-              <p className="text-primary-foreground/80 mb-8 max-w-xl mx-auto text-lg">
-                جرب النظام مجاناً لمدة 14 يوم. لا تحتاج بطاقة ائتمان.
-              </p>
-              <Link href="/register">
-                <Button size="lg" variant="secondary" className="px-10 py-6 text-lg font-semibold" data-testid="button-cta-free-trial">
-                  ابدأ التجربة المجانية
-                  <ArrowLeft className="w-5 h-5" />
-                </Button>
-              </Link>
-            </div>
-          </div>
         </div>
       </section>
     </Layout>

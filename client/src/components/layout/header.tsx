@@ -63,11 +63,11 @@ export function Header() {
               
               {navItems.map((item) => (
                 <Link key={item.href} href={item.href}>
-                  <a className={`text-sm font-bold transition-colors hover:text-primary ${
+                  <span className={`text-sm font-bold transition-colors cursor-pointer hover:text-primary ${
                     location === item.href ? "text-primary" : "text-muted-foreground"
                   }`}>
                     {item.label}
-                  </a>
+                  </span>
                 </Link>
               ))}
             </nav>
@@ -126,18 +126,18 @@ export function Header() {
                 <p className="text-xs font-bold text-muted-foreground px-2 mb-2 uppercase tracking-widest">خدماتنا</p>
                 {buildOptions.map((opt) => (
                   <Link key={opt.href} href={opt.href}>
-                    <a className="block p-4 rounded-xl bg-secondary/50 font-bold" onClick={() => setMobileMenuOpen(false)}>
+                    <span className="block p-4 rounded-xl bg-secondary/50 font-bold cursor-pointer" onClick={() => setMobileMenuOpen(false)}>
                       {opt.label}
-                    </a>
+                    </span>
                   </Link>
                 ))}
               </div>
               <div className="h-px bg-border/40 my-4" />
               {navItems.map((item) => (
                 <Link key={item.href} href={item.href}>
-                  <a className="block p-2 font-bold text-lg" onClick={() => setMobileMenuOpen(false)}>
+                  <span className="block p-2 font-bold text-lg cursor-pointer" onClick={() => setMobileMenuOpen(false)}>
                     {item.label}
-                  </a>
+                  </span>
                 </Link>
               ))}
               <div className="pt-6 grid gap-3">
