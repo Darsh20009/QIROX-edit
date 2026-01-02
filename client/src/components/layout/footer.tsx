@@ -83,19 +83,25 @@ export function Footer() {
             <h3 className="text-lg font-black mb-8 uppercase tracking-widest text-foreground/80">اتصل بنا</h3>
             <ul className="space-y-6">
               <li className="flex items-center gap-4 text-muted-foreground font-medium justify-end">
-                support@qirox.online
+                <a href="mailto:support@qirox.online" className="hover:text-primary transition-colors">
+                  support@qirox.online
+                </a>
                 <div className="w-10 h-10 rounded-lg bg-primary/5 flex items-center justify-center text-primary">
                   <Mail className="w-5 h-5" />
                 </div>
               </li>
               <li className="flex items-center gap-4 text-muted-foreground font-medium justify-end">
-                +201155201921 (WhatsApp)
+                <a href="https://wa.me/201155201921" target="_blank" rel="noopener noreferrer" className="hover:text-primary transition-colors">
+                  +201155201921 (WhatsApp)
+                </a>
                 <div className="w-10 h-10 rounded-lg bg-primary/5 flex items-center justify-center text-primary">
                   <Phone className="w-5 h-5" />
                 </div>
               </li>
               <li className="flex items-center gap-4 text-muted-foreground font-medium justify-end">
-                +966532441566
+                <a href="tel:+966532441566" className="hover:text-primary transition-colors">
+                  +966532441566
+                </a>
                 <div className="w-10 h-10 rounded-lg bg-primary/5 flex items-center justify-center text-primary">
                   <Phone className="w-5 h-5" />
                 </div>
