@@ -183,9 +183,8 @@ export class MemStorage implements IStorage {
 
   async getMeetings(userId?: string): Promise<Meeting[]> {
     const all = Array.from(this.meetings.values());
-    // Security: Strict isolation for meetings
-    if (userId) return all.filter(m => m.userId === userId);
-    return []; // Return empty if no userId provided (unless admin/employee override in routes)
+    if (userId) return all.filter(m => m.userId === userId || m.tenantId === userId); // Basic tenant isolation
+    return all;
   }
 
   async createMeeting(insert: InsertMeeting): Promise<Meeting> {

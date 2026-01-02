@@ -1105,7 +1105,7 @@ export async function registerRoutes(
     }
   });
 
-  app.get("/api/contact", authMiddleware, roleMiddleware("admin", "employee"), async (_req, res) => {
+  app.get("/api/contact", authMiddleware, roleMiddleware("system_admin", "qirox_pm"), async (_req, res) => {
     try {
       const messages = await storage.getContactMessages();
       res.json(messages);
@@ -1135,7 +1135,7 @@ export async function registerRoutes(
 
   // ==================== ADMIN API ROUTES (MongoDB) ====================
 
-  app.get("/api/admin/users", authMiddleware, roleMiddleware("admin"), async (_req, res) => {
+  app.get("/api/admin/users", authMiddleware, roleMiddleware("system_admin"), async (_req, res) => {
     try {
       const users = await User.find().sort({ createdAt: -1 }).limit(50);
       res.json(users);
@@ -1144,7 +1144,7 @@ export async function registerRoutes(
     }
   });
 
-  app.post("/api/admin/users", authMiddleware, roleMiddleware("admin"), async (req, res) => {
+  app.post("/api/admin/users", authMiddleware, roleMiddleware("system_admin"), async (req, res) => {
     try {
       const { name, email, role } = req.body;
       const user = new User({ name, email, role, password: "default123" });
@@ -1155,7 +1155,7 @@ export async function registerRoutes(
     }
   });
 
-  app.get("/api/admin/products", authMiddleware, roleMiddleware("admin"), async (_req, res) => {
+  app.get("/api/admin/products", authMiddleware, roleMiddleware("system_admin"), async (_req, res) => {
     try {
       const products = await Product.find().sort({ createdAt: -1 }).limit(50);
       res.json(products);
@@ -1164,7 +1164,7 @@ export async function registerRoutes(
     }
   });
 
-  app.post("/api/admin/products", authMiddleware, roleMiddleware("admin"), async (req, res) => {
+  app.post("/api/admin/products", authMiddleware, roleMiddleware("system_admin"), async (req, res) => {
     try {
       const { name, category, price, stock, status } = req.body;
       const storeId = (req as any).user?.storeId || new mongoose.Types.ObjectId();
@@ -1184,7 +1184,7 @@ export async function registerRoutes(
     }
   });
 
-  app.get("/api/admin/orders", authMiddleware, roleMiddleware("admin"), async (_req, res) => {
+  app.get("/api/admin/orders", authMiddleware, roleMiddleware("system_admin"), async (_req, res) => {
     try {
       const orders = await Order.find().sort({ createdAt: -1 }).limit(50);
       res.json(orders);
@@ -1193,7 +1193,7 @@ export async function registerRoutes(
     }
   });
 
-  app.post("/api/admin/orders", authMiddleware, roleMiddleware("admin"), async (req, res) => {
+  app.post("/api/admin/orders", authMiddleware, roleMiddleware("system_admin"), async (req, res) => {
     try {
       const { order_number, customer_name, total, status } = req.body;
       const storeId = (req as any).user?.storeId || new mongoose.Types.ObjectId();
@@ -1224,7 +1224,7 @@ export async function registerRoutes(
     }
   });
 
-  app.post("/api/admin/subscriptions", authMiddleware, roleMiddleware("admin"), async (req, res) => {
+  app.post("/api/admin/subscriptions", authMiddleware, roleMiddleware("system_admin"), async (req, res) => {
     try {
       const { subscription_number, plan, billing_cycle, price, status } = req.body;
       const userId = (req as any).user?._id;
@@ -1244,7 +1244,7 @@ export async function registerRoutes(
     }
   });
 
-  app.get("/api/admin/stores", authMiddleware, roleMiddleware("admin"), async (_req, res) => {
+  app.get("/api/admin/stores", authMiddleware, roleMiddleware("system_admin"), async (_req, res) => {
     try {
       const stores = await Store.find().sort({ createdAt: -1 }).limit(50);
       res.json(stores);
@@ -1253,7 +1253,7 @@ export async function registerRoutes(
     }
   });
 
-  app.post("/api/admin/stores", authMiddleware, roleMiddleware("admin"), async (req, res) => {
+  app.post("/api/admin/stores", authMiddleware, roleMiddleware("system_admin"), async (req, res) => {
     try {
       const { name, owner, status } = req.body;
       const store = new Store({
