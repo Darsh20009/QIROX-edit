@@ -1,13 +1,16 @@
-import { useState } from "react";
-import { Link } from "wouter";
+import { useState, useEffect } from "react";
+import { Link, useLocation } from "wouter";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Layout } from "@/components/layout/layout";
+import { BRAND } from "@shared/branding";
+import { SEO } from "@/components/layout/seo";
 import {
-  Store,
-  Utensils,
-  GraduationCap,
+  Monitor,
+  Database,
+  ShoppingBag,
+  Code,
   ArrowLeft,
   CheckCircle2,
   Shield,
@@ -30,31 +33,40 @@ type BuildOption = {
 
 const buildOptions: BuildOption[] = [
   {
-    id: "store",
-    icon: Store,
-    title: "المتاجر الإلكترونية",
-    titleEn: "E-Commerce",
-    description: "أنشئ متجرك الإلكتروني الاحترافي مع نظام إدارة شامل للمنتجات والطلبات والعملاء.",
-    features: ["إدارة المنتجات", "نظام الطلبات", "تقارير المبيعات", "دعم الدفع الإلكتروني"],
-    price: "100",
+    id: "build",
+    icon: Monitor,
+    title: "بناء منصة",
+    titleEn: "Builder",
+    description: "بناء مواقع وتطبيقات بورتفوليو احترافية مع أداء فائق وسرعة في النشر.",
+    features: ["تجاوب كامل", "SEO متقدم", "سرعة فائقة", "تصميم عصري"],
+    price: "150",
   },
   {
-    id: "restaurant",
-    icon: Utensils,
-    title: "المطاعم والكافيهات",
-    titleEn: "Restaurants",
-    description: "نظام متكامل لإدارة المطاعم مع قوائم الطعام والحجوزات وتتبع الطلبات.",
-    features: ["قوائم الطعام الرقمية", "نظام الحجوزات", "إدارة الطاولات", "تقارير يومية"],
-    price: "179",
+    id: "systems",
+    icon: Database,
+    title: "نظام أعمال",
+    titleEn: "Business Systems",
+    description: "أتمتة العمليات الإدارية، CRM، ونظم إدارة الموارد (ERP) مفصلة حسب احتياجك.",
+    features: ["أتمتة المهام", "إدارة العملاء", "تقارير مالية", "لوحة تحكم ذكية"],
+    price: "450",
   },
   {
-    id: "education",
-    icon: GraduationCap,
-    title: "المنصات التعليمية",
-    titleEn: "Education",
-    description: "أنشئ منصتك التعليمية مع إدارة الدورات والطلاب والشهادات.",
-    features: ["إدارة الدورات", "نظام الطلاب", "الشهادات الرقمية", "المحتوى التفاعلي"],
-    price: "199",
+    id: "stores",
+    icon: ShoppingBag,
+    title: "متجر إلكتروني",
+    titleEn: "Store",
+    description: "متجر متكامل يدعم الدفع، الشحن، وإدارة المخزون مع تجربة شراء سلسة.",
+    features: ["بوابات دفع", "إدارة الشحن", "كوبونات خصم", "تطبيقات جوال"],
+    price: "250",
+  },
+  {
+    id: "custom",
+    icon: Code,
+    title: "بناء خاص",
+    titleEn: "Custom Build",
+    description: "حلول برمجية مخصصة للأفكار الجديدة والتقنيات المعقدة.",
+    features: ["كود مخصص", "توسع لا محدود", "أمان عالٍ", "دعم فني مخصص"],
+    price: "اتصل بنا",
   },
 ];
 
@@ -99,111 +111,58 @@ const features = [
 ];
 
 export default function Home() {
+  const [location] = useLocation();
   const [selectedOption, setSelectedOption] = useState<string | null>(null);
+
+  useEffect(() => {
+    const path = location.split("/")[1];
+    if (["build", "systems", "stores", "custom"].includes(path)) {
+      setSelectedOption(path);
+    } else {
+      setSelectedOption(null);
+    }
+  }, [location]);
+
   const selected = buildOptions.find((opt) => opt.id === selectedOption);
+  const displayOptions = selected ? [selected] : buildOptions;
 
   return (
     <Layout>
+      <SEO 
+        title={selected?.title} 
+        description={selected?.description}
+      />
       <section className="relative py-24 md:py-32 overflow-hidden premium-gradient">
         <div className="hero-glow" />
         <div className="relative mx-auto max-w-7xl px-6">
           <div className="max-w-4xl mx-auto text-center">
-            <div className="inline-flex items-center gap-2 mb-8 px-4 py-2 rounded-full bg-primary/10 border border-primary/20 backdrop-blur-sm animate-in fade-in slide-in-from-top-4 duration-500">
-              <Badge variant="secondary" className="px-2 py-0.5 text-[10px] font-bold tracking-wider uppercase bg-primary text-primary-foreground">NEW</Badge>
-              <span className="text-sm font-medium text-primary">أقل الأسعار في السوق العربي</span>
+            <div className="inline-flex items-center gap-2 mb-8 px-4 py-2 rounded-full bg-primary/10 border border-primary/20 backdrop-blur-sm">
+              <span className="text-sm font-medium text-primary">{BRAND.slogan}</span>
             </div>
-            <h1 className="text-5xl md:text-6xl lg:text-7xl font-bold tracking-tight text-foreground leading-[1.1] animate-in fade-in slide-in-from-bottom-4 duration-700" data-testid="text-hero-title">
-              أنشئ إمبراطوريتك
+            <h1 className="text-5xl md:text-6xl lg:text-7xl font-bold tracking-tight text-foreground leading-[1.1]">
+              {selected ? `ابنِ ${selected.title}` : BRAND.copy.hero.title}
               <span className="block mt-2 bg-gradient-to-l from-primary via-emerald-500 to-primary/70 bg-clip-text text-transparent">
-                الرقمية اليوم
+                {selected ? selected.titleEn : "الرقمية اليوم"}
               </span>
             </h1>
-            <p className="mt-8 text-lg md:text-xl text-muted-foreground max-w-2xl mx-auto leading-relaxed animate-in fade-in slide-in-from-bottom-6 duration-1000" data-testid="text-hero-subtitle">
-              منصة QIROX المتكاملة لإدارة أعمالك البرمجية والتقنية. من الفكرة إلى التنفيذ، كل شيء في نظام واحد (One System).
+            <p className="mt-8 text-lg md:text-xl text-muted-foreground max-w-2xl mx-auto leading-relaxed">
+              {selected ? selected.description : BRAND.copy.hero.subtitle}
             </p>
-            <div className="mt-12 flex flex-col sm:flex-row gap-4 justify-center items-center animate-in fade-in slide-in-from-bottom-8 duration-1000">
+            <div className="mt-12 flex flex-col sm:flex-row gap-4 justify-center items-center">
               <Link href="/register">
-                <Button size="lg" className="w-full sm:w-auto h-14 px-10 text-lg shadow-xl shadow-primary/20 hover-elevate transition-all duration-300" data-testid="button-start-free">
-                  ابدأ مشروعك الآن
+                <Button size="lg" className="w-full sm:w-auto h-14 px-10 text-lg shadow-xl shadow-primary/20 hover-elevate">
+                  ابدأ الآن
                   <ArrowLeft className="w-5 h-5 mr-2" />
                 </Button>
               </Link>
-              <Link href="/pricing">
-                <Button variant="outline" size="lg" className="w-full sm:w-auto h-14 px-10 text-lg glass-card hover-elevate transition-all duration-300" data-testid="button-view-pricing">
-                  شاهد كيف نعمل
-                </Button>
-              </Link>
+              {!selected && (
+                <Link href="/how-it-works">
+                  <Button variant="outline" size="lg" className="w-full sm:w-auto h-14 px-10 text-lg glass-card hover-elevate">
+                    كيف نعمل؟
+                  </Button>
+                </Link>
+              )}
             </div>
-          </div>
-
-          {/* QIROX Modules Grid */}
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mt-24 animate-in fade-in slide-in-from-bottom-10 duration-1000">
-            {[
-              { name: "QIROX Build", desc: "بناء ونشر المواقع" },
-              { name: "QIROX Meet", desc: "اجتماعات ZEGO مشفرة" },
-              { name: "QIROX Requests", desc: "طلبات برمجية فورية" },
-              { name: "QIROX Cloud", desc: "إدارة النطاقات وSSL" },
-            ].map((mod) => (
-              <Card key={mod.name} className="border-primary/10 bg-card/50 backdrop-blur-sm p-6 text-center hover-elevate transition-all">
-                <h3 className="font-bold text-primary mb-2">{mod.name}</h3>
-                <p className="text-xs text-muted-foreground">{mod.desc}</p>
-              </Card>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      <section className="py-20 md:py-28 overflow-hidden">
-        <div className="mx-auto max-w-7xl px-6">
-          <div className="flex flex-col md:flex-row items-center gap-12">
-            <div className="flex-1 text-right animate-in fade-in slide-in-from-right-4 duration-1000">
-              <Badge className="mb-4 bg-primary/20 text-primary border-primary/30">إبداع بلا حدود</Badge>
-              <h2 className="text-4xl md:text-5xl font-bold mb-6 leading-tight">واجهات متطورة تليق بعلامتك التجارية</h2>
-              <p className="text-lg text-muted-foreground mb-8 leading-relaxed">
-                نحن لا نصمم مجرد مواقع، نحن نبني تجارب مستخدم إبداعية تزيد من ولاء عملائك وتضاعف مبيعاتك من خلال تصاميم عصرية ومدروسة.
-              </p>
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
-                <div className="p-4 rounded-2xl bg-muted/50 border border-border/50 hover-elevate">
-                  <div className="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center text-primary font-bold mb-3">1</div>
-                  <p className="font-semibold">هوية عربية مودرن</p>
-                </div>
-                <div className="p-4 rounded-2xl bg-muted/50 border border-border/50 hover-elevate">
-                  <div className="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center text-primary font-bold mb-3">2</div>
-                  <p className="font-semibold">أداء فائق السرعة</p>
-                </div>
-              </div>
-            </div>
-            <div className="flex-1 relative animate-in fade-in slide-in-from-left-4 duration-1000">
-              <div className="absolute -inset-4 bg-primary/20 blur-3xl rounded-full opacity-50 hero-glow" />
-              <Card className="relative glass-card animate-float overflow-hidden border-white/20 shadow-2xl">
-                <CardContent className="p-0">
-                  <div className="bg-gradient-to-br from-muted to-background aspect-video flex items-center justify-center text-muted-foreground p-8">
-                    <div className="grid grid-cols-3 gap-4 w-full">
-                      {[1,2,3,4,5,6].map(i => (
-                        <div key={i} className="h-12 rounded-lg bg-primary/5 border border-primary/10" />
-                      ))}
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      <section className="py-12 border-y border-border bg-muted/30">
-        <div className="mx-auto max-w-7xl px-6">
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
-            {stats.map((stat, index) => (
-              <div key={stat.label} className="text-center" data-testid={`stat-item-${index}`}>
-                <div className="text-3xl md:text-4xl font-bold text-primary" data-testid={`text-stat-value-${index}`}>
-                  {stat.value}
-                </div>
-                <div className="mt-2 text-sm text-muted-foreground" data-testid={`text-stat-label-${index}`}>
-                  {stat.label}
-                </div>
-              </div>
-            ))}
           </div>
         </div>
       </section>
@@ -211,50 +170,37 @@ export default function Home() {
       <section className="py-20 md:py-28">
         <div className="mx-auto max-w-7xl px-6">
           <div className="text-center mb-16">
-            <Badge variant="outline" className="mb-4">حلولنا</Badge>
             <h2 className="text-3xl md:text-4xl font-bold text-foreground">
-              ماذا تريد أن تبني؟
+              {selected ? "مميزات الحل" : "ماذا تريد أن تبني؟"}
             </h2>
-            <p className="mt-4 text-lg text-muted-foreground max-w-2xl mx-auto">
-              اختر نوع المشروع الذي يناسب عملك وابدأ رحلتك الرقمية اليوم
-            </p>
           </div>
 
-          <div className="grid md:grid-cols-3 gap-6">
-            {buildOptions.map((option) => {
+          <div className={`grid gap-6 ${selected ? "max-w-xl mx-auto" : "md:grid-cols-2 lg:grid-cols-4"}`}>
+            {displayOptions.map((option) => {
               const Icon = option.icon;
-              const isSelected = selectedOption === option.id;
               return (
                 <Card
                   key={option.id}
-                  className={`relative cursor-pointer transition-all duration-300 overflow-visible ${
-                    isSelected ? "ring-2 ring-primary shadow-lg" : "hover-elevate"
-                  }`}
-                  onClick={() => setSelectedOption(isSelected ? null : option.id)}
-                  data-testid={`card-option-${option.id}`}
+                  className="relative cursor-pointer transition-all duration-300 hover-elevate group"
+                  onClick={() => setSelectedOption(option.id)}
                 >
                   <CardContent className="p-8">
-                    <div className={`inline-flex items-center justify-center w-14 h-14 rounded-xl mb-6 transition-colors ${
-                      isSelected ? "bg-primary text-primary-foreground" : "bg-primary/10 text-primary"
-                    }`}>
+                    <div className="inline-flex items-center justify-center w-14 h-14 rounded-xl mb-6 bg-primary/10 text-primary group-hover:bg-primary group-hover:text-primary-foreground transition-colors">
                       <Icon className="w-7 h-7" />
                     </div>
-                    <div className="flex items-center gap-2 mb-2">
-                      <h3 className="text-xl font-bold text-foreground">{option.title}</h3>
-                      <span className="text-sm text-muted-foreground">({option.titleEn})</span>
-                    </div>
-                    <p className="text-muted-foreground mb-6 leading-relaxed">
+                    <h3 className="text-xl font-bold text-foreground mb-2">{option.title}</h3>
+                    <p className="text-sm text-muted-foreground mb-6 leading-relaxed">
                       {option.description}
                     </p>
                     <div className="flex items-baseline gap-1 mb-6">
                       <span className="text-3xl font-bold text-primary">{option.price}</span>
-                      <span className="text-muted-foreground">ريال/شهرياً</span>
+                      {option.price !== "اتصل بنا" && <span className="text-xs text-muted-foreground">ريال/شهرياً</span>}
                     </div>
                     <ul className="space-y-3">
                       {option.features.map((feature) => (
                         <li key={feature} className="flex items-center gap-3 text-sm">
                           <CheckCircle2 className="w-4 h-4 text-primary flex-shrink-0" />
-                          <span className="text-foreground">{feature}</span>
+                          <span>{feature}</span>
                         </li>
                       ))}
                     </ul>
@@ -263,83 +209,69 @@ export default function Home() {
               );
             })}
           </div>
-
+          
           {selected && (
-            <div className="mt-10 text-center animate-in fade-in slide-in-from-bottom-4 duration-300">
-              <Link href="/register">
-                <Button size="lg" className="px-10" data-testid="button-start-selected">
-                  ابدأ الآن مع {selected.title}
-                  <ArrowLeft className="w-5 h-5" />
-                </Button>
-              </Link>
+            <div className="mt-12 text-center">
+              <Button variant="ghost" onClick={() => setSelectedOption(null)}>
+                عرض جميع الخيارات
+              </Button>
             </div>
           )}
         </div>
       </section>
 
-      <section className="py-20 md:py-28 bg-muted/30">
-        <div className="mx-auto max-w-7xl px-6">
-          <div className="text-center mb-16">
-            <Badge variant="outline" className="mb-4">لماذا QIROX؟</Badge>
-            <h2 className="text-3xl md:text-4xl font-bold text-foreground">
-              ميزات تجعلنا مختلفين
-            </h2>
-            <p className="mt-4 text-lg text-muted-foreground max-w-2xl mx-auto">
-              نقدم لك أفضل الأدوات والميزات لإنجاح عملك الرقمي
-            </p>
-          </div>
-
-          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
-            {features.map((feature, index) => {
-              const Icon = feature.icon;
-              return (
-                <Card key={feature.title} className="border-0 bg-background shadow-sm" data-testid={`feature-item-${index}`}>
-                  <CardContent className="p-8">
-                    <div className="inline-flex items-center justify-center w-12 h-12 rounded-xl bg-primary/10 text-primary mb-5">
-                      <Icon className="w-6 h-6" />
+      {!selected && (
+        <>
+          <section className="py-12 border-y border-border bg-muted/30">
+            <div className="mx-auto max-w-7xl px-6">
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
+                {stats.map((stat) => (
+                  <div key={stat.label} className="text-center">
+                    <div className="text-3xl md:text-4xl font-bold text-primary">
+                      {stat.value}
                     </div>
-                    <h3 className="text-lg font-bold text-foreground mb-2" data-testid={`text-feature-title-${index}`}>
-                      {feature.title}
-                    </h3>
-                    <p className="text-muted-foreground leading-relaxed" data-testid={`text-feature-desc-${index}`}>
-                      {feature.description}
-                    </p>
-                  </CardContent>
-                </Card>
-              );
-            })}
-          </div>
-        </div>
-      </section>
-
-      <section className="py-20 md:py-28">
-        <div className="mx-auto max-w-7xl px-6">
-          <div className="relative rounded-2xl bg-gradient-to-l from-primary to-primary/80 p-12 md:p-16 text-center overflow-hidden">
-            <div className="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNjAiIGhlaWdodD0iNjAiIHZpZXdCb3g9IjAgMCA2MCA2MCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48ZyBmaWxsPSJub25lIiBmaWxsLXJ1bGU9ImV2ZW5vZGQiPjxnIGZpbGw9IiNmZmYiIGZpbGwtb3BhY2l0eT0iMC4xIj48cGF0aCBkPSJNMzYgMzRjMC0yLjIwOS0xLjc5MS00LTQtNHMtNCAxLjc5MS00IDQgMS43OTEgNCA0IDQgNC0xLjc5MSA0LTR6Ii8+PC9nPjwvZz48L3N2Zz4=')] opacity-30" />
-            <div className="relative">
-              <h2 className="text-3xl md:text-4xl font-bold text-primary-foreground mb-4">
-                جاهز لبدء رحلتك الرقمية؟
-              </h2>
-              <p className="text-primary-foreground/80 mb-8 max-w-xl mx-auto text-lg">
-                انضم إلى مئات الأعمال الناجحة التي تثق في QIROX. ابدأ تجربتك المجانية لمدة 14 يوماً الآن.
-              </p>
-              <div className="flex flex-col sm:flex-row gap-4 justify-center">
-                <Link href="/register">
-                  <Button size="lg" variant="secondary" className="w-full sm:w-auto px-10 py-6 text-lg font-semibold" data-testid="button-cta-register">
-                    ابدأ مجاناً
-                    <ArrowLeft className="w-5 h-5" />
-                  </Button>
-                </Link>
-                <Link href="/contact">
-                  <Button size="lg" variant="outline" className="w-full sm:w-auto px-10 py-6 text-lg border-primary-foreground/30 text-primary-foreground bg-transparent" data-testid="button-cta-contact">
-                    تواصل معنا
-                  </Button>
-                </Link>
+                    <div className="mt-2 text-sm text-muted-foreground">
+                      {stat.label}
+                    </div>
+                  </div>
+                ))}
               </div>
             </div>
-          </div>
-        </div>
-      </section>
+          </section>
+
+          <section className="py-20 md:py-28 bg-muted/30">
+            <div className="mx-auto max-w-7xl px-6">
+              <div className="text-center mb-16">
+                <Badge variant="outline" className="mb-4">لماذا QIROX؟</Badge>
+                <h2 className="text-3xl md:text-4xl font-bold text-foreground">
+                  ميزات تجعلنا مختلفين
+                </h2>
+              </div>
+
+              <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+                {features.map((feature) => {
+                  const Icon = feature.icon;
+                  return (
+                    <Card key={feature.title} className="border-0 bg-background shadow-sm">
+                      <CardContent className="p-8">
+                        <div className="inline-flex items-center justify-center w-12 h-12 rounded-xl bg-primary/10 text-primary mb-5">
+                          <Icon className="w-6 h-6" />
+                        </div>
+                        <h3 className="text-lg font-bold text-foreground mb-2">
+                          {feature.title}
+                        </h3>
+                        <p className="text-muted-foreground leading-relaxed">
+                          {feature.description}
+                        </p>
+                      </CardContent>
+                    </Card>
+                  );
+                })}
+              </div>
+            </div>
+          </section>
+        </>
+      )}
     </Layout>
   );
 }
