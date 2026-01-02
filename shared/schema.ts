@@ -8,18 +8,38 @@ export const users = pgTable("users", {
   username: text("username").notNull().unique(),
   password: text("password").notNull(),
   role: text("role").notNull().default("visitor"), 
-  // Roles: visitor, client_owner, client_admin, client_editor, qirox_sales, qirox_support, qirox_pm, qirox_specialist, qirox_finance, system_admin
+  // Roles: visitor, client, student, employee, admin
   tenantId: varchar("tenant_id").notNull().default("default"),
-  metadata: text("metadata"), // JSON string for extra fields
+  metadata: text("metadata"), 
 });
 
-export const tenants = pgTable("tenants", {
+export const services = pgTable("services", {
   id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
   name: text("name").notNull(),
-  slug: text("slug").notNull().unique(),
-  status: text("status").notNull().default("active"),
-  config: text("config"), // JSON string for tenant-specific settings
+  description: text("description").notNull(),
+  price: integer("price").notNull(),
+  category: text("category").notNull(), 
+  features: text("features").array(),
+  isActive: boolean("is_active").default(true),
+});
+
+export const orders = pgTable("orders", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  orderNumber: text("order_number").notNull().unique(),
+  userId: varchar("user_id").references(() => users.id),
+  serviceId: varchar("service_id").references(() => services.id),
+  status: text("status").default("pending"), 
+  totalAmount: integer("total_amount").notNull(),
   createdAt: timestamp("created_at").defaultNow().notNull(),
+});
+
+export const enrollments = pgTable("enrollments", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  userId: varchar("user_id").references(() => users.id).notNull(),
+  courseId: text("course_id").notNull(),
+  progress: integer("progress").default(0),
+  status: text("status").default("active"),
+  enrolledAt: timestamp("enrolled_at").defaultNow().notNull(),
 });
 
 export const auditLogs = pgTable("audit_logs", {
