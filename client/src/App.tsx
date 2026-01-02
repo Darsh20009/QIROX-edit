@@ -1,4 +1,6 @@
 import AdminMaintenancePage from "@/pages/admin/maintenance";
+import AdminRolesPage from "@/pages/admin/roles";
+import { Switch, Route } from "wouter";
 import { queryClient } from "./lib/queryClient";
 import { QueryClientProvider } from "@tanstack/react-query";
 import { Toaster } from "@/components/ui/toaster";
@@ -12,6 +14,7 @@ import HowItWorks from "@/pages/how-it-works";
 import Pricing from "@/pages/pricing";
 import About from "@/pages/about";
 import Contact from "@/pages/contact";
+import Support from "@/pages/support";
 import Terms from "@/pages/terms";
 import Privacy from "@/pages/privacy";
 import Login from "@/pages/login";
@@ -67,6 +70,10 @@ function Router() {
       <Route path="/custom" component={Home} />
       <Route path="/how-it-works" component={HowItWorks} />
       <Route path="/pricing" component={Pricing} />
+      <Route path="/about" component={About} />
+      <Route path="/contact" component={Contact} />
+      <Route path="/support" component={Support} />
+      <Route path="/terms" component={Terms} />
       <Route path="/privacy" component={Privacy} />
       <Route path="/login" component={Login} />
       <Route path="/register" component={Register} />
