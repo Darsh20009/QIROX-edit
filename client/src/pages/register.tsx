@@ -72,12 +72,12 @@ export default function Register() {
       <div className="min-h-[80vh] flex items-center justify-center py-12 px-4">
         <div className="w-full max-w-md">
           <div className="text-center mb-8">
-            <Badge variant="secondary" className="mb-4">تجربة مجانية 14 يوم</Badge>
+            <Badge variant="secondary" className="mb-4">Human-Driven</Badge>
             <h1 className="text-3xl font-bold text-foreground mb-2" data-testid="text-register-title">
-              أنشئ حسابك الآن
+              QIROX
             </h1>
             <p className="text-muted-foreground">
-              ابدأ رحلتك مع QIROX مجاناً
+              Start your 14-day free trial
             </p>
           </div>
 

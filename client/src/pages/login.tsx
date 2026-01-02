@@ -53,10 +53,10 @@ export default function Login() {
         <div className="w-full max-w-md">
           <div className="text-center mb-8">
             <h1 className="text-3xl font-bold text-foreground mb-2" data-testid="text-login-title">
-              مرحباً بعودتك
+              QIROX
             </h1>
             <p className="text-muted-foreground">
-              سجل دخولك للوصول إلى لوحة التحكم
+              Build systems. Stay human.
             </p>
           </div>
 
