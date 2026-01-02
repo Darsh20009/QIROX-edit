@@ -103,6 +103,15 @@ export default function Home() {
             </motion.div>
           )}
         </AnimatePresence>
+
+        <div className="pt-8 flex justify-center gap-4">
+          <Button variant="ghost" onClick={() => setLocation("/login")}>
+            Sign In
+          </Button>
+          <Button variant="outline" onClick={() => setLocation("/register")}>
+            Create Account
+          </Button>
+        </div>
       </motion.div>
     </div>
   );
