@@ -4,14 +4,16 @@ import { Badge } from "@/components/ui/badge";
 import { Globe, ShieldCheck, Zap, ExternalLink, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
+interface CloudStatusData {
+  slug: string;
+  subdomain: string;
+  status: string;
+  ssl: string;
+  dns: string;
+}
+
 export default function CloudStatus() {
-  const { data: status, isLoading } = useQuery<{
-    slug: string;
-    subdomain: string;
-    status: string;
-    ssl: string;
-    dns: string;
-  }>({
+  const { data: status, isLoading } = useQuery<CloudStatusData>({
     queryKey: ["/api/cloud/tenant-status"],
   });
 
@@ -42,7 +44,7 @@ export default function CloudStatus() {
           <CardContent>
             <div className="text-xl font-bold truncate">{status?.subdomain}</div>
             <p className="text-xs text-muted-foreground pt-1">Automatic tenant routing</p>
-            <Button variant="link" className="p-0 h-auto text-xs mt-2 group" asChild>
+            <Button variant="ghost" className="p-0 h-auto text-xs mt-2 group" asChild>
               <a href={`https://${status?.subdomain}`} target="_blank" rel="noreferrer">
                 Visit Site <ExternalLink className="w-3 h-3 ml-1 inline group-hover:translate-x-0.5 transition-transform" />
               </a>
