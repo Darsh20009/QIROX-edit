@@ -153,32 +153,41 @@ export default function Home() {
         title={selected?.title} 
         description={selected?.description}
       />
-      <section className="relative py-24 md:py-32 overflow-hidden premium-gradient">
+          <section className="relative py-32 md:py-48 overflow-hidden premium-gradient">
         <div className="hero-glow" />
+        <div className="absolute top-0 left-0 w-full h-full opacity-10 pointer-events-none">
+          <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-primary rounded-full blur-[120px] animate-pulse" />
+          <div className="absolute bottom-1/4 right-1/4 w-96 h-96 bg-emerald-500 rounded-full blur-[120px] animate-pulse delay-700" />
+        </div>
+        
         <div className="relative mx-auto max-w-7xl px-6">
           <div className="max-w-4xl mx-auto text-center">
-            <div className="inline-flex items-center gap-2 mb-8 px-4 py-2 rounded-full bg-primary/10 border border-primary/20 backdrop-blur-sm">
-              <span className="text-sm font-medium text-primary">{BRAND.slogan}</span>
+            <div className="inline-flex items-center gap-2 mb-8 px-4 py-1.5 rounded-full bg-primary/10 border border-primary/20 backdrop-blur-md animate-fade-in">
+              <span className="w-2 h-2 rounded-full bg-primary animate-ping" />
+              <span className="text-sm font-semibold text-primary tracking-wide uppercase">{BRAND.slogan}</span>
             </div>
-            <h1 className="text-5xl md:text-6xl lg:text-7xl font-bold tracking-tight text-foreground leading-[1.1]">
+            
+            <h1 className="text-6xl md:text-8xl font-black tracking-tighter text-foreground leading-[0.95] mb-8">
               {selected ? `ابنِ ${selected.title}` : BRAND.copy.hero.title}
-              <span className="block mt-2 bg-gradient-to-l from-primary via-emerald-500 to-primary/70 bg-clip-text text-transparent">
+              <span className="block mt-4 bg-gradient-to-r from-primary via-emerald-400 to-primary bg-[length:200%_auto] animate-gradient bg-clip-text text-transparent italic">
                 {selected ? selected.titleEn : "الرقمية اليوم"}
               </span>
             </h1>
-            <p className="mt-8 text-lg md:text-xl text-muted-foreground max-w-2xl mx-auto leading-relaxed">
+
+            <p className="mt-10 text-xl md:text-2xl text-muted-foreground max-w-2xl mx-auto leading-relaxed font-medium">
               {selected ? selected.description : BRAND.copy.hero.subtitle}
             </p>
-            <div className="mt-12 flex flex-col sm:flex-row gap-4 justify-center items-center">
+
+            <div className="mt-14 flex flex-col sm:flex-row gap-6 justify-center items-center">
               <Link href="/register">
-                <Button size="lg" className="w-full sm:w-auto h-14 px-10 text-lg shadow-xl shadow-primary/20 hover-elevate">
+                <Button size="lg" className="group w-full sm:w-auto h-16 px-12 text-xl font-bold rounded-2xl shadow-2xl shadow-primary/30 hover-elevate active-elevate-2">
                   ابدأ الآن
-                  <ArrowLeft className="w-5 h-5 mr-2" />
+                  <ArrowLeft className="w-6 h-6 mr-3 transition-transform group-hover:-translate-x-2" />
                 </Button>
               </Link>
               {!selected && (
                 <Link href="/how-it-works">
-                  <Button variant="outline" size="lg" className="w-full sm:w-auto h-14 px-10 text-lg glass-card hover-elevate">
+                  <Button variant="outline" size="lg" className="w-full sm:w-auto h-16 px-12 text-xl font-bold rounded-2xl glass-card hover-elevate border-primary/10">
                     كيف نعمل؟
                   </Button>
                 </Link>
