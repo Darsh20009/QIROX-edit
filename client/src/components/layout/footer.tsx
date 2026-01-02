@@ -35,11 +35,15 @@ export function Footer() {
               نحن نعيد تعريف صناعة البرمجيات في العالم العربي، من خلال تقديم حلول تقنية تجمع بين القوة والجمال وسهولة الاستخدام.
             </p>
             <div className="flex gap-4 justify-end">
-              {[Twitter, Instagram, Linkedin].map((Icon, i) => (
-                <a key={i} href="#" className="w-12 h-12 rounded-xl bg-background flex items-center justify-center text-muted-foreground hover:bg-primary hover:text-white transition-all shadow-sm">
-                  <Icon className="w-5 h-5" />
-                </a>
-              ))}
+              <a href="https://x.com/QIROXtec" target="_blank" rel="noopener noreferrer" className="w-12 h-12 rounded-xl bg-background flex items-center justify-center text-muted-foreground hover:bg-primary hover:text-white transition-all shadow-sm">
+                <Twitter className="w-5 h-5" />
+              </a>
+              <a href="https://www.instagram.com/qirox.tec/" target="_blank" rel="noopener noreferrer" className="w-12 h-12 rounded-xl bg-background flex items-center justify-center text-muted-foreground hover:bg-primary hover:text-white transition-all shadow-sm">
+                <Instagram className="w-5 h-5" />
+              </a>
+              <a href="#" className="w-12 h-12 rounded-xl bg-background flex items-center justify-center text-muted-foreground hover:bg-primary hover:text-white transition-all shadow-sm">
+                <Linkedin className="w-5 h-5" />
+              </a>
             </div>
           </div>
 
@@ -81,21 +85,21 @@ export function Footer() {
             <h3 className="text-lg font-black mb-8 uppercase tracking-widest text-foreground/80">اتصل بنا</h3>
             <ul className="space-y-6">
               <li className="flex items-center gap-4 text-muted-foreground font-medium justify-end">
-                hello@qirox.com
+                support@qirox.online
                 <div className="w-10 h-10 rounded-lg bg-primary/5 flex items-center justify-center text-primary">
                   <Mail className="w-5 h-5" />
                 </div>
               </li>
               <li className="flex items-center gap-4 text-muted-foreground font-medium justify-end">
-                +966 500 000 000
+                +201155201921 (WhatsApp)
                 <div className="w-10 h-10 rounded-lg bg-primary/5 flex items-center justify-center text-primary">
                   <Phone className="w-5 h-5" />
                 </div>
               </li>
               <li className="flex items-center gap-4 text-muted-foreground font-medium justify-end">
-                الرياض، المملكة العربية السعودية
+                +966532441566
                 <div className="w-10 h-10 rounded-lg bg-primary/5 flex items-center justify-center text-primary">
-                  <MapPin className="w-5 h-5" />
+                  <Phone className="w-5 h-5" />
                 </div>
               </li>
             </ul>
