@@ -37,9 +37,20 @@ export default function AdminDashboard() {
     }
   }, [user, authLoading, setLocation]);
 
-  const { data: projects, isLoading: projectsLoading } = useQuery<any[]>({
-    queryKey: ["/api/projects"],
-    enabled: !!user && user.role === "admin",
+  const { data: staff, isLoading: staffLoading } = useQuery<User[]>({
+    queryKey: ["/api/admin/staff"],
+    enabled: !!user && (user.role === "admin" || user.role === "system_admin"),
+  });
+
+  const assignManagerMutation = useMutation({
+    mutationFn: async ({ projectId, employeeId }: { projectId: string, employeeId: string }) => {
+      const res = await apiRequest("PATCH", `/api/admin/projects/${projectId}/assign`, { employeeId });
+      return res.json();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/projects"] });
+      toast({ title: "تم التعيين", description: "تم تعيين مدير للمشروع بنجاح" });
+    },
   });
 
   const { data: invoices, isLoading: invoicesLoading } = useQuery<any[]>({
@@ -198,9 +209,21 @@ export default function AdminDashboard() {
                               اعتماد
                             </Button>
                           )}
-                          <Badge variant="secondary" className="bg-slate-100 text-slate-600 border-none">
-                            {p.status === "pending" ? "قيد المراجعة" : p.status}
-                          </Badge>
+                          <div className="flex items-center gap-4">
+                            <select 
+                              className="bg-background border rounded px-2 py-1 text-sm h-8"
+                              value={p.assignedEmployeeId || ""}
+                              onChange={(e) => assignManagerMutation.mutate({ projectId: p.id, employeeId: e.target.value })}
+                            >
+                              <option value="">تعيين مدير...</option>
+                              {staff?.map((s: any) => (
+                                <option key={s.id} value={s.id}>{s.name}</option>
+                              ))}
+                            </select>
+                            <Badge variant="secondary" className="bg-slate-100 text-slate-600 border-none">
+                              {p.status === "pending" ? "قيد المراجعة" : p.status}
+                            </Badge>
+                          </div>
                           <div className="text-left hidden sm:block">
                             <p className="text-sm font-medium">{p.progress}%</p>
                             <div className="w-20 h-1.5 bg-slate-100 rounded-full mt-1">

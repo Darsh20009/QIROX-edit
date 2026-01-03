@@ -616,14 +616,30 @@ export async function registerRoutes(
     }
   });
 
-  app.get("/api/admin/subscriptions", authMiddleware, roleMiddleware("system_admin"), async (_req, res) => {
+  app.get("/api/admin/staff", authMiddleware, roleMiddleware("system_admin", "qirox_pm"), async (req, res) => {
     try {
-      const subscriptions = await Subscription.find()
-        .populate("userId", "name email")
-        .sort({ createdAt: -1 });
-      res.json({ subscriptions });
+      const staff = await User.find({ role: { $in: ["qirox_pm", "qirox_specialist", "system_admin"] } }).select("name email role phone");
+      res.json(staff);
     } catch (error) {
-      res.status(500).json({ error: "فشل في جلب الاشتراكات" });
+      res.status(500).json({ error: "فشل في جلب قائمة الموظفين" });
+    }
+  });
+
+  app.patch("/api/admin/projects/:id/assign", authMiddleware, roleMiddleware("system_admin", "qirox_pm"), async (req, res) => {
+    try {
+      const { employeeId } = req.body;
+      const employee = await User.findById(employeeId);
+      if (!employee) return res.status(404).json({ error: "الموظف غير موجود" });
+
+      const projectUser = await User.findByIdAndUpdate(req.params.id, {
+        assignedEmployeeId: employeeId,
+        assignedEmployeeName: employee.name,
+        assignedEmployeePhone: employee.phone
+      }, { new: true });
+
+      res.json({ success: true, user: projectUser });
+    } catch (error) {
+      res.status(500).json({ error: "فشل في تعيين الموظف" });
     }
   });
 
