@@ -142,6 +142,38 @@ export class MemStorage implements IStorage {
     return update;
   }
 
+  async createAuditLog(insert: InsertAuditLog): Promise<AuditLog> {
+    const id = randomUUID();
+    const auditLog: AuditLog = { 
+      ...insert, 
+      id, 
+      timestamp: new Date(),
+      details: insert.details || null,
+      ipAddress: insert.ipAddress || null,
+      module: insert.module || "Core",
+      tenantId: insert.tenantId || "default"
+    };
+    this.auditLogs.set(id, auditLog);
+    return auditLog;
+  }
+
+  async getAuditLogs(tenantId?: string): Promise<AuditLog[]> {
+    const all = Array.from(this.auditLogs.values());
+    if (tenantId) return all.filter(log => log.tenantId === tenantId);
+    return all.sort((a, b) => b.timestamp.getTime() - a.timestamp.getTime());
+  }
+
+  async createContactMessage(insert: InsertContactMessage): Promise<ContactMessage> {
+    const id = randomUUID();
+    const message: ContactMessage = { ...insert, id, createdAt: new Date(), company: insert.company || null, budget: insert.budget || null };
+    this.contactMessages.set(id, message);
+    return message;
+  }
+
+  async getContactMessages(): Promise<ContactMessage[]> {
+    return Array.from(this.contactMessages.values()).sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime());
+  }
+
   async getQuotes(): Promise<any[]> { return []; }
   async createQuote(): Promise<any> { return {}; }
   async getInvoices(): Promise<any[]> { return []; }
