@@ -118,16 +118,25 @@ export async function registerRoutes(
   
   app.post("/api/auth/register", async (req, res) => {
     try {
-      const data = registerSchema.parse(req.body);
+      const data = req.body;
       const { user, token } = await registerUser(
         data.email, 
         data.password, 
         data.name, 
         data.phone,
-        req.body.metadata,
-        "visitor",
-        "default"
+        data.metadata,
+        data.role || "visitor",
+        data.tenantId || "default"
       );
+      
+      // Update additional project fields if provided
+      if (data.projectName || data.projectIdea) {
+        await User.findByIdAndUpdate(user._id, {
+          projectName: data.projectName,
+          projectIdea: data.projectIdea,
+          projectStatus: "pending"
+        });
+      }
       
       await storage.createAuditLog({
         userId: user._id.toString(),
