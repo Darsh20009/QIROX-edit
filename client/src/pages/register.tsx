@@ -72,6 +72,36 @@ export default function Register() {
     setIsLoading(true);
 
     try {
+      setIsLoading(true);
+
+      // 1. Upload files first if present
+      let crUrl = "";
+      let ibanUrl = "";
+
+      if (formData.commercialRegister) {
+        const crData = new FormData();
+        crData.append("file", formData.commercialRegister);
+        const crRes = await fetch("/api/upload", {
+          method: "POST",
+          body: crData,
+          headers: { Authorization: `Bearer ${localStorage.getItem("token")}` }
+        });
+        const crResult = await crRes.json();
+        crUrl = crResult.url;
+      }
+
+      if (formData.ibanCertificate) {
+        const ibanData = new FormData();
+        ibanData.append("file", formData.ibanCertificate);
+        const ibanRes = await fetch("/api/upload", {
+          method: "POST",
+          body: ibanData,
+          headers: { Authorization: `Bearer ${localStorage.getItem("token")}` }
+        });
+        const ibanResult = await ibanRes.json();
+        ibanUrl = ibanResult.url;
+      }
+
       const metadataObj = {
         projectName: formData.projectName,
         projectIdea: formData.projectIdea,
@@ -81,13 +111,14 @@ export default function Register() {
       await register({
         email: formData.email, 
         password: formData.password, 
-        username: formData.email.split('@')[0] + Math.floor(Math.random() * 1000), // Simple username generation
-        role: "visitor",
-        tenantId: "default",
+        name: formData.name, 
         phone: formData.phone,
         projectName: formData.projectName,
         projectIdea: formData.projectIdea,
-        whatsapp: formData.phone, // Assuming phone is whatsapp
+        commercialRegisterUrl: crUrl,
+        ibanCertificateUrl: ibanUrl,
+        role: "visitor",
+        tenantId: "default",
         metadata: JSON.stringify(metadataObj)
       });
 

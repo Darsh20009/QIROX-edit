@@ -106,16 +106,37 @@ const paymentStatusSchema = z.object({
   paymentStatus: z.enum(["pending", "paid", "failed", "refunded"]),
 });
 
+import multer from "multer";
+import { sendEmail } from "./lib/email";
+
+const upload = multer({
+  storage: multer.memoryStorage(),
+  limits: {
+    fileSize: 10 * 1024 * 1024, // 10MB limit
+  },
+});
+
 export async function registerRoutes(
   httpServer: Server,
   app: Express
 ): Promise<Server> {
-  
-  // ==================== TENANT ROUTES ====================
-  // app.use("/api/tenants", extractTenant, tenantsRouter); // Removed
+  // File Upload Endpoint using MongoDB GridFS logic (simulated with Buffer storage for now)
+  app.post("/api/upload", authMiddleware, upload.single("file"), async (req: AuthRequest, res) => {
+    try {
+      if (!req.file) {
+        return res.status(400).json({ error: "No file uploaded" });
+      }
 
-  // ==================== AUTH ROUTES ====================
-  
+      // In a real MongoDB implementation, we would use GridFS bucket here.
+      // For now, we return a simulated URL as requested by the user.
+      const fileUrl = `data:${req.file.mimetype};base64,${req.file.buffer.toString("base64")}`;
+      
+      res.json({ url: fileUrl, filename: req.file.originalname });
+    } catch (error) {
+      res.status(500).json({ error: "Upload failed" });
+    }
+  });
+
   app.post("/api/auth/register", async (req, res) => {
     try {
       const data = req.body;
@@ -134,16 +155,27 @@ export async function registerRoutes(
         await User.findByIdAndUpdate(user._id, {
           projectName: data.projectName,
           projectIdea: data.projectIdea,
-          projectStatus: "pending"
+          projectStatus: "pending",
+          commercialRegisterUrl: data.commercialRegisterUrl,
+          ibanCertificateUrl: data.ibanCertificateUrl,
+          whatsapp: data.phone
         });
       }
+
+      // Send Welcome Email
+      await sendEmail(
+        user.email,
+        "مرحباً بك في كيو روكس - QIROX",
+        `مرحباً ${user.name}، تم استلام طلبك بنجاح وجاري مراجعته.`,
+        `<h1>مرحباً ${user.name}</h1><p>تم استلام طلبك بنجاح وجاري مراجعته من قبل الفريق المختص.</p>`
+      );
       
       await storage.createAuditLog({
         userId: user._id.toString(),
         tenantId: user.tenantId || "default",
         action: "USER_REGISTER",
         module: "Core",
-        details: `User ${user.email} registered. Role: visitor`,
+        details: `User ${user.email} registered. Welcome email sent via TurboSMTP.`,
         ipAddress: req.ip,
       });
 
