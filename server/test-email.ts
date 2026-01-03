@@ -4,8 +4,8 @@ async function testEmail() {
   const success = await sendEmail(
     "youssefdarwish20009@gmail.com",
     "رسالة تجريبية - نظام QIROX",
-    "هذه رسالة تجريبية للتأكد من أن نظام الإشعارات عبر TurboSMTP يعمل بشكل صحيح.",
-    "<h1>رسالة تجريبية</h1><p>هذه رسالة تجريبية للتأكد من أن نظام الإشعارات عبر <strong>TurboSMTP</strong> يعمل بشكل صحيح.</p>"
+    "هذه رسالة تجريبية للتأكد من أن نظام الإشعارات عبر TurboSMTP يعمل بشكل صحيح بعد تحديث عنوان المرسل.",
+    "<h1>رسالة تجريبية</h1><p>هذه رسالة تجريبية للتأكد من أن نظام الإشعارات عبر <strong>TurboSMTP</strong> يعمل بشكل صحيح بعد تحديث عنوان المرسل إلى qirox@qirox.online.</p>"
   );
   
   if (success) {
