@@ -65,44 +65,51 @@ const menuItems = [
 ];
 
 export function AdminSidebar() {
-  const [location] = useLocation();
+  const [location, setLocation] = useLocation();
   const { logout, user } = useAuth();
 
   return (
-    <div className="w-64 bg-card border-l border-border h-screen flex flex-col p-4 gap-4">
-      <div className="mb-6">
-        <h2 className="text-xl font-bold">لوحة التحكم</h2>
-        <p className="text-sm text-muted-foreground">{user?.name}</p>
+    <div className="w-64 bg-card border-l border-border h-screen flex flex-col p-4 gap-4 sticky top-0">
+      <div className="mb-6 flex items-center gap-3 p-2 bg-secondary/30 rounded-2xl border border-border/40">
+        <div className="w-10 h-10 rounded-xl bg-primary flex items-center justify-center text-white font-bold shadow-neon">
+          Q
+        </div>
+        <div>
+          <h2 className="text-sm font-black tracking-tight">QIROX CORE</h2>
+          <p className="text-[10px] text-muted-foreground uppercase tracking-widest font-bold">{user?.role?.replace('_', ' ')}</p>
+        </div>
       </div>
 
-      <nav className="flex-1 space-y-1 overflow-y-auto pr-2">
+      <nav className="flex-1 space-y-1 overflow-y-auto pr-2 custom-scrollbar">
         {menuItems.map((item) => {
           const Icon = item.icon;
           const isActive = location === item.href;
           return (
-            <a href={item.href} key={item.href}>
-              <Button
-                variant={isActive ? "default" : "ghost"}
-                className="w-full justify-start gap-2 h-9"
-                data-testid={`button-admin-${item.label.toLowerCase()}`}
-              >
-                <Icon className="w-4 h-4" />
-                <span className="text-xs">{item.label}</span>
-              </Button>
-            </a>
+            <Button
+              key={item.href}
+              variant={isActive ? "default" : "ghost"}
+              className={`w-full justify-start gap-3 h-10 rounded-xl transition-all duration-200 ${isActive ? 'shadow-lg shadow-primary/20' : 'hover:bg-primary/5'}`}
+              onClick={() => setLocation(item.href)}
+              data-testid={`button-admin-${item.label.toLowerCase()}`}
+            >
+              <Icon className={`w-4 h-4 ${isActive ? 'text-white' : 'text-primary'}`} />
+              <span className="text-xs font-bold">{item.label}</span>
+            </Button>
           );
         })}
       </nav>
 
-      <Button
-        variant="outline"
-        onClick={logout}
-        className="w-full justify-start gap-2"
-        data-testid="button-admin-logout"
-      >
-        <LogOut className="w-4 h-4" />
-        تسجيل خروج
-      </Button>
+      <div className="pt-4 border-t border-border/50">
+        <Button
+          variant="outline"
+          onClick={logout}
+          className="w-full justify-start gap-3 h-11 rounded-xl border-dashed hover:bg-destructive/5 hover:text-destructive hover:border-destructive/30 transition-all"
+          data-testid="button-admin-logout"
+        >
+          <LogOut className="w-4 h-4" />
+          <span className="font-bold">تسجيل خروج</span>
+        </Button>
+      </div>
     </div>
   );
 }

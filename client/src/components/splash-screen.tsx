@@ -27,11 +27,11 @@ export function SplashScreen({ onComplete }: { onComplete: () => void }) {
       <div className="absolute inset-0 z-0">
         <motion.div
           animate={{
-            scale: [1, 1.1, 1],
-            opacity: [0.05, 0.1, 0.05],
+            scale: [1, 1.2, 1],
+            opacity: [0.05, 0.15, 0.05],
           }}
           transition={{ duration: 4, repeat: Infinity }}
-          className="absolute inset-0 bg-white/5 blur-[120px] rounded-full"
+          className="absolute inset-0 bg-primary/10 blur-[120px] rounded-full"
         />
       </div>
 
@@ -47,16 +47,15 @@ export function SplashScreen({ onComplete }: { onComplete: () => void }) {
                 scale: 1,
                 y: block.y * 1.8 * 16, 
                 x: block.x * 1.8 * 16,
+                backgroundColor: ["#F5F5F5", "#22C55E", "#F5F5F5"]
               }}
               transition={{
-                duration: 0.5,
+                duration: 2,
                 delay: (i * 0.1),
                 repeat: Infinity,
-                repeatType: "reverse",
-                repeatDelay: 3,
                 ease: "easeInOut"
               }}
-              className="absolute w-6 h-6 bg-[#F5F5F5] rounded-[2px]"
+              className="absolute w-6 h-6 rounded-[2px] shadow-[0_0_15px_rgba(34,197,94,0.3)]"
               style={{
                 left: 0,
                 top: 0,
@@ -66,14 +65,22 @@ export function SplashScreen({ onComplete }: { onComplete: () => void }) {
         </div>
 
         {/* Company Name reveal */}
-        <div className="flex items-center overflow-hidden">
+        <div className="flex flex-col items-center overflow-hidden">
           <motion.span
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 3.5, duration: 1 }}
+            transition={{ delay: 1, duration: 1 }}
             className="text-7xl font-black text-[#F5F5F5] tracking-tighter"
           >
             QIROX
+          </motion.span>
+          <motion.span
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ delay: 2, duration: 1 }}
+            className="text-primary font-bold tracking-[0.5em] mt-2 text-sm"
+          >
+            FUTURE TECH
           </motion.span>
         </div>
 
@@ -81,10 +88,10 @@ export function SplashScreen({ onComplete }: { onComplete: () => void }) {
         <motion.div
           initial={{ scaleX: 0 }}
           animate={{ scaleX: 1 }}
-          transition={{ duration: 5, ease: "linear" }}
-          className="w-48 h-[2px] bg-white/20 mt-8 rounded-full overflow-hidden origin-right"
+          transition={{ duration: 4, ease: "linear" }}
+          className="w-48 h-[2px] bg-white/10 mt-12 rounded-full overflow-hidden"
         >
-          <div className="w-full h-full bg-white/60" />
+          <div className="w-full h-full bg-primary shadow-[0_0_10px_#22C55E]" />
         </motion.div>
       </div>
     </div>
