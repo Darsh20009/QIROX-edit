@@ -163,35 +163,70 @@ export function Layout({ children }: LayoutProps) {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            className="md:hidden fixed inset-0 z-40 bg-background/80 backdrop-blur-sm" 
+            className="md:hidden fixed inset-0 z-[100] bg-background/60 backdrop-blur-md" 
             onClick={() => setIsMobileMenuOpen(false)}
           >
             <motion.div 
-              initial={{ x: 100 }}
+              initial={{ x: '100%' }}
               animate={{ x: 0 }}
-              exit={{ x: 100 }}
-              className="fixed inset-y-0 right-0 w-80 bg-card shadow-2xl p-6 flex flex-col" 
+              exit={{ x: '100%' }}
+              transition={{ type: "spring", damping: 25, stiffness: 200 }}
+              className="fixed inset-y-0 right-0 w-[85%] max-w-sm bg-background/95 backdrop-blur-2xl shadow-2xl p-6 flex flex-col border-l border-white/10" 
               onClick={e => e.stopPropagation()}
             >
-              <div className="flex-1 mt-12 space-y-2">
-                {navigation.map((item) => (
-                  <Link key={item.name} href={item.href}>
-                    <a 
-                      className={`flex items-center px-4 py-4 text-lg font-bold rounded-2xl ${
-                        location === item.href ? "bg-primary text-primary-foreground shadow-lg shadow-primary/20" : "text-muted-foreground"
-                      }`}
-                      onClick={() => setIsMobileMenuOpen(false)}
-                    >
-                      <item.icon className="ml-4 h-6 w-6" />
-                      {item.name}
-                    </a>
-                  </Link>
-                ))}
+              <div className="flex items-center justify-between mb-10">
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 rounded-xl bg-primary flex items-center justify-center text-white font-black">Q</div>
+                  <span className="font-black text-xl tracking-tighter">QIROX</span>
+                </div>
+                <Button variant="ghost" size="icon" className="rounded-full bg-white/5" onClick={() => setIsMobileMenuOpen(false)}>
+                  <X className="h-5 w-5" />
+                </Button>
               </div>
-              <Button variant="ghost" className="w-full justify-start text-destructive h-14 rounded-2xl font-bold text-lg" onClick={() => logout()}>
-                <LogOut className="ml-4 h-6 w-6" />
-                تسجيل الخروج
-              </Button>
+
+              <div className="flex-1 space-y-2 overflow-y-auto pr-2">
+                <p className="text-[10px] font-black text-primary/40 px-4 mb-4 uppercase tracking-[0.4em]">القائمة الرئيسية</p>
+                {navigation.map((item) => {
+                  const isActive = location === item.href;
+                  return (
+                    <Link key={item.name} href={item.href}>
+                      <a 
+                        className={`flex items-center px-4 py-4 text-base font-black rounded-2xl transition-all ${
+                          isActive 
+                            ? "bg-primary text-primary-foreground shadow-lg shadow-primary/30 scale-[1.02]" 
+                            : "text-muted-foreground hover:bg-white/5"
+                        }`}
+                        onClick={() => setIsMobileMenuOpen(false)}
+                      >
+                        <div className={`ml-4 w-10 h-10 rounded-xl flex items-center justify-center ${isActive ? "bg-white/20" : "bg-primary/5"}`}>
+                          <item.icon className="h-5 w-5" />
+                        </div>
+                        {item.name}
+                      </a>
+                    </Link>
+                  );
+                })}
+              </div>
+
+              <div className="mt-auto pt-6 border-t border-white/5">
+                <div className="flex items-center gap-4 p-4 bg-white/5 rounded-2xl mb-4">
+                  <div className="w-10 h-10 rounded-xl bg-primary/20 flex items-center justify-center text-primary font-black">
+                    {user.username[0].toUpperCase()}
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <p className="text-sm font-black truncate">{user.username}</p>
+                    <p className="text-[10px] font-bold text-primary opacity-70 uppercase tracking-wider">خطة الرواد</p>
+                  </div>
+                </div>
+                <Button 
+                  variant="ghost" 
+                  className="w-full justify-start text-destructive h-14 rounded-2xl font-black text-base hover:bg-destructive/10" 
+                  onClick={() => logout()}
+                >
+                  <LogOut className="ml-4 h-5 w-5" />
+                  تسجيل الخروج
+                </Button>
+              </div>
             </motion.div>
           </motion.div>
         )}
