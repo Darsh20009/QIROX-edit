@@ -127,10 +127,10 @@ export async function registerRoutes(
         return res.status(400).json({ error: "No file uploaded" });
       }
 
-      // In a real MongoDB implementation, we would use GridFS bucket here.
-      // For now, we return a simulated URL as requested by the user.
       const fileUrl = `data:${req.file.mimetype};base64,${req.file.buffer.toString("base64")}`;
       
+      // Store in User metadata or dedicated collection if needed
+      // For now, we return it for the frontend to pass back during registration
       res.json({ url: fileUrl, filename: req.file.originalname });
     } catch (error) {
       res.status(500).json({ error: "Upload failed" });

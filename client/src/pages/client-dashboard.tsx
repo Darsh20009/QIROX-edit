@@ -170,6 +170,25 @@ export default function ClientDashboard() {
                       <Badge variant="secondary" className="rounded-lg">{userData?.selectedPlanId || "بيسك"}</Badge>
                     </div>
                   </div>
+                  {(userData?.commercialRegisterUrl || userData?.ibanCertificateUrl) && (
+                    <div className="space-y-3 mt-4">
+                      <h4 className="text-sm font-bold">المستندات المرفوعة</h4>
+                      <div className="grid grid-cols-2 gap-2">
+                        {userData?.commercialRegisterUrl && (
+                          <Button variant="outline" size="sm" className="h-8 text-[10px]" onClick={() => window.open(userData.commercialRegisterUrl)}>
+                            <FileText className="h-3 w-3 ml-1" />
+                            السجل التجاري
+                          </Button>
+                        )}
+                        {userData?.ibanCertificateUrl && (
+                          <Button variant="outline" size="sm" className="h-8 text-[10px]" onClick={() => window.open(userData.ibanCertificateUrl)}>
+                            <FileText className="h-3 w-3 ml-1" />
+                            شهادة الآيبان
+                          </Button>
+                        )}
+                      </div>
+                    </div>
+                  )}
                 </CardContent>
               </Card>
             </div>
