@@ -138,8 +138,7 @@ export interface IStorage {
   markAllNotificationsAsRead(userId: string, userType: string): Promise<void>;
   getUnreadNotificationCount(userId: string, userType: string): Promise<number>;
 
-  // Dashboard Stats
-  getDashboardStats(): Promise<{
+  async getDashboardStats(): Promise<{
     totalOrders: number;
     totalStudents: number;
     totalClients: number;
@@ -147,63 +146,14 @@ export interface IStorage {
     totalRevenue: number;
     pendingOrders: number;
     activeProjects: number;
+    completedProjects: number;
+    openTickets: number;
+    monthlyRevenue: number;
+    totalEmployees: number;
     completedCourses: number;
   }>;
 
-  // Chat Conversations
-  createChatConversation(data: InsertChatConversation): Promise<ChatConversation>;
-  getChatConversation(id: string): Promise<ChatConversation | undefined>;
-  getClientConversations(clientId: string): Promise<ChatConversation[]>;
-  getEmployeeConversations(employeeId: string): Promise<ChatConversation[]>;
-  getAllConversations(): Promise<ChatConversation[]>;
-  getProjectConversation(projectId: string): Promise<ChatConversation | undefined>;
-  updateConversationLastMessage(id: string): Promise<void>;
-
-  // Chat Messages
-  createChatMessage(data: InsertChatMessage): Promise<ChatMessage>;
-  getChatMessages(conversationId: string): Promise<ChatMessage[]>;
-  markMessagesAsRead(conversationId: string, recipientId: string): Promise<void>;
-  getUnreadMessagesCount(userId: string, userType: string): Promise<number>;
-
-  // Modification Requests
-  createModificationRequest(data: InsertModificationRequest): Promise<ModificationRequest>;
-  getModificationRequest(id: string): Promise<ModificationRequest | undefined>;
-  getProjectModificationRequests(projectId: string): Promise<ModificationRequest[]>;
-  getClientModificationRequests(clientId: string): Promise<ModificationRequest[]>;
-  getAllModificationRequests(): Promise<ModificationRequest[]>;
-  updateModificationRequestStatus(id: string, status: string, assignedTo?: string): Promise<ModificationRequest | undefined>;
-
-  // Feature Requests
-  createFeatureRequest(data: InsertFeatureRequest): Promise<FeatureRequest>;
-  getFeatureRequest(id: string): Promise<FeatureRequest | undefined>;
-  getProjectFeatureRequests(projectId: string): Promise<FeatureRequest[]>;
-  getClientFeatureRequests(clientId: string): Promise<FeatureRequest[]>;
-  getAllFeatureRequests(): Promise<FeatureRequest[]>;
-  updateFeatureRequestStatus(id: string, status: string, adminNotes?: string, estimatedCost?: number, estimatedDays?: number): Promise<FeatureRequest | undefined>;
-
-  // Project Files
-  createProjectFile(data: InsertProjectFile): Promise<ProjectFile>;
-  getProjectFiles(projectId: string): Promise<ProjectFile[]>;
-  deleteProjectFile(id: string): Promise<void>;
-
-  // Project Questions
-  createProjectQuestion(data: InsertProjectQuestion): Promise<ProjectQuestion>;
-  getProjectQuestions(projectId: string): Promise<ProjectQuestion[]>;
-  answerProjectQuestion(id: string, answer: string): Promise<ProjectQuestion | undefined>;
-  initializeProjectQuestions(projectId: string): Promise<void>;
-
-  // Admin
-  getAllPendingRequests(): Promise<{ modifications: ModificationRequest[], features: FeatureRequest[] }>;
-
-  // Meetings
-  createMeeting(data: InsertMeeting): Promise<Meeting>;
-  getMeeting(id: string): Promise<Meeting | undefined>;
-  getMeetings(): Promise<Meeting[]>;
-  updateMeeting(id: string, data: Partial<InsertMeeting>): Promise<Meeting | undefined>;
-  deleteMeeting(id: string): Promise<void>;
-  getUpcomingMeetings(): Promise<Meeting[]>;
-
-  // Enhanced Dashboard Stats
+  // Enhanced Dashboard Stats (alias for getDashboardStats in some implementations)
   getEnhancedDashboardStats(): Promise<{
     totalOrders: number;
     totalStudents: number;
@@ -241,7 +191,7 @@ export interface IStorage {
   }>;
 
   // Tickets
-  createTicket(data: any): Promise<Ticket>;
+  createTicket(data: InsertTicket): Promise<Ticket>;
   getTicket(id: string): Promise<Ticket | undefined>;
   getUserTickets(userId: string, userType: string): Promise<Ticket[]>;
   getAllTickets(): Promise<Ticket[]>;

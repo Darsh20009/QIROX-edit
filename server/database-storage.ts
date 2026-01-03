@@ -634,12 +634,68 @@ export class DatabaseStorage implements IStorage {
     return result[0];
   }
 
-  // Reviews
-  async getReviews(targetId: string, targetType: string): Promise<Review[]> {
-    return await db.select().from(schema.reviews)
-      .where(and(
-        eq(schema.reviews.targetId, targetId),
-        eq(schema.reviews.targetType, targetType),
+  async createTicket(ticket: InsertTicket): Promise<Ticket> {
+    const ticketNumber = `TKT-${Date.now()}`;
+    const [result] = await db.insert(schema.tickets).values({
+      ...ticket,
+      ticketNumber,
+      status: "open",
+    }).returning();
+    return result;
+  }
+
+  async getTicket(id: string): Promise<Ticket | undefined> {
+    const [result] = await db.select().from(schema.tickets).where(eq(schema.tickets.id, id));
+    return result;
+  }
+
+  async getUserTickets(userId: string, userType: string): Promise<Ticket[]> {
+    return await db.select().from(schema.tickets)
+      .where(and(eq(schema.tickets.userId, userId), eq(schema.tickets.userType, userType)));
+  }
+
+  async getAllTickets(): Promise<Ticket[]> {
+    return await db.select().from(schema.tickets);
+  }
+
+  async updateTicketStatus(id: string, status: string, assignedTo?: string, assignedName?: string, resolution?: string): Promise<Ticket | undefined> {
+    const updateData: any = { status, updatedAt: new Date() };
+    if (assignedTo) updateData.assignedTo = assignedTo;
+    if (assignedName) updateData.assignedName = assignedName;
+    if (resolution) {
+      updateData.resolution = resolution;
+      updateData.resolvedAt = new Date();
+    }
+    if (status === "closed") updateData.closedAt = new Date();
+
+    const [result] = await db.update(schema.tickets)
+      .set(updateData)
+      .where(eq(schema.tickets.id, id))
+      .returning();
+    return result;
+  }
+
+  async addTicketResponse(response: InsertTicketResponse): Promise<TicketResponse> {
+    const [result] = await db.insert(schema.ticketResponses).values(response).returning();
+    return result;
+  }
+
+  async getTicketResponses(ticketId: string, includeInternal: boolean = false): Promise<TicketResponse[]> {
+    const conditions = [eq(schema.ticketResponses.ticketId, ticketId)];
+    if (!includeInternal) conditions.push(eq(schema.ticketResponses.isInternal, false));
+    return await db.select().from(schema.ticketResponses).where(and(...conditions));
+  }
+
+  async getTicketStats(): Promise<{ open: number; inProgress: number; resolved: number; closed: number; total: number }> {
+    const allTickets = await this.getAllTickets();
+    return {
+      open: allTickets.filter(t => t.status === "open").length,
+      inProgress: allTickets.filter(t => t.status === "in_progress").length,
+      resolved: allTickets.filter(t => t.status === "resolved").length,
+      closed: allTickets.filter(t => t.status === "closed").length,
+      total: allTickets.length
+    };
+  }
         eq(schema.reviews.isApproved, true)
       ));
   }
