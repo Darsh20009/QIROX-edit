@@ -78,13 +78,17 @@ export default function Register() {
         hasFiles: !!(formData.commercialRegister || formData.ibanCertificate)
       };
 
-      await register(
-        formData.email, 
-        formData.password, 
-        formData.name, 
-        formData.phone,
-        JSON.stringify(metadataObj)
-      );
+      await register({
+        email: formData.email, 
+        password: formData.password, 
+        name: formData.name, 
+        phone: formData.phone,
+        projectName: formData.projectName,
+        projectIdea: formData.projectIdea,
+        role: "visitor",
+        tenantId: "default",
+        metadata: JSON.stringify(metadataObj)
+      });
 
       toast({
         title: "مرحباً بك في QIROX!",

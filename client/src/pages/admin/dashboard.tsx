@@ -10,7 +10,7 @@ export default function AdminDashboard() {
   const [, setLocation] = useLocation();
 
   useEffect(() => {
-    if (!isLoading && (!user || user.role !== "admin")) {
+    if (!isLoading && (!user || (user.role !== "admin" && user.role !== "system_admin"))) {
       setLocation("/login");
     }
   }, [user, isLoading, setLocation]);

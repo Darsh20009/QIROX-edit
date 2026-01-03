@@ -90,6 +90,17 @@ export const insertUserSchema = createInsertSchema(users).pick({
   role: true,
   tenantId: true,
   metadata: true,
+  phone: true,
+  projectName: true,
+  commercialRegisterUrl: true,
+  ibanCertificateUrl: true,
+  projectIdea: true,
+  selectedPlanId: true,
+  assignedEmployeeId: true,
+  domainInfo: true,
+  projectStatus: true,
+  currentStage: true,
+  stageDeadline: true,
 });
 export type User = typeof users.$inferSelect;
 export type InsertUser = z.infer<typeof insertUserSchema>;
