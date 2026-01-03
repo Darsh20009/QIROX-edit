@@ -90,22 +90,22 @@ export default function AdminDashboard() {
                 <p className="text-[10px] text-muted-foreground">طلبات معلقة</p>
               </CardContent>
             </Card>
-            <Card className="border-primary/20 bg-primary/5 hover-elevate transition-all cursor-pointer" onClick={() => setLocation("/meetings")}>
+            <Card className="border-primary/20 bg-primary/5 hover-elevate transition-all cursor-pointer" onClick={() => setLocation("/admin/analytics")}>
               <CardHeader className="pb-2">
-                <CardTitle className="text-xs font-bold text-primary">QIROX Meet</CardTitle>
+                <CardTitle className="text-xs font-bold text-primary">QIROX Cloud</CardTitle>
               </CardHeader>
               <CardContent>
-                <div className="text-xl font-bold">5</div>
-                <p className="text-[10px] text-muted-foreground">اجتماعات اليوم</p>
+                <div className="text-xl font-bold">99.9%</div>
+                <p className="text-[10px] text-muted-foreground">استقرار النظام</p>
               </CardContent>
             </Card>
-            <Card className="border-primary/20 bg-primary/5 hover-elevate transition-all cursor-pointer" onClick={() => setLocation("/admin/financials")}>
+            <Card className="border-primary/20 bg-primary/5 hover-elevate transition-all cursor-pointer" onClick={() => setLocation("/admin/audit")}>
               <CardHeader className="pb-2">
-                <CardTitle className="text-xs font-bold text-primary">QIROX Finance</CardTitle>
+                <CardTitle className="text-xs font-bold text-primary">QIROX Ops</CardTitle>
               </CardHeader>
               <CardContent>
-                <div className="text-xl font-bold">8</div>
-                <p className="text-[10px] text-muted-foreground">فواتير مستحقة</p>
+                <div className="text-xl font-bold">156</div>
+                <p className="text-[10px] text-muted-foreground">عملية مؤرشفة</p>
               </CardContent>
             </Card>
           </div>
