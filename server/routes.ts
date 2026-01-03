@@ -137,6 +137,11 @@ export async function registerRoutes(
     }
   });
 
+  // Health check endpoint for deployment verification
+  app.get("/api/health", (_req, res) => {
+    res.json({ status: "ok", timestamp: new Date().toISOString() });
+  });
+
   app.post("/api/auth/register", async (req, res) => {
     try {
       const data = req.body;

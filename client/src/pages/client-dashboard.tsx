@@ -74,29 +74,42 @@ export default function ClientDashboard() {
                       <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent animate-shimmer" />
                     </Progress>
                   </div>
-                  <div className="grid gap-4">
+                  <div className="grid gap-6">
                     {stages.map((stage, idx) => (
                       <motion.div 
                         key={idx} 
                         initial={{ opacity: 0, x: -20 }}
                         animate={{ opacity: 1, x: 0 }}
                         transition={{ delay: idx * 0.1 }}
-                        className={`flex items-center justify-between p-5 rounded-[1.5rem] transition-all duration-500 ${stage.status === 'current' ? 'bg-primary/5 border border-primary/20 shadow-[0_10px_30px_rgba(16,185,129,0.1)] scale-[1.02]' : 'bg-white/5 border border-white/5'}`}
+                        className={`group flex items-center justify-between p-6 rounded-[2rem] transition-all duration-500 hover:shadow-2xl hover:shadow-primary/5 ${stage.status === 'current' ? 'bg-primary/5 border border-primary/20 shadow-[0_15px_40px_rgba(16,185,129,0.12)] scale-[1.03]' : 'bg-white/5 border border-white/5'}`}
                       >
-                        <div className="flex items-center gap-5">
-                          <div className={`w-12 h-12 rounded-2xl flex items-center justify-center font-black text-lg transition-all ${stage.status === 'completed' ? 'bg-emerald-500/20 text-emerald-500' : stage.status === 'current' ? 'bg-primary text-primary-foreground shadow-lg shadow-primary/30' : 'bg-muted/30 text-muted-foreground'}`}>
-                            {stage.status === 'completed' ? <CheckCircle2 className="h-6 w-6" /> : idx + 1}
+                        <div className="flex items-center gap-6">
+                          <div className={`w-14 h-14 rounded-2xl flex items-center justify-center font-black text-xl transition-all duration-500 ${stage.status === 'completed' ? 'bg-emerald-500/20 text-emerald-500 shadow-inner' : stage.status === 'current' ? 'bg-primary text-primary-foreground shadow-2xl shadow-primary/40' : 'bg-muted/20 text-muted-foreground'}`}>
+                            {stage.status === 'completed' ? <CheckCircle2 className="h-7 w-7" /> : idx + 1}
                           </div>
                           <div>
-                            <p className={`font-black text-lg ${stage.status === 'pending' ? 'text-muted-foreground' : 'text-foreground'}`}>{stage.name}</p>
-                            <div className="flex items-center gap-2 mt-1">
-                              <div className="w-24 h-1.5 rounded-full bg-muted/20 overflow-hidden">
-                                <div className={`h-full rounded-full ${stage.status === 'completed' ? 'bg-emerald-500' : stage.status === 'current' ? 'bg-primary' : 'bg-muted/40'}`} style={{ width: `${stage.progress}%` }} />
+                            <p className={`font-black text-xl ${stage.status === 'pending' ? 'text-muted-foreground' : 'text-foreground'}`}>{stage.name}</p>
+                            <div className="flex items-center gap-3 mt-1.5">
+                              <div className="w-32 h-2 rounded-full bg-muted/20 overflow-hidden backdrop-blur-sm">
+                                <motion.div 
+                                  initial={{ width: 0 }}
+                                  animate={{ width: `${stage.progress}%` }}
+                                  transition={{ duration: 1, delay: 0.5 }}
+                                  className={`h-full rounded-full relative ${stage.status === 'completed' ? 'bg-emerald-500' : stage.status === 'current' ? 'bg-primary' : 'bg-muted/40'}`}
+                                >
+                                  {stage.status === 'current' && <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/40 to-transparent animate-shimmer" />}
+                                </motion.div>
                               </div>
-                              <p className="text-xs font-bold text-muted-foreground">{stage.progress}%</p>
+                              <p className="text-xs font-black text-primary/70 tracking-wider uppercase">{stage.progress}% مـكتـمل</p>
                             </div>
                           </div>
                         </div>
+                        {stage.status === 'current' && (
+                          <div className="flex items-center gap-2 px-4 py-2 bg-primary/10 rounded-full border border-primary/20">
+                            <div className="w-1.5 h-1.5 rounded-full bg-primary animate-ping" />
+                            <span className="text-[10px] font-black text-primary uppercase tracking-widest">نشط الآن</span>
+                          </div>
+                        )}
                       </motion.div>
                     ))}
                   </div>
