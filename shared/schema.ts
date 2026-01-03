@@ -20,6 +20,24 @@ export const users = pgTable("users", {
   role: text("role").notNull().default("visitor"), 
   tenantId: varchar("tenant_id").notNull().default("default"),
   metadata: text("metadata"), 
+  phone: text("phone"),
+  projectName: text("project_name"),
+  commercialRegisterUrl: text("commercial_register_url"),
+  ibanCertificateUrl: text("iban_certificate_url"),
+  projectIdea: text("project_idea"),
+  selectedPlanId: text("selected_plan_id"),
+  assignedEmployeeId: varchar("assigned_employee_id"),
+  domainInfo: text("domain_info"),
+  projectStatus: text("project_status").default("pending"),
+  currentStage: text("current_stage"),
+  stageDeadline: timestamp("stage_deadline"),
+});
+
+export const dailyUpdates = pgTable("daily_updates", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  userId: varchar("user_id").notNull(),
+  content: text("content").notNull(),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
 });
 
 export const auditLogs = pgTable("audit_logs", {
