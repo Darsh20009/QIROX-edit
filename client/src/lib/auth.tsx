@@ -87,16 +87,16 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       body: JSON.stringify(regData),
     });
     
-    const data = await response.json();
+    const responseData = await response.json();
     
     if (!response.ok) {
-      throw new Error(data.error || "فشل في إنشاء الحساب");
+      throw new Error(responseData.error || "فشل في إنشاء الحساب");
     }
 
-    localStorage.setItem("qirox-token", data.token);
-    setToken(data.token);
-    setUser(data.user);
-    return data;
+    localStorage.setItem("qirox-token", responseData.token);
+    setToken(responseData.token);
+    setUser(responseData.user);
+    return responseData;
   };
 
   const logout = () => {

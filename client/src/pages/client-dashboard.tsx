@@ -42,7 +42,11 @@ export default function ClientDashboard() {
               <p className="text-muted-foreground mt-1 font-medium">مرحباً بك في لوحة تحكم مشروعك: <span className="text-primary">{userData?.projectName || "قيد المراجعة"}</span></p>
             </div>
             <div className="flex gap-3">
-              <Button variant="outline" className="rounded-xl border-white/10 backdrop-blur-sm hover-elevate">
+              <Button 
+                variant="outline" 
+                className="rounded-xl border-white/10 backdrop-blur-sm hover-elevate"
+                onClick={() => window.open(`https://wa.me/${userData?.assignedEmployeePhone || '966532441566'}`)}
+              >
                 <MessageSquare className="ml-2 h-4 w-4" />
                 تواصل مع المسؤول
               </Button>
@@ -118,12 +122,26 @@ export default function ClientDashboard() {
                 </CardHeader>
                 <CardContent className="space-y-4">
                   <div className="flex items-center gap-4">
-                    <div className="w-16 h-16 rounded-2xl bg-primary flex items-center justify-center text-2xl font-black text-primary-foreground shadow-lg shadow-primary/20">
-                      ؟
-                    </div>
-                    <div>
-                      <p className="font-black text-lg">سيتم التعيين قريباً</p>
-                    </div>
+                    {userData?.assignedEmployeeName ? (
+                      <>
+                        <div className="w-16 h-16 rounded-2xl bg-primary flex items-center justify-center text-2xl font-black text-primary-foreground shadow-lg shadow-primary/20">
+                          {userData.assignedEmployeeName[0]}
+                        </div>
+                        <div>
+                          <p className="font-black text-lg">{userData.assignedEmployeeName}</p>
+                          <p className="text-sm text-primary/80">مدير مشروعك</p>
+                        </div>
+                      </>
+                    ) : (
+                      <>
+                        <div className="w-16 h-16 rounded-2xl bg-primary flex items-center justify-center text-2xl font-black text-primary-foreground shadow-lg shadow-primary/20">
+                          ؟
+                        </div>
+                        <div>
+                          <p className="font-black text-lg">سيتم التعيين قريباً</p>
+                        </div>
+                      </>
+                    )}
                   </div>
                 </CardContent>
               </Card>

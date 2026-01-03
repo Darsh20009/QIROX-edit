@@ -32,7 +32,7 @@ export default function AdminDashboard() {
     if (!authLoading && !user) {
       setLocation("/login");
     }
-    if (!authLoading && user && user.role !== "admin") {
+    if (!authLoading && user && user.role !== "admin" && user.role !== "system_admin") {
       setLocation("/agency/dashboard");
     }
   }, [user, authLoading, setLocation]);
