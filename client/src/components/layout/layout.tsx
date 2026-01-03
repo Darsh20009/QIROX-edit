@@ -102,12 +102,16 @@ export function Layout({ children }: LayoutProps) {
                       ? "bg-primary text-primary-foreground shadow-[0_10px_20px_rgba(0,0,0,0.1)] scale-[1.02]" 
                       : "text-muted-foreground hover:bg-primary/5 hover:text-primary"
                   }`}>
-                    <div className="flex items-center">
-                      <item.icon className={`ml-4 flex-shrink-0 h-5 w-5 transition-transform duration-300 group-hover:scale-110 ${
-                        isActive ? "text-primary-foreground" : "text-muted-foreground group-hover:text-primary"
-                      }`} />
-                      {item.name}
-                    </div>
+                      <div className="flex items-center">
+                        <div className={`ml-4 flex-shrink-0 w-10 h-10 rounded-xl flex items-center justify-center transition-all duration-500 ${
+                          isActive ? "bg-white/20 shadow-inner" : "bg-primary/5 group-hover:bg-primary/20"
+                        }`}>
+                          <item.icon className={`h-5 w-5 transition-transform duration-300 group-hover:scale-110 ${
+                            isActive ? "text-primary-foreground" : "text-primary/60 group-hover:text-primary"
+                          }`} />
+                        </div>
+                        {item.name}
+                      </div>
                     {isActive && <motion.div layoutId="active-nav" className="w-1.5 h-1.5 rounded-full bg-primary-foreground shadow-[0_0_10px_white]" />}
                   </a>
                 </Link>

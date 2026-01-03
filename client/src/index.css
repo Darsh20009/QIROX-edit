@@ -127,6 +127,15 @@
     animation: float 6s ease-in-out infinite;
   }
   
+  @keyframes shimmer {
+    0% { transform: translateX(-100%); }
+    100% { transform: translateX(100%); }
+  }
+
+  .animate-shimmer {
+    animation: shimmer 2s infinite linear;
+  }
+
   .glass-morphism {
     background: var(--glass-bg);
     backdrop-filter: blur(12px);
@@ -145,14 +154,17 @@
   .animate-pulse-glow {
     animation: pulse-glow 3s ease-in-out infinite;
   }
+
+  input[type="search"]::-webkit-search-cancel-button {
+    @apply hidden;
+  }
 }
 
 /**
  * Using the elevate system.
-  input[type="search"]::-webkit-search-cancel-button {
-    @apply hidden;
-  }
-
+ * Automatic contrast adjustment.
+ */
+@layer utilities {
   /* Placeholder styling for contentEditable div */
   [contenteditable][data-placeholder]:empty::before {
     content: attr(data-placeholder);

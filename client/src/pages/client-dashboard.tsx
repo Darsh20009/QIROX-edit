@@ -58,32 +58,45 @@ export default function ClientDashboard() {
 
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
             <div className="lg:col-span-2 space-y-8">
-              <Card className="border-0 bg-background/40 backdrop-blur-xl shadow-xl rounded-3xl border border-white/10 overflow-hidden animate-in fade-in slide-in-from-left-4 duration-700 delay-100">
-                <CardHeader className="pb-2">
+              <Card className="border-0 bg-background/40 backdrop-blur-xl shadow-2xl rounded-[2.5rem] border border-white/10 overflow-hidden animate-in fade-in slide-in-from-left-4 duration-1000 delay-100">
+                <CardHeader className="pb-2 px-8 pt-8">
                   <div className="flex justify-between items-center">
-                    <CardTitle className="text-xl font-black">مراحل التنفيذ</CardTitle>
-                    <Badge variant="secondary" className="bg-primary/10 text-primary border-0 rounded-full px-4 py-1">
+                    <CardTitle className="text-2xl font-black tracking-tight">مراحل التنفيذ</CardTitle>
+                    <Badge variant="secondary" className="bg-primary/10 text-primary border-0 rounded-full px-4 py-1.5 font-bold animate-pulse">
                       المرحلة الثانية نشطة
                     </Badge>
                   </div>
                 </CardHeader>
-                <CardContent className="space-y-6">
-                  <div className="relative pt-4 pb-2">
-                    <Progress value={35} className="h-3 rounded-full bg-muted/30" />
+                <CardContent className="space-y-8 px-8 pb-8">
+                  <div className="relative pt-6 pb-2">
+                    <Progress value={35} className="h-4 rounded-full bg-primary/5 border border-primary/10 overflow-hidden">
+                      <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent animate-shimmer" />
+                    </Progress>
                   </div>
                   <div className="grid gap-4">
                     {stages.map((stage, idx) => (
-                      <div key={idx} className={`flex items-center justify-between p-4 rounded-2xl transition-all duration-300 ${stage.status === 'current' ? 'bg-primary/5 border border-primary/20 scale-[1.02]' : 'bg-white/5 border border-white/5'}`}>
-                        <div className="flex items-center gap-4">
-                          <div className={`w-10 h-10 rounded-xl flex items-center justify-center ${stage.status === 'completed' ? 'bg-green-500/20 text-green-500' : stage.status === 'current' ? 'bg-primary text-primary-foreground animate-pulse' : 'bg-muted/30 text-muted-foreground'}`}>
-                            {stage.status === 'completed' ? <CheckCircle2 className="h-5 w-5" /> : idx + 1}
+                      <motion.div 
+                        key={idx} 
+                        initial={{ opacity: 0, x: -20 }}
+                        animate={{ opacity: 1, x: 0 }}
+                        transition={{ delay: idx * 0.1 }}
+                        className={`flex items-center justify-between p-5 rounded-[1.5rem] transition-all duration-500 ${stage.status === 'current' ? 'bg-primary/5 border border-primary/20 shadow-[0_10px_30px_rgba(16,185,129,0.1)] scale-[1.02]' : 'bg-white/5 border border-white/5'}`}
+                      >
+                        <div className="flex items-center gap-5">
+                          <div className={`w-12 h-12 rounded-2xl flex items-center justify-center font-black text-lg transition-all ${stage.status === 'completed' ? 'bg-emerald-500/20 text-emerald-500' : stage.status === 'current' ? 'bg-primary text-primary-foreground shadow-lg shadow-primary/30' : 'bg-muted/30 text-muted-foreground'}`}>
+                            {stage.status === 'completed' ? <CheckCircle2 className="h-6 w-6" /> : idx + 1}
                           </div>
                           <div>
-                            <p className={`font-bold ${stage.status === 'pending' ? 'text-muted-foreground' : 'text-foreground'}`}>{stage.name}</p>
-                            <p className="text-xs text-muted-foreground">{stage.progress}% مكتمل</p>
+                            <p className={`font-black text-lg ${stage.status === 'pending' ? 'text-muted-foreground' : 'text-foreground'}`}>{stage.name}</p>
+                            <div className="flex items-center gap-2 mt-1">
+                              <div className="w-24 h-1.5 rounded-full bg-muted/20 overflow-hidden">
+                                <div className={`h-full rounded-full ${stage.status === 'completed' ? 'bg-emerald-500' : stage.status === 'current' ? 'bg-primary' : 'bg-muted/40'}`} style={{ width: `${stage.progress}%` }} />
+                              </div>
+                              <p className="text-xs font-bold text-muted-foreground">{stage.progress}%</p>
+                            </div>
                           </div>
                         </div>
-                      </div>
+                      </motion.div>
                     ))}
                   </div>
                 </CardContent>
