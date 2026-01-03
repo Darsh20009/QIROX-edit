@@ -2,13 +2,12 @@ import { useEffect } from "react";
 import { Link, useLocation } from "wouter";
 import { useQuery, useMutation } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { useAuth } from "@/lib/auth";
 import { useToast } from "@/hooks/use-toast";
 import { queryClient, apiRequest } from "@/lib/queryClient";
 import { 
-  ArrowLeft, 
   Loader2,
   Users,
   Briefcase,
@@ -17,11 +16,21 @@ import {
   Plus,
   MessageSquare,
   LayoutDashboard,
-  Settings,
   LogOut,
   Clock,
-  ShieldCheck
+  ShieldCheck,
+  CreditCard
 } from "lucide-react";
+
+interface User {
+  id: string;
+  name: string;
+  email: string;
+  role: string;
+  phone?: string;
+  projectName?: string;
+  assignedEmployeeId?: string;
+}
 
 export default function AdminDashboard() {
   const { user, isLoading: authLoading, logout } = useAuth();
@@ -37,9 +46,24 @@ export default function AdminDashboard() {
     }
   }, [user, authLoading, setLocation]);
 
-  const { data: staff, isLoading: staffLoading } = useQuery<User[]>({
+  const { data: staff } = useQuery<User[]>({
     queryKey: ["/api/admin/staff"],
     enabled: !!user && (user.role === "admin" || user.role === "system_admin"),
+  });
+
+  const { data: projects } = useQuery<any[]>({
+    queryKey: ["/api/projects"],
+    enabled: !!user && (user.role === "admin" || user.role === "system_admin"),
+  });
+
+  const { data: invoices } = useQuery<any[]>({
+    queryKey: ["/api/invoices"],
+    enabled: !!user && (user.role === "admin" || user.role === "system_admin"),
+  });
+
+  const { data: statsData } = useQuery<any>({
+    queryKey: ["/api/dashboard/stats"],
+    enabled: !!user,
   });
 
   const assignManagerMutation = useMutation({
@@ -51,16 +75,6 @@ export default function AdminDashboard() {
       queryClient.invalidateQueries({ queryKey: ["/api/projects"] });
       toast({ title: "تم التعيين", description: "تم تعيين مدير للمشروع بنجاح" });
     },
-  });
-
-  const { data: invoices, isLoading: invoicesLoading } = useQuery<any[]>({
-    queryKey: ["/api/invoices"],
-    enabled: !!user && user.role === "admin",
-  });
-
-  const { data: users, isLoading: usersLoading } = useQuery<any[]>({
-    queryKey: ["/api/admin/users"],
-    enabled: !!user && user.role === "admin",
   });
 
   const approveMutation = useMutation({
@@ -83,14 +97,13 @@ export default function AdminDashboard() {
 
   const stats = [
     { title: "إجمالي المشاريع", value: projects?.length || 0, icon: Briefcase, color: "text-blue-600", bg: "bg-blue-50" },
-    { title: "الفواتير الضريبية", value: invoices?.length || 0, icon: FileText, color: "text-emerald-600", bg: "bg-emerald-50" },
-    { title: "النشاط المالي", value: `${invoices?.reduce((acc: any, inv: any) => acc + Number(inv.totalAmount), 0).toLocaleString() || 0} ر.س`, icon: TrendingUp, color: "text-orange-600", bg: "bg-orange-50" },
-    { title: "فريق العمل", value: users?.filter((u: any) => u.role === "employee").length || 0, icon: Users, color: "text-purple-600", bg: "bg-purple-50" },
+    { title: "المشاريع النشطة", value: statsData?.activeProjects || 0, icon: TrendingUp, color: "text-emerald-600", bg: "bg-emerald-50" },
+    { title: "طلبات معلقة", value: statsData?.pendingApprovals || 0, icon: ShieldCheck, color: "text-amber-600", bg: "bg-amber-50" },
+    { title: "فواتير غير مدفوعة", value: statsData?.unpaidInvoices || 0, icon: CreditCard, color: "text-rose-600", bg: "bg-rose-50" },
   ];
 
   return (
     <div className="min-h-screen bg-[#f8fafc]" dir="rtl">
-      {/* Sidebar - Integrated for Admin */}
       <div className="flex">
         <aside className="w-64 min-h-screen bg-white border-l shadow-sm hidden lg:block">
           <div className="p-6 border-b">
@@ -107,12 +120,6 @@ export default function AdminDashboard() {
               <div className="flex items-center gap-3 p-3 text-muted-foreground hover:bg-muted rounded-lg cursor-pointer transition-colors">
                 <Briefcase className="w-5 h-5" />
                 <span>المشاريع</span>
-              </div>
-            </Link>
-            <Link href="/admin/users">
-              <div className="flex items-center gap-3 p-3 text-muted-foreground hover:bg-muted rounded-lg cursor-pointer transition-colors">
-                <Users className="w-5 h-5" />
-                <span>الموظفين</span>
               </div>
             </Link>
             <Link href="/admin/invoices">
@@ -185,11 +192,11 @@ export default function AdminDashboard() {
                 </CardHeader>
                 <CardContent className="p-0">
                   <div className="divide-y">
-                    {projects?.slice(0, 5).map((p) => (
+                    {projects?.slice(0, 5).map((p: any) => (
                       <div key={p.id} className="p-4 hover:bg-slate-50 transition-colors flex justify-between items-center">
                         <div className="flex items-center gap-4">
                           <div className="w-10 h-10 rounded-full bg-slate-100 flex items-center justify-center font-bold text-slate-600">
-                            {p.name[0]}
+                            {p.name?.[0] || 'P'}
                           </div>
                           <div>
                             <p className="font-bold text-slate-900">{p.name}</p>
@@ -249,7 +256,7 @@ export default function AdminDashboard() {
                   <CardTitle className="text-lg">الفواتير الأخيرة</CardTitle>
                 </CardHeader>
                 <CardContent className="p-4 space-y-4">
-                  {invoices?.slice(0, 4).map((inv) => (
+                  {invoices?.slice(0, 4).map((inv: any) => (
                     <div key={inv.id} className="flex justify-between items-center p-3 rounded-lg border border-slate-100 hover:border-primary/20 transition-colors">
                       <div>
                         <p className="font-bold text-sm">#{inv.invoiceNumber}</p>
