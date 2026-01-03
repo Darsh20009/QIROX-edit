@@ -1,132 +1,125 @@
-import bcrypt from "bcryptjs";
-import jwt from "jsonwebtoken";
-import { User, type IUser, type UserRole } from "./models/User";
-import { Request, Response, NextFunction } from "express";
+import passport from "passport";
+import { Strategy as LocalStrategy } from "passport-local";
+import { Express } from "express";
+import session from "express-session";
+import { scrypt, randomBytes, timingSafeEqual } from "crypto";
+import { promisify } from "util";
+import { storage } from "./storage";
 
-const JWT_SECRET = process.env.SESSION_SECRET || "default-secret-key";
-const JWT_EXPIRES_IN = "7d";
+const scryptAsync = promisify(scrypt);
 
-export interface JWTPayload {
-  userId: string;
-  email: string;
-  role: UserRole;
+export async function hashPassword(password: string) {
+  const salt = randomBytes(16).toString("hex");
+  const buf = (await scryptAsync(password, salt, 64)) as Buffer;
+  return `${buf.toString("hex")}.${salt}`;
 }
 
-export interface AuthRequest extends Request {
-  user?: JWTPayload;
-}
-
-export async function hashPassword(password: string): Promise<string> {
-  return bcrypt.hash(password, 12);
-}
-
-export async function comparePassword(password: string, hash: string): Promise<boolean> {
-  return bcrypt.compare(password, hash);
-}
-
-export function generateToken(user: IUser): string {
-  const payload: JWTPayload = {
-    userId: user._id.toString(),
-    email: user.email,
-    role: user.role,
-  };
-  return jwt.sign(payload, JWT_SECRET, { expiresIn: JWT_EXPIRES_IN });
-}
-
-export function verifyToken(token: string): JWTPayload | null {
-  try {
-    const decoded = jwt.verify(token, JWT_SECRET) as any;
-    return {
-      userId: decoded.userId,
-      email: decoded.email,
-      role: decoded.role,
-    };
-  } catch {
-    return null;
+export async function comparePasswords(supplied: string, stored: string) {
+  if (!stored.includes('.')) {
+    return supplied === stored;
   }
+  const [hashed, salt] = stored.split(".");
+  const hashedBuf = Buffer.from(hashed, "hex");
+  const suppliedBuf = (await scryptAsync(supplied, salt, 64)) as Buffer;
+  return timingSafeEqual(hashedBuf, suppliedBuf);
 }
 
-export function authMiddleware(req: AuthRequest, res: Response, next: NextFunction) {
-  const authHeader = req.headers.authorization;
-  
-  if (!authHeader || !authHeader.startsWith("Bearer ")) {
-    res.status(401).json({ error: "غير مصرح - يرجى تسجيل الدخول" });
-    return;
-  }
-
-  const token = authHeader.split(" ")[1];
-  const payload = verifyToken(token);
-
-  if (!payload) {
-    res.status(401).json({ error: "جلسة منتهية - يرجى تسجيل الدخول مرة أخرى" });
-    return;
-  }
-
-  req.user = payload;
-  next();
-}
-
-export function roleMiddleware(...allowedRoles: UserRole[]) {
-  return (req: AuthRequest, res: Response, next: NextFunction) => {
-    if (!req.user) {
-      res.status(401).json({ error: "غير مصرح" });
-      return;
+export function setupAuth(app: Express) {
+  const sessionSettings: session.SessionOptions = {
+    secret: process.env.SESSION_SECRET || 'ma3k-secret-key-2024',
+    resave: false,
+    saveUninitialized: false,
+    store: storage.sessionStore,
+    cookie: {
+      maxAge: 24 * 60 * 60 * 1000, // 24 hours
+      secure: process.env.NODE_ENV === 'production',
+      httpOnly: true,
     }
-
-    if (!allowedRoles.includes(req.user.role)) {
-      res.status(403).json({ error: "غير مسموح - صلاحيات غير كافية" });
-      return;
-    }
-
-    next();
   };
-}
 
-export async function registerUser(
-  email: string,
-  password: string,
-  name: string,
-  phone?: string,
-  role: UserRole = "visitor",
-  tenantId: string = "default"
-): Promise<{ user: IUser; token: string }> {
-  const existingUser = await User.findOne({ email: email.toLowerCase() });
-  if (existingUser) {
-    throw new Error("البريد الإلكتروني مسجل مسبقاً");
-  }
+  app.set("trust proxy", 1);
+  app.use(session(sessionSettings));
+  app.use(passport.initialize());
+  app.use(passport.session());
 
-  const hashedPassword = await hashPassword(password);
-  const user = await User.create({
-    email: email.toLowerCase(),
-    password: hashedPassword,
-    name,
-    phone,
-    role,
-    tenantId,
+  passport.use('student', new LocalStrategy(
+    { usernameField: 'email', passwordField: 'password' },
+    async (email, password, done) => {
+      try {
+        const student = await storage.getStudentByEmail(email);
+        if (!student) {
+          return done(null, false, { message: 'البريد الإلكتروني غير مسجل' });
+        }
+        const isValid = await comparePasswords(password, student.password);
+        if (!isValid) {
+          return done(null, false, { message: 'كلمة المرور غير صحيحة' });
+        }
+        return done(null, { ...student, userType: 'student' });
+      } catch (error) {
+        return done(error);
+      }
+    }
+  ));
+
+  passport.use('client', new LocalStrategy(
+    { usernameField: 'email', passwordField: 'password' },
+    async (email, password, done) => {
+      try {
+        const client = await storage.getClientByEmail(email);
+        if (!client) {
+          return done(null, false, { message: 'البريد الإلكتروني غير مسجل' });
+        }
+        const isValid = await comparePasswords(password, client.password);
+        if (!isValid) {
+          return done(null, false, { message: 'كلمة المرور غير صحيحة' });
+        }
+        return done(null, { ...client, userType: 'client' });
+      } catch (error) {
+        return done(error);
+      }
+    }
+  ));
+
+  passport.use('employee', new LocalStrategy(
+    { usernameField: 'email', passwordField: 'password' },
+    async (email, password, done) => {
+      try {
+        const employee = await storage.getEmployeeByEmail(email);
+        if (!employee) {
+          return done(null, false, { message: 'البريد الإلكتروني غير مسجل' });
+        }
+        const isValid = await comparePasswords(password, employee.password);
+        if (!isValid) {
+          return done(null, false, { message: 'كلمة المرور غير صحيحة' });
+        }
+        return done(null, { ...employee, userType: 'employee' });
+      } catch (error) {
+        return done(error);
+      }
+    }
+  ));
+
+  passport.serializeUser((user: any, done) => {
+    done(null, { id: user.id, userType: user.userType });
   });
 
-  const token = generateToken(user);
-  return { user, token };
-}
-
-export async function loginUser(
-  email: string,
-  password: string
-): Promise<{ user: IUser; token: string }> {
-  const user = await User.findOne({ email: email.toLowerCase() });
-  if (!user) {
-    throw new Error("البريد الإلكتروني أو كلمة المرور غير صحيحة");
-  }
-
-  if (!user.isActive) {
-    throw new Error("الحساب معطل - تواصل مع الدعم");
-  }
-
-  const isValidPassword = await comparePassword(password, user.password);
-  if (!isValidPassword) {
-    throw new Error("البريد الإلكتروني أو كلمة المرور غير صحيحة");
-  }
-
-  const token = generateToken(user);
-  return { user, token };
+  passport.deserializeUser(async (data: { id: string; userType: string }, done) => {
+    try {
+      let user = null;
+      if (data.userType === 'student') {
+        user = await storage.getStudent(data.id);
+      } else if (data.userType === 'client') {
+        user = await storage.getClient(data.id);
+      } else if (data.userType === 'employee') {
+        user = await storage.getEmployee(data.id);
+      }
+      if (user) {
+        done(null, { ...user, userType: data.userType });
+      } else {
+        done(null, null);
+      }
+    } catch (error) {
+      done(error);
+    }
+  });
 }

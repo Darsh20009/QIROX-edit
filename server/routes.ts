@@ -1,1373 +1,2361 @@
 import type { Express } from "express";
 import { createServer, type Server } from "http";
-import mongoose from "mongoose";
+import { WebSocketServer, WebSocket } from "ws";
 import { storage } from "./storage";
-import { insertContactMessageSchema } from "@shared/schema";
-import { ZodError, z } from "zod";
-import { fromZodError } from "zod-validation-error";
 import { 
-  registerUser, 
-  loginUser, 
-  authMiddleware, 
-  roleMiddleware,
-  type AuthRequest 
-} from "./auth";
-import { User } from "./models/User";
-import { Subscription, PLAN_PRICES } from "./models/Subscription";
-import { Store } from "./models/Store";
-import { Product } from "./models/Product";
-import { Order, generateOrderNumber } from "./models/Order";
-import { Category } from "./models/Category";
-import { Tenant } from "./models/Tenant";
-import { Membership } from "./models/Membership";
-import { extractTenant, verifyTenantAccess, requireTenantRole, type TenantRequest } from "./middleware/tenantMiddleware";
-// import tenantsRouter from "./routes/tenants"; // Removed
-import { Project, Task } from "./models/Project";
+  insertOrderSchema, 
+  insertConsultationSchema, 
+  insertMessageSchema,
+  insertStudentSchema,
+  insertClientSchema,
+  insertEnrollmentSchema,
+  insertCertificateSchema,
+  insertProjectSchema,
+  insertEmployeeTaskSchema,
+  insertReviewSchema,
+  insertNotificationSchema
+} from "@shared/schema";
+import { createPaypalOrder, capturePaypalOrder, loadPaypalDefault } from "./paypal";
+import { sendOrderNotificationEmail } from "./email";
+import { generateInvoiceHTML, generateInvoicePDF } from "./invoice-generator";
+import { setupAuth, hashPassword } from "./auth";
+import { requireAuth, requireRole, requirePermission, parseUserFromSession } from "./middleware/rbac";
+import passport from "passport";
 
-const rateLimitMap = new Map<string, { count: number; resetTime: number }>();
-const RATE_LIMIT_WINDOW = 60 * 1000;
-const RATE_LIMIT_MAX = 5;
+const connectedClients = new Map<string, WebSocket>();
 
-function checkRateLimit(ip: string): boolean {
-  const now = Date.now();
-  const record = rateLimitMap.get(ip);
-  
-  if (!record || now > record.resetTime) {
-    rateLimitMap.set(ip, { count: 1, resetTime: now + RATE_LIMIT_WINDOW });
-    return true;
+export function broadcastNotification(userId: string, userType: string, notification: any) {
+  const clientKey = `${userType}:${userId}`;
+  const client = connectedClients.get(clientKey);
+  if (client && client.readyState === WebSocket.OPEN) {
+    client.send(JSON.stringify({ type: 'notification', data: notification }));
   }
-  
-  if (record.count >= RATE_LIMIT_MAX) {
-    return false;
-  }
-  
-  record.count++;
-  return true;
 }
 
-const registerSchema = z.object({
-  email: z.string().email("بريد إلكتروني غير صالح"),
-  password: z.string().min(6, "كلمة المرور يجب أن تكون 6 أحرف على الأقل"),
-  name: z.string().min(2, "الاسم مطلوب"),
-  phone: z.string().optional(),
-});
-
-const loginSchema = z.object({
-  email: z.string().email("بريد إلكتروني غير صالح"),
-  password: z.string().min(1, "كلمة المرور مطلوبة"),
-});
-
-const subscriptionSchema = z.object({
-  planType: z.enum(["stores", "restaurants", "education"]),
-  billingCycle: z.enum(["monthly", "6months", "yearly"]),
-});
-
-const storeSchema = z.object({
-  name: z.string().min(2, "اسم المتجر مطلوب"),
-  nameEn: z.string().optional(),
-  slug: z.string().min(3, "الرابط المختصر مطلوب").regex(/^[a-z0-9-]+$/, "الرابط يجب أن يحتوي على حروف إنجليزية صغيرة وأرقام وشرطات فقط"),
-  description: z.string().optional(),
-  phone: z.string().optional(),
-  email: z.string().email().optional().or(z.literal("")),
-  address: z.string().optional(),
-});
-
-const productSchema = z.object({
-  name: z.string().min(2, "اسم المنتج مطلوب"),
-  nameEn: z.string().optional(),
-  description: z.string().optional(),
-  price: z.number().min(0, "السعر يجب أن يكون رقم موجب"),
-  comparePrice: z.number().min(0).optional(),
-  cost: z.number().min(0).optional(),
-  sku: z.string().optional(),
-  barcode: z.string().optional(),
-  quantity: z.number().min(0).default(0),
-  category: z.string().optional(),
-  images: z.array(z.string()).default([]),
-  status: z.enum(["active", "inactive", "out_of_stock"]).default("active"),
-  featured: z.boolean().default(false),
-});
-
-const categorySchema = z.object({
-  name: z.string().min(2, "اسم الفئة مطلوب"),
-  nameEn: z.string().optional(),
-  description: z.string().optional(),
-  image: z.string().optional(),
-  parentId: z.string().optional(),
-  order: z.number().default(0),
-  isActive: z.boolean().default(true),
-});
-
-const orderStatusSchema = z.object({
-  status: z.enum(["pending", "confirmed", "preparing", "ready", "shipped", "delivered", "cancelled"]),
-});
-
-const paymentStatusSchema = z.object({
-  paymentStatus: z.enum(["pending", "paid", "failed", "refunded"]),
-});
-
-export async function registerRoutes(
-  httpServer: Server,
-  app: Express
-): Promise<Server> {
+export async function registerRoutes(app: Express): Promise<Server> {
+  // Setup authentication
+  setupAuth(app);
   
-  // ==================== TENANT ROUTES ====================
-  // app.use("/api/tenants", extractTenant, tenantsRouter); // Removed
+  // Parse user from session for RBAC
+  app.use(parseUserFromSession);
 
-  // ==================== AUTH ROUTES ====================
-  
-  app.post("/api/auth/register", async (req, res) => {
+  // PayPal routes
+  app.get("/api/paypal/setup", async (req, res) => {
+    await loadPaypalDefault(req, res);
+  });
+
+  app.get("/setup", async (req, res) => {
+    await loadPaypalDefault(req, res);
+  });
+
+  app.post("/api/paypal/order", async (req, res) => {
+    await createPaypalOrder(req, res);
+  });
+
+  app.post("/order", async (req, res) => {
+    await createPaypalOrder(req, res);
+  });
+
+  app.post("/api/paypal/order/:orderID/capture", async (req, res) => {
+    await capturePaypalOrder(req, res);
+  });
+
+  app.post("/order/:orderID/capture", async (req, res) => {
+    await capturePaypalOrder(req, res);
+  });
+
+  // Services routes (Public - no auth required)
+  app.get("/api/services", async (req, res) => {
     try {
-      const data = registerSchema.parse(req.body);
-      const { user, token } = await registerUser(
-        data.email, 
-        data.password, 
-        data.name, 
-        data.phone,
-        "visitor", // Explicitly set role for public registration
-        "default"
-      );
-      
-      await storage.createAuditLog({
-        userId: user._id.toString(),
-        tenantId: user.tenantId || "default",
-        action: "USER_REGISTER",
-        module: "Core",
-        details: `User ${user.email} registered. Role: visitor`,
-        ipAddress: req.ip,
-      });
+      const services = await storage.getServices();
+      res.json(services);
+    } catch (error) {
+      res.status(500).json({ error: "Failed to fetch services" });
+    }
+  });
 
+  app.get("/api/services/:id", async (req, res) => {
+    try {
+      const service = await storage.getService(req.params.id);
+      if (!service) {
+        return res.status(404).json({ error: "Service not found" });
+      }
+      res.json(service);
+    } catch (error) {
+      res.status(500).json({ error: "Failed to fetch service" });
+    }
+  });
+
+  // Website specifications submission route removed
+
+  // Website form submission route
+  app.post("/api/website-form", async (req, res) => {
+    try {
+      const formData = req.body;
+      
+      // Generate HTML/CSS export based on form data
+      const htmlContent = generateHtmlFromForm(formData);
+      const cssContent = generateCssFromForm(formData);
+      
+      // Create a comprehensive specification document
+      const specification = {
+        ...formData,
+        htmlTemplate: htmlContent,
+        cssTemplate: cssContent,
+        timestamp: new Date().toISOString(),
+        exportId: `WEB-${Date.now()}`
+      };
+      
       res.status(201).json({
         success: true,
-        user: {
-          id: user._id,
-          email: user.email,
-          name: user.name,
-          role: user.role,
-          tenantId: user.tenantId
-        },
-        token,
-      });
-    } catch (error) {
-      if (error instanceof ZodError) {
-        const validationError = fromZodError(error);
-        res.status(400).json({ error: validationError.message });
-      } else if (error instanceof Error) {
-        res.status(400).json({ error: error.message });
-      } else {
-        res.status(500).json({ error: "فشل في إنشاء الحساب" });
-      }
-    }
-  });
-
-  // Audit-First: Detailed Logging for Login
-  app.post("/api/auth/login", async (req, res) => {
-    try {
-      const data = loginSchema.parse(req.body);
-      const { user, token } = await loginUser(data.email, data.password);
-      
-      await storage.createAuditLog({
-        userId: user._id.toString(),
-        tenantId: user.tenantId || "default",
-        action: "USER_LOGIN",
-        module: "Core",
-        details: `User ${user.email} logged in from IP ${req.ip}`,
-        ipAddress: req.ip,
-      });
-
-      res.json({
-        success: true,
-        user: {
-          id: user._id,
-          email: user.email,
-          name: user.name,
-          role: user.role,
-          tenantId: user.tenantId
-        },
-        token,
-      });
-    } catch (error) {
-      if (error instanceof ZodError) {
-        const validationError = fromZodError(error);
-        res.status(400).json({ error: validationError.message });
-      } else if (error instanceof Error) {
-        res.status(400).json({ error: error.message });
-      } else {
-        res.status(500).json({ error: "فشل في تسجيل الدخول" });
-      }
-    }
-  });
-
-  app.get("/api/auth/me", authMiddleware, async (req: AuthRequest, res) => {
-    try {
-      const user = await User.findById(req.user!.userId).select("-password");
-      if (!user) {
-        res.status(404).json({ error: "المستخدم غير موجود" });
-        return;
-      }
-      res.json({ 
-        user: {
-          id: user._id,
-          email: user.email,
-          name: user.name,
-          role: user.role,
-          phone: user.phone,
+        specification,
+        downloadLinks: {
+          html: `/api/download/html/${specification.exportId}`,
+          css: `/api/download/css/${specification.exportId}`,
+          complete: `/api/download/complete/${specification.exportId}`
         }
       });
     } catch (error) {
-      console.error("Get user error:", error);
-      res.status(500).json({ error: "فشل في جلب بيانات المستخدم" });
+      res.status(400).json({ error: "Invalid form data" });
     }
   });
 
-  // ==================== SUBSCRIPTION ROUTES ====================
-
-  app.post("/api/subscriptions", authMiddleware, async (req: AuthRequest, res) => {
+  // Educational website form submission route
+  app.post("/api/educational-website-form", async (req, res) => {
     try {
-      const data = subscriptionSchema.parse(req.body);
-      const price = PLAN_PRICES[data.planType][data.billingCycle];
+      const formData = req.body;
       
-      const durationDays = data.billingCycle === "monthly" ? 30 
-        : data.billingCycle === "6months" ? 180 
-        : 365;
-      
-      const startDate = new Date();
-      const endDate = new Date(startDate.getTime() + durationDays * 24 * 60 * 60 * 1000);
-      const trialEndsAt = new Date(startDate.getTime() + 14 * 24 * 60 * 60 * 1000);
-
-      const subscription = await Subscription.create({
-        userId: req.user!.userId,
-        planType: data.planType,
-        billingCycle: data.billingCycle,
-        price,
-        startDate,
-        endDate,
-        trialEndsAt,
-        status: "trial",
-      });
-
-      res.status(201).json({ success: true, subscription });
-    } catch (error) {
-      if (error instanceof ZodError) {
-        const validationError = fromZodError(error);
-        res.status(400).json({ error: validationError.message });
-      } else {
-        console.error("Subscription error:", error);
-        res.status(500).json({ error: "فشل في إنشاء الاشتراك" });
-      }
-    }
-  });
-
-  app.get("/api/subscriptions", authMiddleware, async (req: AuthRequest, res) => {
-    try {
-      const subscriptions = await Subscription.find({ userId: req.user!.userId }).sort({ createdAt: -1 });
-      res.json({ subscriptions });
-    } catch (error) {
-      console.error("Get subscriptions error:", error);
-      res.status(500).json({ error: "فشل في جلب الاشتراكات" });
-    }
-  });
-
-  app.get("/api/subscriptions/:id", authMiddleware, async (req: AuthRequest, res) => {
-    try {
-      const subscription = await Subscription.findOne({ 
-        _id: req.params.id, 
-        userId: req.user!.userId 
-      });
-      
-      if (!subscription) {
-        res.status(404).json({ error: "الاشتراك غير موجود" });
-        return;
-      }
-      
-      res.json({ subscription });
-    } catch (error) {
-      res.status(500).json({ error: "فشل في جلب الاشتراك" });
-    }
-  });
-
-  // ==================== STORE ROUTES ====================
-
-  app.post("/api/stores", authMiddleware, extractTenant, async (req: TenantRequest, res) => {
-    try {
-      const data = storeSchema.parse(req.body);
-      const tenantId = req.tenant?.id;
-      
-      const existingSlug = await Store.findOne({ slug: data.slug, tenantId });
-      if (existingSlug) {
-        res.status(400).json({ error: "الرابط المختصر مستخدم مسبقاً" });
-        return;
-      }
-
-      const subscription = await Subscription.findOne({
-        userId: req.user!.userId,
-        status: { $in: ["active", "trial"] },
-      }).sort({ createdAt: -1 });
-
-      if (!subscription) {
-        res.status(400).json({ error: "يجب أن يكون لديك اشتراك فعال لإنشاء متجر" });
-        return;
-      }
-
-      const storeType = subscription.planType === "stores" ? "ecommerce"
-        : subscription.planType === "restaurants" ? "restaurant"
-        : "education";
-
-      const store = await Store.create({
-        userId: req.user!.userId,
-        tenantId: tenantId as any,
-        subscriptionId: subscription._id,
-        name: data.name,
-        nameEn: data.nameEn || undefined,
-        slug: data.slug,
-        type: storeType,
-        description: data.description || undefined,
-        phone: data.phone || undefined,
-        email: data.email || undefined,
-        address: data.address || undefined,
-        status: "pending",
-        settings: {
-          currency: "SAR",
-          language: "ar",
-          timezone: "Asia/Riyadh",
-          taxRate: 15,
-        },
-      });
-
-      res.status(201).json({ success: true, store });
-    } catch (error) {
-      if (error instanceof ZodError) {
-        const validationError = fromZodError(error);
-        res.status(400).json({ error: validationError.message });
-      } else {
-        console.error("Store creation error:", error);
-        res.status(500).json({ error: "فشل في إنشاء المتجر" });
-      }
-    }
-  });
-
-  app.get("/api/stores", authMiddleware, extractTenant, async (req: TenantRequest, res) => {
-    try {
-      const tenantId = req.tenant?.id;
-      const stores = await Store.find({ userId: req.user!.userId, tenantId }).sort({ createdAt: -1 });
-      res.json({ stores });
-    } catch (error) {
-      console.error("Get stores error:", error);
-      res.status(500).json({ error: "فشل في جلب المتاجر" });
-    }
-  });
-
-  app.get("/api/stores/:id", authMiddleware, extractTenant, async (req: TenantRequest, res) => {
-    try {
-      const tenantId = req.tenant?.id;
-      const store = await Store.findOne({ 
-        _id: req.params.id, 
-        userId: req.user!.userId,
-        tenantId
-      });
-      
-      if (!store) {
-        res.status(404).json({ error: "المتجر غير موجود" });
-        return;
-      }
-      
-      res.json({ store });
-    } catch (error) {
-      res.status(500).json({ error: "فشل في جلب المتجر" });
-    }
-  });
-
-  app.patch("/api/stores/:id", authMiddleware, extractTenant, async (req: TenantRequest, res) => {
-    try {
-      const tenantId = req.tenant?.id;
-      const store = await Store.findOneAndUpdate(
-        { _id: req.params.id, userId: req.user!.userId, tenantId },
-        { $set: req.body },
-        { new: true }
-      );
-      
-      if (!store) {
-        res.status(404).json({ error: "المتجر غير موجود" });
-        return;
-      }
-      
-      res.json({ success: true, store });
-    } catch (error) {
-      res.status(500).json({ error: "فشل في تحديث المتجر" });
-    }
-  });
-
-  // ==================== QIROX CLOUD ROUTES ====================
-  app.get("/api/cloud/tenant-status", authMiddleware, async (req: AuthRequest, res) => {
-    try {
-      const user = await User.findById(req.user!.userId);
-      if (!user) return res.status(404).json({ error: "User not found" });
-
-      const tenant = await storage.getTenant(user.tenantId || "default");
-      if (!tenant) return res.status(404).json({ error: "Tenant not found" });
-
-      // In a real production system, this mapping would be handled by a proxy (like Nginx/Traefik)
-      // or a cloud-native routing service. Here we simulate the status based on DB data.
-      res.json({
-        slug: tenant.slug,
-        subdomain: `${tenant.slug}.qirox.online`,
-        status: "active",
-        ssl: "valid", // Placeholder for Auto SSL verification
-        dns: "configured", // Placeholder for DNS propagation check
-        publishedVersion: "1.0.0"
-      });
-    } catch (error) {
-      res.status(500).json({ error: "Failed to fetch cloud status" });
-    }
-  });
-
-  app.post("/api/cloud/validate-slug", async (req, res) => {
-    try {
-      const { slug } = req.body;
-      const existing = await storage.getTenantBySlug(slug);
-      res.json({ available: !existing });
-    } catch (error) {
-      res.status(500).json({ error: "Validation failed" });
-    }
-  });
-
-
-  app.get("/api/dashboard/stats", authMiddleware, async (req: AuthRequest, res) => {
-    try {
-      const projects = await storage.getProjects(req.user!.userId);
-      const invoices = await storage.getInvoices(req.user!.userId);
-      const meetings = await storage.getMeetings(req.user!.userId);
-      
-      const stats = {
-        projectsCount: projects.length,
-        activeProjects: projects.filter(p => p.isApproved === "yes" && p.status !== "completed").length,
-        unpaidInvoices: invoices.filter(i => i.status === "unpaid").length,
-        upcomingMeetings: meetings.filter(m => new Date(m.scheduledAt) > new Date()).length,
-        pendingApprovals: projects.filter(p => p.isApproved === "no").length,
+      // Store the educational website request
+      const requestData = {
+        type: 'educational',
+        ...formData,
+        timestamp: new Date().toISOString(),
+        requestId: `EDU-${Date.now()}`
       };
-      res.json(stats);
+      
+      // In a real app, you'd save this to the database
+      // For now, just return success
+      res.status(201).json({
+        success: true,
+        requestId: requestData.requestId,
+        message: "تم استلام طلبك بنجاح. سنتواصل معك خلال 2-24 ساعة."
+      });
     } catch (error) {
-      res.status(500).json({ error: "Failed to fetch dashboard stats" });
+      res.status(400).json({ error: "Invalid form data" });
     }
   });
 
-  app.get("/api/projects", authMiddleware, async (req: AuthRequest, res) => {
+  // Download routes for HTML/CSS exports
+  app.get("/api/download/html/:exportId", (req, res) => {
+    const { exportId } = req.params;
+    res.setHeader('Content-Type', 'text/html');
+    res.setHeader('Content-Disposition', `attachment; filename="website-${exportId}.html"`);
+    res.send(generateSampleHtml(exportId));
+  });
+
+  app.get("/api/download/css/:exportId", (req, res) => {
+    const { exportId } = req.params;
+    res.setHeader('Content-Type', 'text/css');
+    res.setHeader('Content-Disposition', `attachment; filename="styles-${exportId}.css"`);
+    res.send(generateSampleCss(exportId));
+  });
+
+  // Orders routes with email notification and RBAC
+  // POST: Create order (Clients only)
+  app.post("/api/orders", requireAuth, async (req, res) => {
     try {
-      const projects = await storage.getProjects(req.user!.userId);
+      const orderData = insertOrderSchema.parse(req.body);
+      
+      // Validate serviceId and get service details from database for security
+      let validatedOrderData = { ...orderData };
+      if (orderData.serviceId) {
+        const service = await storage.getService(orderData.serviceId);
+        if (service) {
+          // Use service details from database for security - override client-provided values
+          validatedOrderData.serviceName = service.name;
+          validatedOrderData.serviceId = service.id;
+          validatedOrderData.price = service.price; // Enforce price from database
+        } else {
+          // Service not found in database - set serviceId to null
+          // but allow the order with client-provided name/price for custom/cart items
+          console.log(`Service ${orderData.serviceId} not found in database, proceeding without serviceId`);
+          validatedOrderData.serviceId = null;
+        }
+      }
+      
+      // Ensure required fields are present
+      if (!validatedOrderData.serviceName || !validatedOrderData.price) {
+        return res.status(400).json({ error: "يجب تحديد اسم الخدمة والسعر" });
+      }
+      
+      const order = await storage.createOrder(validatedOrderData);
+      
+      // إنشاء مشروع تلقائياً للعميل المسجل
+      if (orderData.clientId) {
+        try {
+          const websiteIdea = req.body.websiteSpecs?.idea || 
+                             req.body.websiteSpecs?.websiteIdea || 
+                             `مشروع ${order.serviceName}`;
+          
+          await storage.createProject({
+            clientId: orderData.clientId,
+            orderId: order.id,
+            projectName: order.serviceName,
+            websiteIdea: websiteIdea,
+            status: 'analysis',
+            daysRemaining: 30,
+            targetDate: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000)
+          });
+          
+          console.log(`✅ Project created automatically for order ${order.orderNumber}`);
+        } catch (projectError) {
+          console.error('Error creating project:', projectError);
+        }
+      }
+      
+      // Try to send email notification (non-blocking)
+      if (orderData.customerEmail && orderData.customerName) {
+        const websiteSpecs = req.body.websiteSpecs || null;
+        
+        try {
+          await sendOrderNotificationEmail({
+            orderNumber: order.id,
+            customerName: orderData.customerName,
+            customerEmail: orderData.customerEmail,
+            customerPhone: orderData.customerPhone || 'غير متوفر',
+            serviceName: order.serviceName,
+            price: order.price,
+            paymentStatus: 'pending',
+            paymentMethod: orderData.paymentMethod || 'غير محدد',
+            websiteSpecs: websiteSpecs
+          });
+        } catch (emailError) {
+          console.log('Email notification skipped (SendGrid not configured)');
+        }
+      }
+      
+      res.status(201).json(order);
+    } catch (error) {
+      console.error('Error creating order:', error);
+      res.status(400).json({ error: "Invalid order data" });
+    }
+  });
+
+  app.get("/api/orders/:id", async (req, res) => {
+    try {
+      const order = await storage.getOrder(req.params.id);
+      if (!order) {
+        return res.status(404).json({ error: "Order not found" });
+      }
+      res.json(order);
+    } catch (error) {
+      res.status(500).json({ error: "Failed to fetch order" });
+    }
+  });
+
+  app.put("/api/orders/:id/status", async (req, res) => {
+    try {
+      const { status } = req.body;
+      const order = await storage.updateOrderStatus(req.params.id, status);
+      if (!order) {
+        return res.status(404).json({ error: "Order not found" });
+      }
+      res.json(order);
+    } catch (error) {
+      res.status(500).json({ error: "Failed to update order" });
+    }
+  });
+
+  app.put("/api/orders/:id/payment", async (req, res) => {
+    try {
+      const { paymentMethod, paymentStatus } = req.body;
+      const order = await storage.updateOrderPayment(req.params.id, paymentMethod, paymentStatus);
+      if (!order) {
+        return res.status(404).json({ error: "Order not found" });
+      }
+
+      // Create invoice and send email if payment is completed
+      if (paymentStatus === "completed") {
+        await storage.createInvoice(req.params.id);
+        
+        // Send order notification email to ma3k.2025@gmail.com
+        try {
+          const websiteSpecs = req.body.websiteSpecs;
+          await sendOrderNotificationEmail({
+            orderNumber: order.id,
+            customerName: order.customerName,
+            customerEmail: order.customerEmail,
+            customerPhone: order.customerPhone,
+            serviceName: order.serviceName,
+            price: order.price,
+            paymentStatus: "completed",
+            paymentMethod: paymentMethod,
+            websiteSpecs: websiteSpecs
+          });
+          console.log('✅ Email notification sent successfully to ma3k.2025@gmail.com');
+        } catch (emailError) {
+          console.error('❌ Failed to send order notification email:', emailError);
+        }
+      }
+
+      res.json(order);
+    } catch (error) {
+      res.status(500).json({ error: "Failed to update payment" });
+    }
+  });
+
+  // Consultations routes
+  app.post("/api/consultations", async (req, res) => {
+    try {
+      const consultationData = insertConsultationSchema.parse(req.body);
+      const consultation = await storage.createConsultation(consultationData);
+      res.status(201).json(consultation);
+    } catch (error) {
+      res.status(400).json({ error: "Invalid consultation data" });
+    }
+  });
+
+  // Messages routes
+  app.post("/api/messages", async (req, res) => {
+    try {
+      const messageData = insertMessageSchema.parse(req.body);
+      const message = await storage.createMessage(messageData);
+      res.status(201).json(message);
+    } catch (error) {
+      res.status(400).json({ error: "Invalid message data" });
+    }
+  });
+
+  // Invoice routes (SUPPORT_SPECIALIST و SALES_MANAGER يمكنهم إنشاء الفواتير)
+  app.post("/api/invoices", requireRole(["SUPPORT_SPECIALIST", "SALES_MANAGER"]), async (req, res) => {
+    try {
+      const { orderId, customerName, customerEmail, serviceName, amount } = req.body;
+      const invoice = await storage.createInvoice(orderId);
+      res.status(201).json(invoice);
+    } catch (error) {
+      console.error("Invoice creation error:", error);
+      res.status(500).json({ error: "Failed to create invoice" });
+    }
+  });
+
+  app.get("/api/invoices/:id", async (req, res) => {
+    try {
+      const invoice = await storage.getInvoice(req.params.id);
+      if (!invoice) {
+        return res.status(404).json({ error: "Invoice not found" });
+      }
+      res.json(invoice);
+    } catch (error) {
+      res.status(500).json({ error: "Failed to fetch invoice" });
+    }
+  });
+
+  // Generate and download invoice route
+  app.post("/api/generate-invoice", async (req, res) => {
+    try {
+      const { orderId } = req.body;
+      const order = await storage.getOrder(orderId);
+      
+      if (!order) {
+        return res.status(404).json({ error: "Order not found" });
+      }
+
+      const service = order.serviceId ? await storage.getService(order.serviceId) : undefined;
+      const invoiceHTML = generateInvoiceHTML(order, service);
+      
+      res.setHeader('Content-Type', 'text/html; charset=utf-8');
+      res.setHeader('Content-Disposition', `attachment; filename=invoice-${order.orderNumber}.html`);
+      res.send(invoiceHTML);
+    } catch (error) {
+      console.error("Invoice generation error:", error);
+      res.status(500).json({ error: "Failed to generate invoice" });
+    }
+  });
+
+  // Invoice download route  
+  app.get("/api/invoices/:id/download", async (req, res) => {
+    try {
+      const invoice = await storage.getInvoice(req.params.id);
+      if (!invoice) {
+        return res.status(404).json({ error: "Invoice not found" });
+      }
+      
+      const order = invoice.orderId ? await storage.getOrder(invoice.orderId) : null;
+      if (!order) {
+        return res.status(404).json({ error: "Order not found" });
+      }
+
+      const invoiceHtml = generateInvoiceHtml(invoice, order);
+      
+      res.setHeader('Content-Type', 'text/html');
+      res.setHeader('Content-Disposition', `attachment; filename="invoice-${invoice.invoiceNumber}.html"`);
+      res.send(invoiceHtml);
+    } catch (error) {
+      res.status(500).json({ error: "Failed to generate invoice download" });
+    }
+  });
+
+  // Auth routes
+  app.post("/api/auth/register-student", async (req, res) => {
+    try {
+      const studentData = insertStudentSchema.parse(req.body);
+      
+      const existingStudent = await storage.getStudentByEmail(studentData.email);
+      if (existingStudent) {
+        return res.status(400).json({ error: "البريد الإلكتروني مسجل مسبقاً" });
+      }
+      
+      // Hash the password before storing
+      const hashedPassword = await hashPassword(studentData.password);
+      const studentWithHashedPassword = { ...studentData, password: hashedPassword };
+      
+      const student = await storage.createStudent(studentWithHashedPassword);
+      const { password: _, ...studentWithoutPassword } = student;
+      res.status(201).json(studentWithoutPassword);
+    } catch (error) {
+      console.error('Error registering student:', error);
+      res.status(400).json({ error: "بيانات الطالب غير صالحة" });
+    }
+  });
+
+  app.post("/api/auth/register-client", async (req, res) => {
+    try {
+      const clientData = insertClientSchema.parse(req.body);
+      
+      const existingClient = await storage.getClientByEmail(clientData.email);
+      if (existingClient) {
+        return res.status(400).json({ error: "البريد الإلكتروني مسجل مسبقاً" });
+      }
+      
+      // Hash the password before storing
+      const hashedPassword = await hashPassword(clientData.password);
+      const clientWithHashedPassword = { ...clientData, password: hashedPassword };
+      
+      const client = await storage.createClient(clientWithHashedPassword);
+      const { password: _, ...clientWithoutPassword } = client;
+      res.status(201).json(clientWithoutPassword);
+    } catch (error) {
+      console.error('Error registering client:', error);
+      res.status(400).json({ error: "بيانات العميل غير صالحة" });
+    }
+  });
+
+  // توليد رقم موظف فريد
+  async function generateEmployeeNumber(): Promise<string> {
+    const employees = await storage.getEmployees();
+    const year = new Date().getFullYear();
+    const nextNum = employees.length + 1;
+    return `EMP-${year}-${String(nextNum).padStart(4, '0')}`;
+  }
+
+  // Employee registration endpoint
+  app.post("/api/auth/register-employee", async (req, res) => {
+    try {
+      const { fullName, email, password, position, jobTitle, employeeCode, isAdmin } = req.body;
+      
+      // التحقق من رمز الموظف (للأمان) - يتم تخزينه في متغير بيئة
+      const validEmployeeCode = process.env.EMPLOYEE_REGISTRATION_CODE || "MA3K2024";
+      if (!employeeCode || employeeCode !== validEmployeeCode) {
+        return res.status(403).json({ error: "رمز الموظف غير صحيح" });
+      }
+      
+      // التحقق من البيانات المطلوبة
+      if (!fullName || !email || !password) {
+        return res.status(400).json({ error: "جميع الحقول مطلوبة" });
+      }
+      
+      const existingEmployee = await storage.getEmployeeByEmail(email);
+      if (existingEmployee) {
+        return res.status(400).json({ error: "البريد الإلكتروني مسجل مسبقاً" });
+      }
+      
+      // توليد رقم موظف فريد
+      const employeeNumber = await generateEmployeeNumber();
+      
+      // Hash the password before storing
+      const hashedPassword = await hashPassword(password);
+      
+      const employee = await storage.createEmployee({
+        fullName,
+        email,
+        password: hashedPassword,
+        position: position || "موظف",
+        jobTitle: jobTitle || "مطور",
+        employeeNumber,
+        isAdmin: isAdmin || false
+      });
+      
+      const { password: _, ...employeeWithoutPassword } = employee;
+      res.status(201).json(employeeWithoutPassword);
+    } catch (error) {
+      console.error('Error registering employee:', error);
+      res.status(400).json({ error: "بيانات الموظف غير صالحة" });
+    }
+  });
+
+  // مسار إضافة موظف من قبل المدير (SYSTEM_ADMIN فقط)
+  app.post("/api/admin/employees", requireRole(["SYSTEM_ADMIN"]), async (req, res) => {
+    try {
+      const { fullName, email, password, position, jobTitle, isAdmin } = req.body;
+      
+      // التحقق من البيانات المطلوبة
+      if (!fullName || !email || !password) {
+        return res.status(400).json({ error: "جميع الحقول مطلوبة" });
+      }
+      
+      const existingEmployee = await storage.getEmployeeByEmail(email);
+      if (existingEmployee) {
+        return res.status(400).json({ error: "البريد الإلكتروني مسجل مسبقاً" });
+      }
+      
+      // توليد رقم موظف فريد
+      const employeeNumber = await generateEmployeeNumber();
+      
+      // Hash the password before storing
+      const hashedPassword = await hashPassword(password);
+      
+      const employee = await storage.createEmployee({
+        fullName,
+        email,
+        password: hashedPassword,
+        position: position || "موظف",
+        jobTitle: jobTitle || "مطور",
+        employeeNumber,
+        isAdmin: isAdmin || false
+      });
+      
+      const { password: _, ...employeeWithoutPassword } = employee;
+      res.status(201).json(employeeWithoutPassword);
+    } catch (error) {
+      console.error('Error adding employee by admin:', error);
+      res.status(400).json({ error: "فشل إضافة الموظف" });
+    }
+  });
+
+  // مسار الحصول على جميع الموظفين (SYSTEM_ADMIN و SALES_MANAGER فقط)
+  app.get("/api/admin/employees", requireRole(["SYSTEM_ADMIN", "SALES_MANAGER"]), async (req, res) => {
+    try {
+      
+      const employees = await storage.getEmployees();
+      const employeesWithoutPasswords = employees.map(emp => {
+        const { password: _, ...empWithoutPassword } = emp;
+        return empWithoutPassword;
+      });
+      
+      res.json(employeesWithoutPasswords);
+    } catch (error) {
+      console.error('Error fetching employees:', error);
+      res.status(500).json({ error: "فشل جلب الموظفين" });
+    }
+  });
+
+  app.post("/api/auth/login", async (req, res) => {
+    try {
+      const { email, password } = req.body;
+      
+      if (!email || !password) {
+        return res.status(400).json({ error: "البريد الإلكتروني وكلمة المرور مطلوبان" });
+      }
+
+      // Check student
+      const student = await storage.getStudentByEmail(email);
+      if (student) {
+        const isValidPassword = await import('./auth').then(m => m.comparePasswords(password, student.password));
+        if (isValidPassword) {
+          const { password: _, ...userWithoutPassword } = student;
+          return res.json({ user: userWithoutPassword, type: "student" });
+        }
+      }
+
+      // Check client
+      const client = await storage.getClientByEmail(email);
+      if (client) {
+        const isValidPassword = await import('./auth').then(m => m.comparePasswords(password, client.password));
+        if (isValidPassword) {
+          const { password: _, ...userWithoutPassword } = client;
+          return res.json({ user: userWithoutPassword, type: "client" });
+        }
+      }
+
+      // Check employee
+      const employee = await storage.getEmployeeByEmail(email);
+      if (employee) {
+        const isValidPassword = await import('./auth').then(m => m.comparePasswords(password, employee.password));
+        if (isValidPassword) {
+          const { password: _, ...userWithoutPassword } = employee;
+          return res.json({ user: userWithoutPassword, type: "employee" });
+        }
+      }
+
+      res.status(401).json({ error: "البريد الإلكتروني أو كلمة المرور غير صحيحة" });
+    } catch (error) {
+      console.error('Error during login:', error);
+      res.status(500).json({ error: "فشل تسجيل الدخول" });
+    }
+  });
+
+  // Students routes
+  app.get("/api/students/:id", async (req, res) => {
+    try {
+      const student = await storage.getStudent(req.params.id);
+      if (!student) {
+        return res.status(404).json({ error: "Student not found" });
+      }
+      res.json(student);
+    } catch (error) {
+      res.status(500).json({ error: "Failed to fetch student" });
+    }
+  });
+
+  app.get("/api/students/email/:email", async (req, res) => {
+    try {
+      const student = await storage.getStudentByEmail(req.params.email);
+      if (!student) {
+        return res.status(404).json({ error: "Student not found" });
+      }
+      res.json(student);
+    } catch (error) {
+      res.status(500).json({ error: "Failed to fetch student" });
+    }
+  });
+
+  // Clients routes
+  app.get("/api/clients/:id", async (req, res) => {
+    try {
+      const client = await storage.getClient(req.params.id);
+      if (!client) {
+        return res.status(404).json({ error: "Client not found" });
+      }
+      res.json(client);
+    } catch (error) {
+      res.status(500).json({ error: "Failed to fetch client" });
+    }
+  });
+
+  app.get("/api/clients/:id/projects", async (req, res) => {
+    try {
+      const projects = await storage.getClientProjects(req.params.id);
+      res.json(projects);
+    } catch (error) {
+      res.status(500).json({ error: "Failed to fetch client projects" });
+    }
+  });
+
+  app.get("/api/clients/:id/orders", async (req, res) => {
+    try {
+      const orders = await storage.getClientOrders(req.params.id);
+      res.json(orders);
+    } catch (error) {
+      res.status(500).json({ error: "Failed to fetch client orders" });
+    }
+  });
+
+  app.get("/api/clients/:id/invoices", async (req, res) => {
+    try {
+      const invoices = await storage.getInvoicesByClientId(req.params.id);
+      res.json(invoices);
+    } catch (error) {
+      res.status(500).json({ error: "Failed to fetch client invoices" });
+    }
+  });
+
+  app.get("/api/clients", async (req, res) => {
+    try {
+      const clients = await storage.getClients();
+      res.json(clients);
+    } catch (error) {
+      res.status(500).json({ error: "Failed to fetch clients" });
+    }
+  });
+
+  // Employees routes
+  app.get("/api/employees", async (req, res) => {
+    try {
+      const employees = await storage.getEmployees();
+      res.json(employees);
+    } catch (error) {
+      res.status(500).json({ error: "Failed to fetch employees" });
+    }
+  });
+
+  app.get("/api/employees/:id", async (req, res) => {
+    try {
+      const employee = await storage.getEmployee(req.params.id);
+      if (!employee) {
+        return res.status(404).json({ error: "Employee not found" });
+      }
+      res.json(employee);
+    } catch (error) {
+      res.status(500).json({ error: "Failed to fetch employee" });
+    }
+  });
+
+  app.get("/api/employees/:id/tasks", async (req, res) => {
+    try {
+      const tasks = await storage.getEmployeeTasks(req.params.id);
+      res.json(tasks);
+    } catch (error) {
+      res.status(500).json({ error: "Failed to fetch employee tasks" });
+    }
+  });
+
+  app.put("/api/employees/:id/photo", async (req, res) => {
+    try {
+      const { photoUrl } = req.body;
+      if (!photoUrl) {
+        return res.status(400).json({ error: "Photo URL is required" });
+      }
+      
+      const employee = await storage.updateEmployeePhoto(req.params.id, photoUrl);
+      if (!employee) {
+        return res.status(404).json({ error: "Employee not found" });
+      }
+      res.json(employee);
+    } catch (error) {
+      res.status(500).json({ error: "Failed to update employee photo" });
+    }
+  });
+
+  // Tasks routes
+  app.patch("/api/tasks/:id", async (req, res) => {
+    try {
+      const { isCompleted, hoursRemaining } = req.body;
+      const task = await storage.updateEmployeeTask(req.params.id, isCompleted, hoursRemaining);
+      if (!task) {
+        return res.status(404).json({ error: "Task not found" });
+      }
+      res.json(task);
+    } catch (error) {
+      res.status(500).json({ error: "Failed to update task" });
+    }
+  });
+
+  // Courses routes
+  app.get("/api/courses", async (req, res) => {
+    try {
+      const courses = await storage.getCourses();
+      res.json(courses);
+    } catch (error) {
+      res.status(500).json({ error: "Failed to fetch courses" });
+    }
+  });
+
+  app.get("/api/courses/:id", async (req, res) => {
+    try {
+      const course = await storage.getCourse(req.params.id);
+      if (!course) {
+        return res.status(404).json({ error: "Course not found" });
+      }
+      res.json(course);
+    } catch (error) {
+      res.status(500).json({ error: "Failed to fetch course" });
+    }
+  });
+
+  app.post("/api/courses/enroll", async (req, res) => {
+    try {
+      const enrollmentData = insertEnrollmentSchema.parse(req.body);
+      const enrollment = await storage.createEnrollment(enrollmentData);
+      res.status(201).json(enrollment);
+    } catch (error) {
+      console.error('Error enrolling student:', error);
+      res.status(400).json({ error: "Invalid enrollment data" });
+    }
+  });
+
+  app.get("/api/enrollments/student/:studentId", async (req, res) => {
+    try {
+      const enrollments = await storage.getStudentEnrollments(req.params.studentId);
+      res.json(enrollments);
+    } catch (error) {
+      res.status(500).json({ error: "Failed to fetch student enrollments" });
+    }
+  });
+
+  app.put("/api/enrollments/:id/progress", async (req, res) => {
+    try {
+      const { progress } = req.body;
+      if (typeof progress !== 'number' || progress < 0 || progress > 100) {
+        return res.status(400).json({ error: "Invalid progress value (must be 0-100)" });
+      }
+      const enrollment = await storage.updateEnrollmentProgress(req.params.id, progress);
+      if (!enrollment) {
+        return res.status(404).json({ error: "Enrollment not found" });
+      }
+      res.json(enrollment);
+    } catch (error) {
+      res.status(500).json({ error: "Failed to update enrollment progress" });
+    }
+  });
+
+  app.put("/api/enrollments/:id/exam-score", async (req, res) => {
+    try {
+      const { score } = req.body;
+      if (typeof score !== 'number' || score < 0 || score > 100) {
+        return res.status(400).json({ error: "Invalid score value (must be 0-100)" });
+      }
+      const enrollment = await storage.updateEnrollmentExamScore(req.params.id, score);
+      if (!enrollment) {
+        return res.status(404).json({ error: "Enrollment not found" });
+      }
+      res.json(enrollment);
+    } catch (error) {
+      res.status(500).json({ error: "Failed to update exam score" });
+    }
+  });
+
+  app.put("/api/enrollments/:id/complete", async (req, res) => {
+    try {
+      const enrollment = await storage.completeEnrollment(req.params.id);
+      if (!enrollment) {
+        return res.status(404).json({ error: "Enrollment not found" });
+      }
+      res.json(enrollment);
+    } catch (error) {
+      res.status(500).json({ error: "Failed to complete enrollment" });
+    }
+  });
+
+  // Certificates routes
+  app.get("/api/certificates/number/:certificateNumber", async (req, res) => {
+    try {
+      const certificate = await storage.getCertificateByNumber(req.params.certificateNumber);
+      if (!certificate) {
+        return res.status(404).json({ error: "Certificate not found" });
+      }
+      res.json(certificate);
+    } catch (error) {
+      res.status(500).json({ error: "Failed to fetch certificate" });
+    }
+  });
+
+  app.get("/api/certificates/student/:studentId", async (req, res) => {
+    try {
+      const certificates = await storage.getStudentCertificates(req.params.studentId);
+      res.json(certificates);
+    } catch (error) {
+      res.status(500).json({ error: "Failed to fetch student certificates" });
+    }
+  });
+
+  app.post("/api/certificates", async (req, res) => {
+    try {
+      const certificateData = insertCertificateSchema.parse(req.body);
+      const certificate = await storage.createCertificate(certificateData);
+      res.status(201).json(certificate);
+    } catch (error) {
+      console.error('Error creating certificate:', error);
+      res.status(400).json({ error: "Invalid certificate data" });
+    }
+  });
+
+  // Projects routes (CLIENT و PROJECT_MANAGER يمكنهم عرض المشاريع)
+  app.get("/api/projects", requireAuth, async (req, res) => {
+    try {
+      const projects = await storage.getAllProjects();
       res.json(projects);
     } catch (error) {
       res.status(500).json({ error: "Failed to fetch projects" });
     }
   });
 
-  app.post("/api/projects", authMiddleware, async (req: AuthRequest, res) => {
+  // POST projects (CLIENT و PROJECT_MANAGER يمكنهم إنشاء المشاريع)
+  app.post("/api/projects", requireAuth, async (req, res) => {
     try {
-      const user = await User.findById(req.user!.userId);
-      
-      // Restriction: Only employees/admins can provision projects
-      if (user?.role !== "system_admin" && user?.role !== "qirox_pm" && user?.role !== "qirox_specialist") {
-        return res.status(403).json({ error: "Only QIROX employees can provision projects" });
-      }
-
-      const project = await storage.createProject({
-        ...req.body,
-        userId: req.body.userId || req.user!.userId, // Assign to a specific user if provided
-        tenantId: user?.tenantId || "default",
-        isApproved: "yes", // Provisioned by employee means auto-approved
-        provisionedAt: new Date(),
-      });
-
-      await storage.createAuditLog({
-        userId: user._id.toString(),
-        tenantId: user.tenantId || "default",
-        action: "PROVISION_PROJECT",
-        module: "Build",
-        details: `SUCCESS: Project ${project.id} provisioned by ${user.email} for user ${project.userId}. Status: APPROVED. IP: ${req.ip}`,
-        ipAddress: req.ip,
-      });
-
+      const projectData = insertProjectSchema.parse(req.body);
+      const project = await storage.createProject(projectData);
       res.status(201).json(project);
     } catch (error) {
-      res.status(500).json({ error: "Failed to create project" });
+      console.error('Error creating project:', error);
+      res.status(400).json({ error: "Invalid project data" });
     }
   });
 
-  app.patch("/api/projects/:id/approve", authMiddleware, roleMiddleware("system_admin", "qirox_pm"), async (req: AuthRequest, res) => {
+  app.get("/api/projects/:id", async (req, res) => {
     try {
-      const { status, module } = req.body; // yes, rejected
-      const user = await User.findById(req.user!.userId);
-      const project = await storage.updateProject(req.params.id, {
-        isApproved: status,
-        approvedBy: req.user!.userId,
-      });
+      const project = await storage.getProject(req.params.id);
+      if (!project) {
+        return res.status(404).json({ error: "Project not found" });
+      }
+      res.json(project);
+    } catch (error) {
+      res.status(500).json({ error: "Failed to fetch project" });
+    }
+  });
 
-
-      await storage.createAuditLog({
-        userId: req.user!.userId,
-        tenantId: user?.tenantId || "default",
-        action: status === "yes" ? "APPROVE_PROJECT" : "REJECT_PROJECT",
-        module: module || "Build",
-        details: `Project ${req.params.id} ${status === "yes" ? "approved" : "rejected"} by ${user?.email} into module ${module || "Build"}`,
-        ipAddress: req.ip,
-      });
-
+  // UPDATE project status (PROJECT_MANAGER فقط)
+  app.put("/api/projects/:id/status", requireRole(["PROJECT_MANAGER"]), async (req, res) => {
+    try {
+      const { status } = req.body;
+      if (!status) {
+        return res.status(400).json({ error: "Status is required" });
+      }
+      
+      const project = await storage.updateProjectStatus(req.params.id, status);
+      if (!project) {
+        return res.status(404).json({ error: "Project not found" });
+      }
       res.json(project);
     } catch (error) {
       res.status(500).json({ error: "Failed to update project status" });
     }
   });
 
-  // Audit Log Route
-  app.post("/api/audit-logs", authMiddleware, async (req: AuthRequest, res) => {
+  // UPDATE project idea (PROJECT_MANAGER فقط)
+  app.put("/api/projects/:id/idea", requireRole(["PROJECT_MANAGER"]), async (req, res) => {
     try {
-      const user = await User.findById(req.user!.userId);
-      const log = await storage.createAuditLog({
-        userId: req.user!.userId,
-        tenantId: user?.tenantId || "default",
-        action: req.body.action,
-        module: req.body.module || "Core",
-        details: req.body.details,
-        ipAddress: req.ip,
-      });
-      res.json(log);
-    } catch (error) {
-      res.status(500).json({ error: "Failed to create audit log" });
-    }
-  });
-
-  app.get("/api/audit-logs", authMiddleware, async (req: AuthRequest, res) => {
-    try {
-      const user = await User.findById(req.user!.userId);
-      const logs = await storage.getAuditLogs(user?.tenantId);
-      res.json(logs);
-    } catch (error) {
-      res.status(500).json({ error: "Failed to fetch audit logs" });
-    }
-  });
-
-  // ==================== INVOICE ROUTES ====================
-  app.get("/api/invoices", authMiddleware, async (req: AuthRequest, res) => {
-    try {
-      const invoices = await storage.getInvoices(req.user!.userId);
-      res.json(invoices);
-    } catch (error) {
-      res.status(500).json({ error: "Failed to fetch invoices" });
-    }
-  });
-
-  app.post("/api/invoices", authMiddleware, roleMiddleware("system_admin", "qirox_finance"), async (req: AuthRequest, res) => {
-    try {
-      const invoice = await storage.createInvoice(req.body);
-      res.status(201).json(invoice);
-    } catch (error) {
-      res.status(500).json({ error: "Failed to create invoice" });
-    }
-  });
-
-  // ==================== MEETING ROUTES ====================
-  app.get("/api/meetings", authMiddleware, async (req: AuthRequest, res) => {
-    try {
-      const meetings = await storage.getMeetings(req.user!.userId);
-      res.json(meetings);
-    } catch (error) {
-      res.status(500).json({ error: "Failed to fetch meetings" });
-    }
-  });
-
-  app.post("/api/meetings", authMiddleware, async (req: AuthRequest, res) => {
-    try {
-      const user = await User.findById(req.user!.userId);
-      // Generate ZEGO-ready meeting ID
-      const meetingId = Math.random().toString(36).substring(7);
-      const appID = process.env.ZEGO_APP_ID;
-      
-      // Internal QIROX Meet Link
-      const meetingLink = `https://qirox.meet/${meetingId}?appId=${appID}`;
-      
-      const meeting = await storage.createMeeting({
-        ...req.body,
-        userId: req.user!.userId,
-        tenantId: user?.tenantId || "default",
-        link: meetingLink
-      });
-
-      await storage.createAuditLog({
-        userId: req.user!.userId,
-        tenantId: user?.tenantId || "default",
-        action: "SCHEDULE_MEETING",
-        module: "Meet",
-        details: `Internal meeting scheduled: ${meeting.title} via QIROX Meet`,
-        ipAddress: req.ip,
-      });
-
-      res.status(201).json(meeting);
-    } catch (error) {
-      res.status(500).json({ error: "Failed to schedule meeting" });
-    }
-  });
-
-  app.get("/api/admin/subscriptions", authMiddleware, roleMiddleware("system_admin"), async (_req, res) => {
-    try {
-      const subscriptions = await Subscription.find()
-        .populate("userId", "name email")
-        .sort({ createdAt: -1 });
-      res.json({ subscriptions });
-    } catch (error) {
-      res.status(500).json({ error: "فشل في جلب الاشتراكات" });
-    }
-  });
-
-  app.get("/api/admin/stores", authMiddleware, roleMiddleware("system_admin", "qirox_pm"), async (_req, res) => {
-    try {
-      const stores = await Store.find()
-        .populate("userId", "name email")
-        .sort({ createdAt: -1 });
-      res.json({ stores });
-    } catch (error) {
-      res.status(500).json({ error: "فشل في جلب المتاجر" });
-    }
-  });
-
-  app.patch("/api/admin/stores/:id/status", authMiddleware, roleMiddleware("system_admin", "qirox_pm"), async (req, res) => {
-    try {
-      const { status } = req.body;
-      const store = await Store.findByIdAndUpdate(
-        req.params.id,
-        { status },
-        { new: true }
-      );
-      
-      if (!store) {
-        res.status(404).json({ error: "المتجر غير موجود" });
-        return;
+      const { idea } = req.body;
+      if (!idea) {
+        return res.status(400).json({ error: "Idea is required" });
       }
       
-      res.json({ success: true, store });
+      const project = await storage.updateProjectIdea(req.params.id, idea);
+      if (!project) {
+        return res.status(404).json({ error: "Project not found" });
+      }
+      res.json(project);
     } catch (error) {
-      res.status(500).json({ error: "فشل في تحديث حالة المتجر" });
+      res.status(500).json({ error: "Failed to update project idea" });
     }
   });
 
-  app.patch("/api/admin/subscriptions/:id/confirm", authMiddleware, roleMiddleware("system_admin", "qirox_finance"), async (req: AuthRequest, res) => {
+  // Discount codes routes
+  app.post("/api/discount-codes/validate", async (req, res) => {
     try {
-      const { notes } = req.body;
-      const subscription = await Subscription.findById(req.params.id);
-      
-      if (!subscription) {
-        res.status(404).json({ error: "الاشتراك غير موجود" });
-        return;
+      const { code } = req.body;
+      if (!code) {
+        return res.status(400).json({ error: "Discount code is required" });
       }
       
-      if (subscription.status === "active") {
-        res.status(400).json({ error: "الاشتراك مفعل بالفعل" });
-        return;
+      const discountCode = await storage.validateDiscountCode(code);
+      if (!discountCode) {
+        return res.status(404).json({ error: "Invalid or expired discount code" });
+      }
+      res.json(discountCode);
+    } catch (error) {
+      res.status(500).json({ error: "Failed to validate discount code" });
+    }
+  });
+
+  // Lessons routes
+  app.get("/api/courses/:courseId/lessons", async (req, res) => {
+    try {
+      const lessons = await storage.getCourseLessons(req.params.courseId);
+      res.json(lessons);
+    } catch (error) {
+      res.status(500).json({ error: "Failed to fetch lessons" });
+    }
+  });
+
+  app.get("/api/lessons/:id", async (req, res) => {
+    try {
+      const lesson = await storage.getLesson(req.params.id);
+      if (!lesson) {
+        return res.status(404).json({ error: "Lesson not found" });
+      }
+      res.json(lesson);
+    } catch (error) {
+      res.status(500).json({ error: "Failed to fetch lesson" });
+    }
+  });
+
+  // Lesson progress routes
+  app.post("/api/lesson-progress", async (req, res) => {
+    try {
+      const { enrollmentId, lessonId, isCompleted } = req.body;
+      const progress = await storage.updateLessonProgress(enrollmentId, lessonId, isCompleted);
+      res.status(201).json(progress);
+    } catch (error) {
+      res.status(500).json({ error: "Failed to update lesson progress" });
+    }
+  });
+
+  app.get("/api/enrollments/:enrollmentId/progress", async (req, res) => {
+    try {
+      const progress = await storage.getEnrollmentProgress(req.params.enrollmentId);
+      res.json(progress);
+    } catch (error) {
+      res.status(500).json({ error: "Failed to fetch enrollment progress" });
+    }
+  });
+
+  // Quizzes routes
+  app.get("/api/lessons/:lessonId/quiz", async (req, res) => {
+    try {
+      const quiz = await storage.getLessonQuiz(req.params.lessonId);
+      if (!quiz) {
+        return res.status(404).json({ error: "Quiz not found" });
+      }
+      res.json(quiz);
+    } catch (error) {
+      res.status(500).json({ error: "Failed to fetch quiz" });
+    }
+  });
+
+  app.get("/api/courses/:courseId/final-exam", async (req, res) => {
+    try {
+      const exam = await storage.getCourseFinalExam(req.params.courseId);
+      if (!exam) {
+        return res.status(404).json({ error: "Final exam not found" });
+      }
+      res.json(exam);
+    } catch (error) {
+      res.status(500).json({ error: "Failed to fetch final exam" });
+    }
+  });
+
+  // Quiz attempts routes
+  app.post("/api/quiz-attempts", async (req, res) => {
+    try {
+      const { enrollmentId, quizId, answers, score, passed } = req.body;
+      const attempt = await storage.createQuizAttempt({
+        enrollmentId,
+        quizId,
+        answers,
+        score,
+        passed
+      });
+      res.status(201).json(attempt);
+    } catch (error) {
+      res.status(500).json({ error: "Failed to create quiz attempt" });
+    }
+  });
+
+  app.get("/api/enrollments/:enrollmentId/quiz-attempts", async (req, res) => {
+    try {
+      const attempts = await storage.getEnrollmentQuizAttempts(req.params.enrollmentId);
+      res.json(attempts);
+    } catch (error) {
+      res.status(500).json({ error: "Failed to fetch quiz attempts" });
+    }
+  });
+
+  // Employee Tasks routes
+  app.post("/api/employee-tasks", async (req, res) => {
+    try {
+      const taskData = insertEmployeeTaskSchema.parse(req.body);
+      const task = await storage.createEmployeeTask(taskData);
+      res.status(201).json(task);
+    } catch (error) {
+      console.error('Error creating employee task:', error);
+      res.status(400).json({ error: "Invalid employee task data" });
+    }
+  });
+
+  app.put("/api/employee-tasks/:id", async (req, res) => {
+    try {
+      const { isCompleted, hoursRemaining } = req.body;
+      if (typeof isCompleted !== 'boolean') {
+        return res.status(400).json({ error: "isCompleted must be a boolean" });
       }
       
-      subscription.status = "active";
-      subscription.paymentConfirmedAt = new Date();
-      subscription.paymentConfirmedBy = req.user!.userId as any;
-      if (notes) subscription.paymentNotes = notes;
-      await subscription.save();
-      
-      res.json({ success: true, subscription });
-    } catch (error) {
-      console.error("Confirm payment error:", error);
-      res.status(500).json({ error: "فشل في تأكيد الدفع" });
-    }
-  });
-
-  app.get("/api/admin/stats", authMiddleware, roleMiddleware("system_admin"), async (_req, res) => {
-    try {
-      const [totalUsers, totalSubscriptions, activeSubscriptions, totalStores] = await Promise.all([
-        User.countDocuments(),
-        Subscription.countDocuments(),
-        Subscription.countDocuments({ status: { $in: ["active", "trial"] } }),
-        Store.countDocuments(),
-      ]);
-
-      const revenueResult = await Subscription.aggregate([
-        { $match: { status: { $in: ["active", "trial"] } } },
-        { $group: { _id: null, total: { $sum: "$price" } } },
-      ]);
-
-      res.json({
-        stats: {
-          totalUsers,
-          totalSubscriptions,
-          activeSubscriptions,
-          totalStores,
-          totalRevenue: revenueResult[0]?.total || 0,
-        },
-      });
-    } catch (error) {
-      res.status(500).json({ error: "فشل في جلب الإحصائيات" });
-    }
-  });
-
-  // ==================== PRODUCT ROUTES ====================
-
-  app.get("/api/stores/:storeId/products", authMiddleware, async (req: AuthRequest, res) => {
-    try {
-      const store = await Store.findOne({
-        _id: req.params.storeId,
-        userId: req.user!.userId,
-      });
-
-      if (!store) {
-        res.status(404).json({ error: "المتجر غير موجود" });
-        return;
+      const task = await storage.updateEmployeeTask(req.params.id, isCompleted, hoursRemaining);
+      if (!task) {
+        return res.status(404).json({ error: "Employee task not found" });
       }
-
-      const products = await Product.find({ storeId: store._id }).sort({ createdAt: -1 });
-      res.json({ products });
-    } catch (error) {
-      res.status(500).json({ error: "فشل في جلب المنتجات" });
-    }
-  });
-
-  app.post("/api/stores/:storeId/products", authMiddleware, async (req: AuthRequest, res) => {
-    try {
-      const store = await Store.findOne({
-        _id: req.params.storeId,
-        userId: req.user!.userId,
-      });
-
-      if (!store) {
-        res.status(404).json({ error: "المتجر غير موجود" });
-        return;
-      }
-
-      const data = productSchema.parse(req.body);
-      
-      const product = await Product.create({
-        storeId: store._id,
-        ...data,
-      });
-
-      res.status(201).json({ success: true, product });
-    } catch (error) {
-      if (error instanceof ZodError) {
-        const validationError = fromZodError(error);
-        res.status(400).json({ error: validationError.message });
-      } else {
-        console.error("Product creation error:", error);
-        res.status(500).json({ error: "فشل في إنشاء المنتج" });
-      }
-    }
-  });
-
-  app.get("/api/stores/:storeId/products/:productId", authMiddleware, async (req: AuthRequest, res) => {
-    try {
-      const store = await Store.findOne({
-        _id: req.params.storeId,
-        userId: req.user!.userId,
-      });
-
-      if (!store) {
-        res.status(404).json({ error: "المتجر غير موجود" });
-        return;
-      }
-
-      const product = await Product.findOne({
-        _id: req.params.productId,
-        storeId: store._id,
-      });
-
-      if (!product) {
-        res.status(404).json({ error: "المنتج غير موجود" });
-        return;
-      }
-
-      res.json({ product });
-    } catch (error) {
-      res.status(500).json({ error: "فشل في جلب المنتج" });
-    }
-  });
-
-  app.patch("/api/stores/:storeId/products/:productId", authMiddleware, async (req: AuthRequest, res) => {
-    try {
-      const store = await Store.findOne({
-        _id: req.params.storeId,
-        userId: req.user!.userId,
-      });
-
-      if (!store) {
-        res.status(404).json({ error: "المتجر غير موجود" });
-        return;
-      }
-
-      const data = productSchema.partial().parse(req.body);
-      
-      const product = await Product.findOneAndUpdate(
-        { _id: req.params.productId, storeId: store._id },
-        data,
-        { new: true }
-      );
-
-      if (!product) {
-        res.status(404).json({ error: "المنتج غير موجود" });
-        return;
-      }
-
-      res.json({ success: true, product });
-    } catch (error) {
-      if (error instanceof ZodError) {
-        const validationError = fromZodError(error);
-        res.status(400).json({ error: validationError.message });
-      } else {
-        res.status(500).json({ error: "فشل في تحديث المنتج" });
-      }
-    }
-  });
-
-  app.delete("/api/stores/:storeId/products/:productId", authMiddleware, async (req: AuthRequest, res) => {
-    try {
-      const store = await Store.findOne({
-        _id: req.params.storeId,
-        userId: req.user!.userId,
-      });
-
-      if (!store) {
-        res.status(404).json({ error: "المتجر غير موجود" });
-        return;
-      }
-
-      const product = await Product.findOneAndDelete({
-        _id: req.params.productId,
-        storeId: store._id,
-      });
-
-      if (!product) {
-        res.status(404).json({ error: "المنتج غير موجود" });
-        return;
-      }
-
-      res.json({ success: true });
-    } catch (error) {
-      res.status(500).json({ error: "فشل في حذف المنتج" });
-    }
-  });
-
-  // ==================== CATEGORY ROUTES ====================
-
-  app.get("/api/stores/:storeId/categories", authMiddleware, async (req: AuthRequest, res) => {
-    try {
-      const store = await Store.findOne({
-        _id: req.params.storeId,
-        userId: req.user!.userId,
-      });
-
-      if (!store) {
-        res.status(404).json({ error: "المتجر غير موجود" });
-        return;
-      }
-
-      const categories = await Category.find({ storeId: store._id }).sort({ order: 1 });
-      res.json({ categories });
-    } catch (error) {
-      res.status(500).json({ error: "فشل في جلب الفئات" });
-    }
-  });
-
-  app.post("/api/stores/:storeId/categories", authMiddleware, async (req: AuthRequest, res) => {
-    try {
-      const store = await Store.findOne({
-        _id: req.params.storeId,
-        userId: req.user!.userId,
-      });
-
-      if (!store) {
-        res.status(404).json({ error: "المتجر غير موجود" });
-        return;
-      }
-
-      const data = categorySchema.parse(req.body);
-      
-      const category = await Category.create({
-        storeId: store._id,
-        ...data,
-      });
-
-      res.status(201).json({ success: true, category });
-    } catch (error) {
-      if (error instanceof ZodError) {
-        const validationError = fromZodError(error);
-        res.status(400).json({ error: validationError.message });
-      } else {
-        res.status(500).json({ error: "فشل في إنشاء الفئة" });
-      }
-    }
-  });
-
-  app.patch("/api/stores/:storeId/categories/:categoryId", authMiddleware, async (req: AuthRequest, res) => {
-    try {
-      const store = await Store.findOne({
-        _id: req.params.storeId,
-        userId: req.user!.userId,
-      });
-
-      if (!store) {
-        res.status(404).json({ error: "المتجر غير موجود" });
-        return;
-      }
-
-      const data = categorySchema.partial().parse(req.body);
-      
-      const category = await Category.findOneAndUpdate(
-        { _id: req.params.categoryId, storeId: store._id },
-        data,
-        { new: true }
-      );
-
-      if (!category) {
-        res.status(404).json({ error: "الفئة غير موجودة" });
-        return;
-      }
-
-      res.json({ success: true, category });
-    } catch (error) {
-      if (error instanceof ZodError) {
-        const validationError = fromZodError(error);
-        res.status(400).json({ error: validationError.message });
-      } else {
-        res.status(500).json({ error: "فشل في تحديث الفئة" });
-      }
-    }
-  });
-
-  app.delete("/api/stores/:storeId/categories/:categoryId", authMiddleware, async (req: AuthRequest, res) => {
-    try {
-      const store = await Store.findOne({
-        _id: req.params.storeId,
-        userId: req.user!.userId,
-      });
-
-      if (!store) {
-        res.status(404).json({ error: "المتجر غير موجود" });
-        return;
-      }
-
-      const category = await Category.findOneAndDelete({
-        _id: req.params.categoryId,
-        storeId: store._id,
-      });
-
-      if (!category) {
-        res.status(404).json({ error: "الفئة غير موجودة" });
-        return;
-      }
-
-      res.json({ success: true });
-    } catch (error) {
-      res.status(500).json({ error: "فشل في حذف الفئة" });
-    }
-  });
-
-  // ==================== ORDER ROUTES ====================
-
-  app.get("/api/stores/:storeId/orders", authMiddleware, async (req: AuthRequest, res) => {
-    try {
-      const store = await Store.findOne({
-        _id: req.params.storeId,
-        userId: req.user!.userId,
-      });
-
-      if (!store) {
-        res.status(404).json({ error: "المتجر غير موجود" });
-        return;
-      }
-
-      const orders = await Order.find({ storeId: store._id }).sort({ createdAt: -1 });
-      res.json({ orders });
-    } catch (error) {
-      res.status(500).json({ error: "فشل في جلب الطلبات" });
-    }
-  });
-
-  app.get("/api/stores/:storeId/orders/:orderId", authMiddleware, async (req: AuthRequest, res) => {
-    try {
-      const store = await Store.findOne({
-        _id: req.params.storeId,
-        userId: req.user!.userId,
-      });
-
-      if (!store) {
-        res.status(404).json({ error: "المتجر غير موجود" });
-        return;
-      }
-
-      const order = await Order.findOne({
-        _id: req.params.orderId,
-        storeId: store._id,
-      });
-
-      if (!order) {
-        res.status(404).json({ error: "الطلب غير موجود" });
-        return;
-      }
-
-      res.json({ order });
-    } catch (error) {
-      res.status(500).json({ error: "فشل في جلب الطلب" });
-    }
-  });
-
-  app.patch("/api/stores/:storeId/orders/:orderId/status", authMiddleware, async (req: AuthRequest, res) => {
-    try {
-      const store = await Store.findOne({
-        _id: req.params.storeId,
-        userId: req.user!.userId,
-      });
-
-      if (!store) {
-        res.status(404).json({ error: "المتجر غير موجود" });
-        return;
-      }
-
-      const data = orderStatusSchema.parse(req.body);
-      
-      const order = await Order.findOneAndUpdate(
-        { _id: req.params.orderId, storeId: store._id },
-        { status: data.status },
-        { new: true }
-      );
-
-      if (!order) {
-        res.status(404).json({ error: "الطلب غير موجود" });
-        return;
-      }
-
-      res.json({ success: true, order });
-    } catch (error) {
-      if (error instanceof ZodError) {
-        const validationError = fromZodError(error);
-        res.status(400).json({ error: validationError.message });
-      } else {
-        res.status(500).json({ error: "فشل في تحديث حالة الطلب" });
-      }
-    }
-  });
-
-  app.patch("/api/stores/:storeId/orders/:orderId/payment", authMiddleware, async (req: AuthRequest, res) => {
-    try {
-      const store = await Store.findOne({
-        _id: req.params.storeId,
-        userId: req.user!.userId,
-      });
-
-      if (!store) {
-        res.status(404).json({ error: "المتجر غير موجود" });
-        return;
-      }
-
-      const data = paymentStatusSchema.parse(req.body);
-      
-      const order = await Order.findOneAndUpdate(
-        { _id: req.params.orderId, storeId: store._id },
-        { paymentStatus: data.paymentStatus },
-        { new: true }
-      );
-
-      if (!order) {
-        res.status(404).json({ error: "الطلب غير موجود" });
-        return;
-      }
-
-      res.json({ success: true, order });
-    } catch (error) {
-      if (error instanceof ZodError) {
-        const validationError = fromZodError(error);
-        res.status(400).json({ error: validationError.message });
-      } else {
-        res.status(500).json({ error: "فشل في تحديث حالة الدفع" });
-      }
-    }
-  });
-
-  // ==================== STORE STATS ====================
-
-  app.get("/api/stores/:storeId/stats", authMiddleware, async (req: AuthRequest, res) => {
-    try {
-      const store = await Store.findOne({
-        _id: req.params.storeId,
-        userId: req.user!.userId,
-      });
-
-      if (!store) {
-        res.status(404).json({ error: "المتجر غير موجود" });
-        return;
-      }
-
-      const [totalProducts, totalCategories, totalOrders, pendingOrders] = await Promise.all([
-        Product.countDocuments({ storeId: store._id }),
-        Category.countDocuments({ storeId: store._id }),
-        Order.countDocuments({ storeId: store._id }),
-        Order.countDocuments({ storeId: store._id, status: "pending" }),
-      ]);
-
-      const revenueResult = await Order.aggregate([
-        { $match: { storeId: store._id, paymentStatus: "paid" } },
-        { $group: { _id: null, total: { $sum: "$total" } } },
-      ]);
-
-      res.json({
-        stats: {
-          totalProducts,
-          totalCategories,
-          totalOrders,
-          pendingOrders,
-          totalRevenue: revenueResult[0]?.total || 0,
-        },
-      });
-    } catch (error) {
-      res.status(500).json({ error: "فشل في جلب الإحصائيات" });
-    }
-  });
-
-  // ==================== CONTACT ROUTES ====================
-
-  app.post("/api/contact", async (req, res) => {
-    const clientIp = req.ip || req.socket.remoteAddress || "unknown";
-    
-    if (!checkRateLimit(clientIp)) {
-      res.status(429).json({ error: "طلبات كثيرة جداً. يرجى المحاولة لاحقاً." });
-      return;
-    }
-    
-    try {
-      const validatedData = insertContactMessageSchema.parse(req.body);
-      const message = await storage.createContactMessage(validatedData);
-      res.status(201).json({ success: true, id: message.id });
-    } catch (error) {
-      if (error instanceof ZodError) {
-        const validationError = fromZodError(error);
-        res.status(400).json({ error: validationError.message });
-      } else {
-        console.error("Error creating contact message:", error);
-        res.status(500).json({ error: "فشل في إرسال الرسالة" });
-      }
-    }
-  });
-
-  app.get("/api/contact", authMiddleware, roleMiddleware("system_admin", "qirox_pm"), async (_req, res) => {
-    try {
-      const messages = await storage.getContactMessages();
-      res.json(messages);
-    } catch (error) {
-      console.error("Error fetching contact messages:", error);
-      res.status(500).json({ error: "فشل في جلب الرسائل" });
-    }
-  });
-
-  app.get("/api/finance/invoices", authMiddleware, async (_req, res) => {
-    const invoices = await storage.getInvoices();
-    res.json(invoices);
-  });
-
-  app.get("/api/finance/quotes", authMiddleware, async (_req, res) => {
-    const quotes = await storage.getQuotes();
-    res.json(quotes);
-  });
-
-  app.post("/api/finance/whatsapp-payment", authMiddleware, async (req, res) => {
-    const { orderId, amount } = req.body;
-    // Manual WhatsApp Payment flow: Instruct user to send screenshot via WhatsApp
-    const message = `طلب جديد: ${orderId}\nالمبلغ: ${amount} ريال\nيرجى إرسال صورة التحويل هنا.`;
-    const whatsappLink = `https://wa.me/966532441566?text=${encodeURIComponent(message)}`;
-    res.json({ whatsappLink });
-  });
-
-  // ==================== ADMIN API ROUTES (MongoDB) ====================
-
-  app.get("/api/admin/users", authMiddleware, roleMiddleware("system_admin"), async (_req, res) => {
-    try {
-      const users = await User.find().sort({ createdAt: -1 }).limit(50);
-      res.json(users);
-    } catch (error) {
-      res.status(500).json({ error: "فشل في جلب المستخدمين" });
-    }
-  });
-
-  app.post("/api/admin/users", authMiddleware, roleMiddleware("system_admin"), async (req, res) => {
-    try {
-      const { name, email, role } = req.body;
-      const user = new User({ name, email, role, password: "default123" });
-      await user.save();
-      res.status(201).json(user);
-    } catch (error) {
-      res.status(500).json({ error: "فشل في إنشاء مستخدم" });
-    }
-  });
-
-  app.get("/api/admin/products", authMiddleware, roleMiddleware("system_admin"), async (_req, res) => {
-    try {
-      const products = await Product.find().sort({ createdAt: -1 }).limit(50);
-      res.json(products);
-    } catch (error) {
-      res.status(500).json({ error: "فشل في جلب المنتجات" });
-    }
-  });
-
-  app.post("/api/admin/products", authMiddleware, roleMiddleware("system_admin"), async (req, res) => {
-    try {
-      const { name, category, price, stock, status } = req.body;
-      const storeId = (req as any).user?.storeId || new mongoose.Types.ObjectId();
-      const product = new Product({
-        name,
-        category,
-        price,
-        quantity: stock || 0,
-        status: status || "active",
-        storeId,
-        images: [],
-      });
-      await product.save();
-      res.status(201).json(product);
-    } catch (error) {
-      res.status(500).json({ error: "فشل في إنشاء منتج" });
-    }
-  });
-
-  app.get("/api/admin/orders", authMiddleware, roleMiddleware("system_admin"), async (_req, res) => {
-    try {
-      const orders = await Order.find().sort({ createdAt: -1 }).limit(50);
-      res.json(orders);
-    } catch (error) {
-      res.status(500).json({ error: "فشل في جلب الطلبات" });
-    }
-  });
-
-  app.post("/api/admin/orders", authMiddleware, roleMiddleware("system_admin"), async (req, res) => {
-    try {
-      const { order_number, customer_name, total, status } = req.body;
-      const storeId = (req as any).user?.storeId || new mongoose.Types.ObjectId();
-      const order = new Order({
-        orderNumber: order_number,
-        customerName: customer_name,
-        customerPhone: "",
-        total,
-        subtotal: total,
-        items: [],
-        status: status || "pending",
-        paymentStatus: "pending",
-        storeId,
-      });
-      await order.save();
-      res.status(201).json(order);
-    } catch (error) {
-      res.status(500).json({ error: "فشل في إنشاء طلب" });
-    }
-  });
-
-  app.get("/api/admin/subscriptions", authMiddleware, roleMiddleware("system_admin"), async (_req, res) => {
-    try {
-      const subscriptions = await Subscription.find().sort({ createdAt: -1 }).limit(50);
-      res.json(subscriptions);
-    } catch (error) {
-      res.status(500).json({ error: "فشل في جلب الاشتراكات" });
-    }
-  });
-
-  app.post("/api/admin/subscriptions", authMiddleware, roleMiddleware("system_admin"), async (req, res) => {
-    try {
-      const { subscription_number, plan, billing_cycle, price, status } = req.body;
-      const userId = (req as any).user?._id;
-      const subscription = new Subscription({
-        userId,
-        planType: plan || "stores",
-        billingCycle: billing_cycle || "monthly",
-        price,
-        status: status || "active",
-        startDate: new Date(),
-        endDate: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000),
-      });
-      await subscription.save();
-      res.status(201).json(subscription);
-    } catch (error) {
-      res.status(500).json({ error: "فشل في إنشاء اشتراك" });
-    }
-  });
-
-  app.get("/api/admin/stores", authMiddleware, roleMiddleware("system_admin"), async (_req, res) => {
-    try {
-      const stores = await Store.find().sort({ createdAt: -1 }).limit(50);
-      res.json(stores);
-    } catch (error) {
-      res.status(500).json({ error: "فشل في جلب المتاجر" });
-    }
-  });
-
-  app.post("/api/admin/stores", authMiddleware, roleMiddleware("system_admin"), async (req, res) => {
-    try {
-      const { name, owner, status } = req.body;
-      const store = new Store({
-        name,
-        owner,
-        status: status || "active",
-      });
-      await store.save();
-      res.status(201).json(store);
-    } catch (error) {
-      res.status(500).json({ error: "فشل في إنشاء متجر" });
-    }
-  });
-
-  // ==================== KANBAN BOARD / TASKS ROUTES ====================
-
-  app.get("/api/projects/:projectId/tasks", authMiddleware, async (req, res) => {
-    try {
-      const { projectId } = req.params;
-      const tasks = await Task.find({ projectId }).populate("assignedTo", "name email");
-      res.json(tasks);
-    } catch (error) {
-      res.status(500).json({ error: "فشل في جلب المهام" });
-    }
-  });
-
-  app.post("/api/projects/:projectId/tasks", authMiddleware, async (req, res) => {
-    try {
-      const { projectId } = req.params;
-      const { title, description, status, assignedTo, dueDate } = req.body;
-      const task = new Task({
-        projectId,
-        title,
-        description,
-        status: status || "todo",
-        assignedTo,
-        dueDate,
-      });
-      await task.save();
-      const populated = await task.populate("assignedTo", "name email");
-      res.status(201).json(populated);
-    } catch (error) {
-      res.status(500).json({ error: "فشل في إنشاء المهمة" });
-    }
-  });
-
-  app.patch("/api/projects/:projectId/tasks/:taskId", authMiddleware, async (req, res) => {
-    try {
-      const { taskId } = req.params;
-      const { title, description, status, assignedTo, dueDate } = req.body;
-      const task = await Task.findByIdAndUpdate(
-        taskId,
-        { title, description, status, assignedTo, dueDate },
-        { new: true }
-      ).populate("assignedTo", "name email");
       res.json(task);
     } catch (error) {
-      res.status(500).json({ error: "فشل في تحديث المهمة" });
+      res.status(500).json({ error: "Failed to update employee task" });
     }
   });
 
-  app.delete("/api/projects/:projectId/tasks/:taskId", authMiddleware, async (req, res) => {
+  // Authentication Routes
+  app.get("/api/auth/me", (req, res) => {
+    if (req.isAuthenticated()) {
+      res.json({ user: req.user });
+    } else {
+      res.status(401).json({ error: "Not authenticated" });
+    }
+  });
+
+  app.post("/api/auth/logout", (req, res) => {
+    req.logout((err) => {
+      if (err) {
+        return res.status(500).json({ error: "Logout failed" });
+      }
+      res.json({ success: true });
+    });
+  });
+
+  // Student login
+  app.post("/api/auth/student/login", (req, res, next) => {
+    passport.authenticate('student', (err: any, user: any, info: any) => {
+      if (err) {
+        return res.status(500).json({ error: "خطأ في تسجيل الدخول" });
+      }
+      if (!user) {
+        return res.status(401).json({ error: info?.message || "بيانات الدخول غير صحيحة" });
+      }
+      req.logIn(user, (err) => {
+        if (err) {
+          return res.status(500).json({ error: "خطأ في إنشاء الجلسة" });
+        }
+        return res.json({ success: true, user });
+      });
+    })(req, res, next);
+  });
+
+  // Client login
+  app.post("/api/auth/client/login", (req, res, next) => {
+    passport.authenticate('client', (err: any, user: any, info: any) => {
+      if (err) {
+        return res.status(500).json({ error: "خطأ في تسجيل الدخول" });
+      }
+      if (!user) {
+        return res.status(401).json({ error: info?.message || "بيانات الدخول غير صحيحة" });
+      }
+      req.logIn(user, (err) => {
+        if (err) {
+          return res.status(500).json({ error: "خطأ في إنشاء الجلسة" });
+        }
+        return res.json({ success: true, user });
+      });
+    })(req, res, next);
+  });
+
+  // Employee login
+  app.post("/api/auth/employee/login", (req, res, next) => {
+    passport.authenticate('employee', (err: any, user: any, info: any) => {
+      if (err) {
+        return res.status(500).json({ error: "خطأ في تسجيل الدخول" });
+      }
+      if (!user) {
+        return res.status(401).json({ error: info?.message || "بيانات الدخول غير صحيحة" });
+      }
+      req.logIn(user, (err) => {
+        if (err) {
+          return res.status(500).json({ error: "خطأ في إنشاء الجلسة" });
+        }
+        return res.json({ success: true, user });
+      });
+    })(req, res, next);
+  });
+
+  // Reviews Routes
+  app.get("/api/reviews/:targetType/:targetId", async (req, res) => {
     try {
-      const { taskId } = req.params;
-      await Task.findByIdAndDelete(taskId);
+      const { targetType, targetId } = req.params;
+      const reviews = await storage.getReviews(targetId, targetType);
+      res.json(reviews);
+    } catch (error) {
+      res.status(500).json({ error: "Failed to fetch reviews" });
+    }
+  });
+
+  app.post("/api/reviews", async (req, res) => {
+    try {
+      const reviewData = insertReviewSchema.parse(req.body);
+      const review = await storage.createReview(reviewData);
+      res.status(201).json(review);
+    } catch (error) {
+      console.error('Error creating review:', error);
+      res.status(400).json({ error: "Invalid review data" });
+    }
+  });
+
+  // Approve review (SUPPORT_SPECIALIST و SYSTEM_ADMIN فقط)
+  app.put("/api/reviews/:id/approve", requireRole(["SUPPORT_SPECIALIST", "SYSTEM_ADMIN"]), async (req, res) => {
+    try {
+      const review = await storage.approveReview(req.params.id);
+      if (!review) {
+        return res.status(404).json({ error: "Review not found" });
+      }
+      res.json(review);
+    } catch (error) {
+      res.status(500).json({ error: "Failed to approve review" });
+    }
+  });
+
+  app.get("/api/reviews/:targetType/:targetId/average", async (req, res) => {
+    try {
+      const { targetType, targetId } = req.params;
+      const average = await storage.getAverageRating(targetId, targetType);
+      res.json({ average });
+    } catch (error) {
+      res.status(500).json({ error: "Failed to get average rating" });
+    }
+  });
+
+  // Notifications Routes
+  app.get("/api/notifications/:userType/:userId", async (req, res) => {
+    try {
+      const { userType, userId } = req.params;
+      const notifications = await storage.getUserNotifications(userId, userType);
+      res.json(notifications);
+    } catch (error) {
+      res.status(500).json({ error: "Failed to fetch notifications" });
+    }
+  });
+
+  app.post("/api/notifications", async (req, res) => {
+    try {
+      const notificationData = insertNotificationSchema.parse(req.body);
+      const notification = await storage.createNotification(notificationData);
+      broadcastNotification(notificationData.userId, notificationData.userType, notification);
+      res.status(201).json(notification);
+    } catch (error) {
+      console.error('Error creating notification:', error);
+      res.status(400).json({ error: "Invalid notification data" });
+    }
+  });
+
+  app.put("/api/notifications/:id/read", async (req, res) => {
+    try {
+      const notification = await storage.markNotificationAsRead(req.params.id);
+      if (!notification) {
+        return res.status(404).json({ error: "Notification not found" });
+      }
+      res.json(notification);
+    } catch (error) {
+      res.status(500).json({ error: "Failed to mark notification as read" });
+    }
+  });
+
+  app.put("/api/notifications/:userType/:userId/read-all", async (req, res) => {
+    try {
+      const { userType, userId } = req.params;
+      await storage.markAllNotificationsAsRead(userId, userType);
       res.json({ success: true });
     } catch (error) {
-      res.status(500).json({ error: "فشل في حذف المهمة" });
+      res.status(500).json({ error: "Failed to mark all notifications as read" });
     }
+  });
+
+  app.get("/api/notifications/:userType/:userId/unread-count", async (req, res) => {
+    try {
+      const { userType, userId } = req.params;
+      const count = await storage.getUnreadNotificationCount(userId, userType);
+      res.json({ count });
+    } catch (error) {
+      res.status(500).json({ error: "Failed to get unread count" });
+    }
+  });
+
+  // Dashboard Stats Route
+  app.get("/api/dashboard/stats", async (req, res) => {
+    try {
+      const stats = await storage.getDashboardStats();
+      res.json(stats);
+    } catch (error) {
+      res.status(500).json({ error: "Failed to fetch dashboard stats" });
+    }
+  });
+
+  // ==================== Chat System Routes ====================
+  
+  // Create or get conversation for a project
+  app.post("/api/chat/conversations", async (req, res) => {
+    try {
+      const { projectId, clientId, employeeId, type } = req.body;
+      
+      // Validation: At least one participant required
+      if (!clientId && !employeeId) {
+        return res.status(400).json({ error: "At least one participant is required" });
+      }
+      
+      // Verify client exists if provided
+      if (clientId) {
+        const client = await storage.getClient(clientId);
+        if (!client) {
+          return res.status(400).json({ error: "Client not found" });
+        }
+      }
+      
+      // Verify project exists if provided
+      if (projectId) {
+        const project = await storage.getProject(projectId);
+        if (!project) {
+          return res.status(400).json({ error: "Project not found" });
+        }
+        
+        // Check if conversation already exists for this project
+        const existing = await storage.getProjectConversation(projectId);
+        if (existing) {
+          return res.json(existing);
+        }
+        
+        // Verify client is project owner
+        if (clientId && project.clientId !== clientId) {
+          return res.status(403).json({ error: "Client is not the project owner" });
+        }
+      }
+      
+      const conversation = await storage.createChatConversation({
+        projectId,
+        clientId,
+        employeeId,
+        type: type || 'project',
+        status: 'active'
+      });
+      res.status(201).json(conversation);
+    } catch (error) {
+      console.error('Error creating conversation:', error);
+      res.status(500).json({ error: "Failed to create conversation" });
+    }
+  });
+
+  // Get client's conversations
+  app.get("/api/chat/conversations/client/:clientId", async (req, res) => {
+    try {
+      const conversations = await storage.getClientConversations(req.params.clientId);
+      res.json(conversations);
+    } catch (error) {
+      res.status(500).json({ error: "Failed to fetch conversations" });
+    }
+  });
+
+  // Get employee's conversations
+  app.get("/api/chat/conversations/employee/:employeeId", async (req, res) => {
+    try {
+      const conversations = await storage.getEmployeeConversations(req.params.employeeId);
+      res.json(conversations);
+    } catch (error) {
+      res.status(500).json({ error: "Failed to fetch conversations" });
+    }
+  });
+
+  // Get admin's conversations (all active conversations)
+  app.get("/api/chat/conversations/admin/:adminId", async (req, res) => {
+    try {
+      const conversations = await storage.getAllConversations();
+      res.json(conversations);
+    } catch (error) {
+      res.status(500).json({ error: "Failed to fetch conversations" });
+    }
+  });
+
+  // Get messages for a conversation
+  app.get("/api/chat/conversations/:id/messages", async (req, res) => {
+    try {
+      const messages = await storage.getChatMessages(req.params.id);
+      res.json(messages);
+    } catch (error) {
+      res.status(500).json({ error: "Failed to fetch messages" });
+    }
+  });
+
+  // Send a message
+  app.post("/api/chat/messages", async (req, res) => {
+    try {
+      const { conversationId, senderId, senderType, senderName, content, messageType, fileUrl, fileName } = req.body;
+      
+      // Validation
+      if (!conversationId || !senderId || !senderType || !content) {
+        return res.status(400).json({ error: "Missing required fields" });
+      }
+      
+      if (!['client', 'employee', 'admin'].includes(senderType)) {
+        return res.status(400).json({ error: "Invalid sender type" });
+      }
+      
+      // Verify conversation exists
+      const conversation = await storage.getChatConversation(conversationId);
+      if (!conversation) {
+        return res.status(404).json({ error: "Conversation not found" });
+      }
+      
+      // Verify sender is participant in conversation
+      const isParticipant = 
+        (senderType === 'client' && conversation.clientId === senderId) ||
+        (senderType === 'employee' && conversation.employeeId === senderId) ||
+        senderType === 'admin';
+      
+      if (!isParticipant) {
+        return res.status(403).json({ error: "You are not a participant in this conversation" });
+      }
+      
+      const message = await storage.createChatMessage({
+        conversationId,
+        senderId,
+        senderType,
+        senderName: senderName || 'مستخدم',
+        content,
+        messageType: messageType || 'text',
+        fileUrl,
+        fileName
+      });
+
+      // Broadcast message via WebSocket
+      const recipientId = senderType === 'client' ? conversation.employeeId : conversation.clientId;
+      const recipientType = senderType === 'client' ? 'employee' : 'client';
+      if (recipientId) {
+        broadcastNotification(recipientId, recipientType, {
+          type: 'chat_message',
+          conversationId,
+          message
+        });
+      }
+
+      res.status(201).json(message);
+    } catch (error) {
+      console.error('Error sending message:', error);
+      res.status(500).json({ error: "Failed to send message" });
+    }
+  });
+
+  // Mark messages as read
+  app.put("/api/chat/conversations/:id/read", async (req, res) => {
+    try {
+      const { recipientId } = req.body;
+      await storage.markMessagesAsRead(req.params.id, recipientId);
+      res.json({ success: true });
+    } catch (error) {
+      res.status(500).json({ error: "Failed to mark messages as read" });
+    }
+  });
+
+  // Get unread messages count
+  app.get("/api/chat/unread/:userType/:userId", async (req, res) => {
+    try {
+      const { userType, userId } = req.params;
+      const count = await storage.getUnreadMessagesCount(userId, userType);
+      res.json({ count });
+    } catch (error) {
+      res.status(500).json({ error: "Failed to get unread count" });
+    }
+  });
+
+  // ==================== Modification Requests Routes ====================
+
+  // Create modification request
+  app.post("/api/modification-requests", async (req, res) => {
+    try {
+      const { projectId, clientId, title, description, priority, attachments } = req.body;
+      
+      // Validation
+      if (!projectId || !clientId || !title || !description) {
+        return res.status(400).json({ error: "Missing required fields" });
+      }
+      
+      // Verify project exists
+      const project = await storage.getProject(projectId);
+      if (!project) {
+        return res.status(404).json({ error: "Project not found" });
+      }
+      
+      // Verify client is project owner
+      if (project.clientId !== clientId) {
+        return res.status(403).json({ error: "You are not authorized to submit modification requests for this project" });
+      }
+      
+      // Validate priority if provided
+      if (priority && !['low', 'medium', 'high', 'urgent'].includes(priority)) {
+        return res.status(400).json({ error: "Invalid priority" });
+      }
+      
+      const request = await storage.createModificationRequest({
+        projectId,
+        clientId,
+        title,
+        description,
+        priority: priority || 'medium',
+        attachments
+      });
+      
+      // Create notification for assigned employee/admin
+      await storage.createNotification({
+        userId: 'admin',
+        userType: 'employee',
+        title: 'طلب تعديل جديد',
+        message: `تم استلام طلب تعديل جديد: ${title}`,
+        type: 'project',
+        link: `/employee-dashboard?tab=requests`
+      });
+      
+      res.status(201).json(request);
+    } catch (error) {
+      console.error('Error creating modification request:', error);
+      res.status(500).json({ error: "Failed to create modification request" });
+    }
+  });
+
+  // Get modification requests for a project
+  app.get("/api/modification-requests/project/:projectId", async (req, res) => {
+    try {
+      const requests = await storage.getProjectModificationRequests(req.params.projectId);
+      res.json(requests);
+    } catch (error) {
+      res.status(500).json({ error: "Failed to fetch modification requests" });
+    }
+  });
+
+  // Get modification requests for a client
+  app.get("/api/modification-requests/client/:clientId", async (req, res) => {
+    try {
+      const requests = await storage.getClientModificationRequests(req.params.clientId);
+      res.json(requests);
+    } catch (error) {
+      res.status(500).json({ error: "Failed to fetch modification requests" });
+    }
+  });
+
+  // Get all modification requests (for employees/admin)
+  app.get("/api/modification-requests", async (req, res) => {
+    try {
+      const requests = await storage.getAllModificationRequests();
+      res.json(requests);
+    } catch (error) {
+      res.status(500).json({ error: "Failed to fetch modification requests" });
+    }
+  });
+
+  // Update modification request status
+  app.put("/api/modification-requests/:id/status", async (req, res) => {
+    try {
+      const { status, assignedTo } = req.body;
+      const request = await storage.updateModificationRequestStatus(req.params.id, status, assignedTo);
+      res.json(request);
+    } catch (error) {
+      res.status(500).json({ error: "Failed to update modification request" });
+    }
+  });
+
+  // ==================== Feature Requests Routes ====================
+
+  // Create feature request
+  app.post("/api/feature-requests", async (req, res) => {
+    try {
+      const { projectId, clientId, title, description, category, priority } = req.body;
+      
+      // Validation
+      if (!projectId || !clientId || !title || !description) {
+        return res.status(400).json({ error: "Missing required fields" });
+      }
+      
+      // Verify project exists
+      const project = await storage.getProject(projectId);
+      if (!project) {
+        return res.status(404).json({ error: "Project not found" });
+      }
+      
+      // Verify client is project owner
+      if (project.clientId !== clientId) {
+        return res.status(403).json({ error: "You are not authorized to submit feature requests for this project" });
+      }
+      
+      // Validate priority if provided
+      if (priority && !['low', 'medium', 'high'].includes(priority)) {
+        return res.status(400).json({ error: "Invalid priority" });
+      }
+      
+      const request = await storage.createFeatureRequest({
+        projectId,
+        clientId,
+        title,
+        description,
+        category: category || 'general',
+        priority: priority || 'medium'
+      });
+      
+      // Create notification
+      await storage.createNotification({
+        userId: 'admin',
+        userType: 'employee',
+        title: 'طلب ميزة جديدة',
+        message: `تم استلام طلب ميزة جديدة: ${title}`,
+        type: 'project',
+        link: `/employee-dashboard?tab=features`
+      });
+      
+      res.status(201).json(request);
+    } catch (error) {
+      console.error('Error creating feature request:', error);
+      res.status(500).json({ error: "Failed to create feature request" });
+    }
+  });
+
+  // Get feature requests for a project
+  app.get("/api/feature-requests/project/:projectId", async (req, res) => {
+    try {
+      const requests = await storage.getProjectFeatureRequests(req.params.projectId);
+      res.json(requests);
+    } catch (error) {
+      res.status(500).json({ error: "Failed to fetch feature requests" });
+    }
+  });
+
+  // Get feature requests for a client
+  app.get("/api/feature-requests/client/:clientId", async (req, res) => {
+    try {
+      const requests = await storage.getClientFeatureRequests(req.params.clientId);
+      res.json(requests);
+    } catch (error) {
+      res.status(500).json({ error: "Failed to fetch feature requests" });
+    }
+  });
+
+  // Get all feature requests (for employees/admin)
+  app.get("/api/feature-requests", async (req, res) => {
+    try {
+      const requests = await storage.getAllFeatureRequests();
+      res.json(requests);
+    } catch (error) {
+      res.status(500).json({ error: "Failed to fetch feature requests" });
+    }
+  });
+
+  // Update feature request status
+  app.put("/api/feature-requests/:id/status", async (req, res) => {
+    try {
+      const { status, adminNotes, estimatedCost, estimatedDays } = req.body;
+      const request = await storage.updateFeatureRequestStatus(req.params.id, status, adminNotes, estimatedCost, estimatedDays);
+      res.json(request);
+    } catch (error) {
+      res.status(500).json({ error: "Failed to update feature request" });
+    }
+  });
+
+  // ==================== Project Files Routes ====================
+
+  // Upload project file
+  app.post("/api/project-files", async (req, res) => {
+    try {
+      const { projectId, uploadedBy, uploaderType, uploaderName, fileName, fileUrl, fileType, fileSize, description } = req.body;
+      
+      // Validation
+      if (!projectId || !uploadedBy || !uploaderType || !fileName || !fileUrl) {
+        return res.status(400).json({ error: "Missing required fields" });
+      }
+      
+      if (!['client', 'employee', 'admin'].includes(uploaderType)) {
+        return res.status(400).json({ error: "Invalid uploader type" });
+      }
+      
+      // Verify project exists
+      const project = await storage.getProject(projectId);
+      if (!project) {
+        return res.status(404).json({ error: "Project not found" });
+      }
+      
+      // Verify uploader is authorized
+      if (uploaderType === 'client' && project.clientId !== uploadedBy) {
+        return res.status(403).json({ error: "You are not authorized to upload files for this project" });
+      }
+      
+      const file = await storage.createProjectFile({
+        projectId,
+        uploadedBy,
+        uploaderType,
+        uploaderName: uploaderName || 'مستخدم',
+        fileName,
+        fileUrl,
+        fileType: fileType || 'other',
+        fileSize: fileSize || 0,
+        description
+      });
+      res.status(201).json(file);
+    } catch (error) {
+      console.error('Error uploading file:', error);
+      res.status(500).json({ error: "Failed to upload file" });
+    }
+  });
+
+  // Get project files
+  app.get("/api/project-files/:projectId", async (req, res) => {
+    try {
+      const files = await storage.getProjectFiles(req.params.projectId);
+      res.json(files);
+    } catch (error) {
+      res.status(500).json({ error: "Failed to fetch project files" });
+    }
+  });
+
+  // Delete project file
+  app.delete("/api/project-files/:id", async (req, res) => {
+    try {
+      await storage.deleteProjectFile(req.params.id);
+      res.json({ success: true });
+    } catch (error) {
+      res.status(500).json({ error: "Failed to delete file" });
+    }
+  });
+
+  // ==================== Project Questions Routes ====================
+
+  // Get project questions
+  app.get("/api/project-questions/:projectId", async (req, res) => {
+    try {
+      let questions = await storage.getProjectQuestions(req.params.projectId);
+      
+      // Initialize questions if empty
+      if (questions.length === 0) {
+        await storage.initializeProjectQuestions(req.params.projectId);
+        questions = await storage.getProjectQuestions(req.params.projectId);
+      }
+      
+      res.json(questions);
+    } catch (error) {
+      res.status(500).json({ error: "Failed to fetch project questions" });
+    }
+  });
+
+  // Answer a project question
+  app.put("/api/project-questions/:id/answer", async (req, res) => {
+    try {
+      const { answer } = req.body;
+      const question = await storage.answerProjectQuestion(req.params.id, answer);
+      res.json(question);
+    } catch (error) {
+      res.status(500).json({ error: "Failed to answer question" });
+    }
+  });
+
+  // Get all pending requests (admin)
+  app.get("/api/admin/pending-requests", async (req, res) => {
+    try {
+      const requests = await storage.getAllPendingRequests();
+      res.json(requests);
+    } catch (error) {
+      res.status(500).json({ error: "Failed to fetch pending requests" });
+    }
+  });
+
+  // ==================== Support Tickets Routes ====================
+
+  // Create a new ticket
+  app.post("/api/tickets", async (req, res) => {
+    try {
+      const { userId, userType, userName, userEmail, subject, description, category, priority, attachments } = req.body;
+      
+      if (!userId || !userType || !userName || !userEmail || !subject || !description) {
+        return res.status(400).json({ error: "Missing required fields" });
+      }
+      
+      // Generate ticket number
+      const ticketNumber = `TK-${Date.now().toString(36).toUpperCase()}`;
+      
+      const ticket = await storage.createTicket({
+        ticketNumber,
+        userId,
+        userType,
+        userName,
+        userEmail,
+        subject,
+        description,
+        category: category || 'general',
+        priority: priority || 'medium',
+        attachments
+      });
+      
+      // Notify admins
+      await storage.createNotification({
+        userId: 'admin',
+        userType: 'employee',
+        title: 'تذكرة دعم جديدة',
+        message: `تذكرة جديدة من ${userName}: ${subject}`,
+        type: 'general',
+        link: `/admin-dashboard?tab=tickets`
+      });
+      
+      res.status(201).json(ticket);
+    } catch (error) {
+      console.error('Error creating ticket:', error);
+      res.status(500).json({ error: "Failed to create ticket" });
+    }
+  });
+
+  // Get user's tickets
+  app.get("/api/tickets/user/:userType/:userId", async (req, res) => {
+    try {
+      const { userType, userId } = req.params;
+      const tickets = await storage.getUserTickets(userId, userType);
+      res.json(tickets);
+    } catch (error) {
+      res.status(500).json({ error: "Failed to fetch tickets" });
+    }
+  });
+
+  // Get all tickets (admin)
+  app.get("/api/tickets", async (req, res) => {
+    try {
+      const tickets = await storage.getAllTickets();
+      res.json(tickets);
+    } catch (error) {
+      res.status(500).json({ error: "Failed to fetch tickets" });
+    }
+  });
+
+  // Get single ticket
+  app.get("/api/tickets/:id", async (req, res) => {
+    try {
+      const ticket = await storage.getTicket(req.params.id);
+      if (!ticket) {
+        return res.status(404).json({ error: "Ticket not found" });
+      }
+      res.json(ticket);
+    } catch (error) {
+      res.status(500).json({ error: "Failed to fetch ticket" });
+    }
+  });
+
+  // Update ticket status
+  app.put("/api/tickets/:id/status", async (req, res) => {
+    try {
+      const { status, assignedTo, assignedName, resolution } = req.body;
+      const ticket = await storage.updateTicketStatus(req.params.id, status, assignedTo, assignedName, resolution);
+      if (!ticket) {
+        return res.status(404).json({ error: "Ticket not found" });
+      }
+      
+      // Notify ticket owner
+      const originalTicket = await storage.getTicket(req.params.id);
+      if (originalTicket) {
+        await storage.createNotification({
+          userId: originalTicket.userId,
+          userType: originalTicket.userType,
+          title: 'تحديث حالة التذكرة',
+          message: `تم تحديث حالة تذكرتك #${originalTicket.ticketNumber} إلى: ${status}`,
+          type: 'general',
+          link: `/${originalTicket.userType}-dashboard?tab=tickets`
+        });
+      }
+      
+      res.json(ticket);
+    } catch (error) {
+      res.status(500).json({ error: "Failed to update ticket" });
+    }
+  });
+
+  // Add response to ticket
+  app.post("/api/tickets/:id/responses", async (req, res) => {
+    try {
+      const { responderId, responderType, responderName, content, attachments, isInternal } = req.body;
+      
+      if (!responderId || !responderType || !responderName || !content) {
+        return res.status(400).json({ error: "Missing required fields" });
+      }
+      
+      const response = await storage.addTicketResponse({
+        ticketId: req.params.id,
+        responderId,
+        responderType,
+        responderName,
+        content,
+        attachments,
+        isInternal: isInternal || false
+      });
+      
+      // Notify relevant party
+      const ticket = await storage.getTicket(req.params.id);
+      if (ticket && !isInternal) {
+        const notifyId = responderType === 'employee' || responderType === 'admin' ? ticket.userId : 'admin';
+        const notifyType = responderType === 'employee' || responderType === 'admin' ? ticket.userType : 'employee';
+        
+        await storage.createNotification({
+          userId: notifyId,
+          userType: notifyType,
+          title: 'رد جديد على التذكرة',
+          message: `رد جديد من ${responderName} على التذكرة #${ticket.ticketNumber}`,
+          type: 'general',
+          link: responderType === 'employee' || responderType === 'admin' 
+            ? `/${ticket.userType}-dashboard?tab=tickets` 
+            : `/admin-dashboard?tab=tickets`
+        });
+      }
+      
+      res.status(201).json(response);
+    } catch (error) {
+      console.error('Error adding ticket response:', error);
+      res.status(500).json({ error: "Failed to add response" });
+    }
+  });
+
+  // Get ticket responses
+  app.get("/api/tickets/:id/responses", async (req, res) => {
+    try {
+      const { includeInternal } = req.query;
+      const responses = await storage.getTicketResponses(req.params.id, includeInternal === 'true');
+      res.json(responses);
+    } catch (error) {
+      res.status(500).json({ error: "Failed to fetch responses" });
+    }
+  });
+
+  // Get ticket statistics (admin)
+  app.get("/api/tickets/stats/overview", async (req, res) => {
+    try {
+      const stats = await storage.getTicketStats();
+      res.json(stats);
+    } catch (error) {
+      res.status(500).json({ error: "Failed to fetch ticket stats" });
+    }
+  });
+
+  // Invoice PDF Route
+  app.get("/api/invoices/:id/pdf", async (req, res) => {
+    try {
+      const invoice = await storage.getInvoice(req.params.id);
+      if (!invoice) {
+        return res.status(404).json({ error: "Invoice not found" });
+      }
+      if (!invoice.orderId) {
+        return res.status(400).json({ error: "Invoice has no associated order" });
+      }
+      const order = await storage.getOrder(invoice.orderId);
+      if (!order) {
+        return res.status(404).json({ error: "Order not found" });
+      }
+      const pdfBuffer = await generateInvoicePDF(invoice, order);
+      res.setHeader('Content-Type', 'application/pdf');
+      res.setHeader('Content-Disposition', `attachment; filename="invoice-${invoice.invoiceNumber}.pdf"`);
+      res.send(pdfBuffer);
+    } catch (error) {
+      console.error('Error generating PDF:', error);
+      res.status(500).json({ error: "Failed to generate PDF" });
+    }
+  });
+
+  const httpServer = createServer(app);
+
+  // Setup WebSocket server with noServer to avoid conflicts with Vite HMR
+  const wss = new WebSocketServer({ noServer: true });
+
+  wss.on('connection', (ws, req) => {
+    console.log('WebSocket client connected');
+
+    ws.on('message', (data) => {
+      try {
+        const message = JSON.parse(data.toString());
+        if (message.type === 'register') {
+          const { userId, userType } = message;
+          if (userId && userType) {
+            connectedClients.set(`${userType}:${userId}`, ws);
+            ws.send(JSON.stringify({ type: 'registered', success: true }));
+          }
+        }
+      } catch (error) {
+        console.error('WebSocket message error:', error);
+      }
+    });
+
+    ws.on('close', () => {
+      connectedClients.forEach((client, key) => {
+        if (client === ws) {
+          connectedClients.delete(key);
+        }
+      });
+    });
+  });
+
+  // Handle WebSocket upgrades only for /ws path
+  httpServer.on('upgrade', (request, socket, head) => {
+    const pathname = new URL(request.url || '', 'http://localhost').pathname;
+    if (pathname === '/ws') {
+      wss.handleUpgrade(request, socket, head, (ws) => {
+        wss.emit('connection', ws, request);
+      });
+    }
+    // Other upgrade requests (like Vite HMR) will be handled by their own handlers
   });
 
   return httpServer;
+}
+
+function generateSpecsEmailContent(specs: any): string {
+  return `
+    <div style="font-family: 'Segoe UI', Arial, sans-serif; max-width: 800px; margin: 0 auto; padding: 20px; direction: rtl;">
+      <div style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 30px; text-align: center; border-radius: 10px; margin-bottom: 30px;">
+        <h1 style="margin: 0; font-size: 24px;">📋 طلب مواصفات موقع جديد</h1>
+        <h2 style="margin: 10px 0; font-size: 20px;">${specs.websiteName}</h2>
+        <p style="margin: 5px 0;">رقم الطلب: ${specs.specId}</p>
+        <p style="margin: 5px 0;">التاريخ: ${new Date(specs.timestamp).toLocaleDateString('ar-SA')}</p>
+      </div>
+
+      <div style="background: #f8f9ff; padding: 20px; border-radius: 8px; border-right: 4px solid #667eea; margin: 20px 0;">
+        <h3 style="color: #667eea; margin-top: 0;">🎯 المعلومات الأساسية</h3>
+        <table style="width: 100%; border-collapse: collapse;">
+          <tr><td style="padding: 8px; font-weight: bold; width: 30%;">اسم الموقع:</td><td style="padding: 8px;">${specs.websiteName}</td></tr>
+          <tr><td style="padding: 8px; font-weight: bold;">الغرض:</td><td style="padding: 8px;">${specs.purpose}</td></tr>
+          <tr><td style="padding: 8px; font-weight: bold;">الفكرة:</td><td style="padding: 8px;">${specs.idea}</td></tr>
+          <tr><td style="padding: 8px; font-weight: bold;">الجمهور المستهدف:</td><td style="padding: 8px;">${specs.targetAudience}</td></tr>
+        </table>
+      </div>
+
+      <div style="background: #f8f9ff; padding: 20px; border-radius: 8px; border-right: 4px solid #667eea; margin: 20px 0;">
+        <h3 style="color: #667eea; margin-top: 0;">🎨 التصميم والمظهر</h3>
+        <table style="width: 100%; border-collapse: collapse;">
+          <tr><td style="padding: 8px; font-weight: bold; width: 30%;">نوع التصميم:</td><td style="padding: 8px;">${specs.designType || 'غير محدد'}</td></tr>
+          <tr><td style="padding: 8px; font-weight: bold;">نظام الألوان:</td><td style="padding: 8px;">${specs.colorScheme || 'غير محدد'}</td></tr>
+          <tr><td style="padding: 8px; font-weight: bold;">اللغات:</td><td style="padding: 8px;">${specs.languages || 'غير محدد'}</td></tr>
+          <tr><td style="padding: 8px; font-weight: bold;">الأجهزة المدعومة:</td><td style="padding: 8px;">${specs.deviceSupport || 'غير محدد'}</td></tr>
+        </table>
+      </div>
+
+      ${specs.mainSection1 ? `
+      <div style="background: #f8f9ff; padding: 20px; border-radius: 8px; border-right: 4px solid #667eea; margin: 20px 0;">
+        <h3 style="color: #667eea; margin-top: 0;">📑 الأقسام الرئيسية</h3>
+        <ul style="list-style: none; padding: 0;">
+          ${specs.mainSection1 ? `<li style="padding: 5px 0;">📄 ${specs.mainSection1}</li>` : ''}
+          ${specs.mainSection2 ? `<li style="padding: 5px 0;">📄 ${specs.mainSection2}</li>` : ''}
+          ${specs.mainSection3 ? `<li style="padding: 5px 0;">📄 ${specs.mainSection3}</li>` : ''}
+          ${specs.mainSection4 ? `<li style="padding: 5px 0;">📄 ${specs.mainSection4}</li>` : ''}
+          ${specs.mainSection5 ? `<li style="padding: 5px 0;">📄 ${specs.mainSection5}</li>` : ''}
+        </ul>
+      </div>
+      ` : ''}
+
+      ${specs.mainFunction1 ? `
+      <div style="background: #f8f9ff; padding: 20px; border-radius: 8px; border-right: 4px solid #667eea; margin: 20px 0;">
+        <h3 style="color: #667eea; margin-top: 0;">⚙️ الوظائف الأساسية</h3>
+        <ul style="list-style: none; padding: 0;">
+          ${specs.mainFunction1 ? `<li style="padding: 5px 0;">🔧 ${specs.mainFunction1}</li>` : ''}
+          ${specs.mainFunction2 ? `<li style="padding: 5px 0;">🔧 ${specs.mainFunction2}</li>` : ''}
+          ${specs.mainFunction3 ? `<li style="padding: 5px 0;">🔧 ${specs.mainFunction3}</li>` : ''}
+          ${specs.mainFunction4 ? `<li style="padding: 5px 0;">🔧 ${specs.mainFunction4}</li>` : ''}
+        </ul>
+      </div>
+      ` : ''}
+
+      <div style="background: #f8f9ff; padding: 20px; border-radius: 8px; border-right: 4px solid #667eea; margin: 20px 0;">
+        <h3 style="color: #667eea; margin-top: 0;">🎯 الأهداف والمتطلبات</h3>
+        <table style="width: 100%; border-collapse: collapse;">
+          <tr><td style="padding: 8px; font-weight: bold; width: 30%;">الهدف الأساسي:</td><td style="padding: 8px;">${specs.mainGoal1 || 'غير محدد'}</td></tr>
+          ${specs.mainGoal2 ? `<tr><td style="padding: 8px; font-weight: bold;">الهدف الثاني:</td><td style="padding: 8px;">${specs.mainGoal2}</td></tr>` : ''}
+          ${specs.mainGoal3 ? `<tr><td style="padding: 8px; font-weight: bold;">الهدف الثالث:</td><td style="padding: 8px;">${specs.mainGoal3}</td></tr>` : ''}
+          <tr><td style="padding: 8px; font-weight: bold;">الميزانية:</td><td style="padding: 8px;">${specs.budget || 'غير محدد'}</td></tr>
+          <tr><td style="padding: 8px; font-weight: bold;">إدارة المحتوى:</td><td style="padding: 8px;">${specs.contentManagement || 'غير محدد'}</td></tr>
+        </table>
+      </div>
+
+      ${(specs.specialRequirements || specs.competitorWebsites || specs.inspirationSites || specs.additionalNotes) ? `
+      <div style="background: #f8f9ff; padding: 20px; border-radius: 8px; border-right: 4px solid #667eea; margin: 20px 0;">
+        <h3 style="color: #667eea; margin-top: 0;">📝 معلومات إضافية</h3>
+        <table style="width: 100%; border-collapse: collapse;">
+          ${specs.specialRequirements ? `<tr><td style="padding: 8px; font-weight: bold; width: 30%;">متطلبات خاصة:</td><td style="padding: 8px;">${specs.specialRequirements}</td></tr>` : ''}
+          ${specs.competitorWebsites ? `<tr><td style="padding: 8px; font-weight: bold;">مواقع منافسة:</td><td style="padding: 8px;">${specs.competitorWebsites}</td></tr>` : ''}
+          ${specs.inspirationSites ? `<tr><td style="padding: 8px; font-weight: bold;">مواقع إلهام:</td><td style="padding: 8px;">${specs.inspirationSites}</td></tr>` : ''}
+          ${specs.additionalNotes ? `<tr><td style="padding: 8px; font-weight: bold;">ملاحظات إضافية:</td><td style="padding: 8px;">${specs.additionalNotes}</td></tr>` : ''}
+        </table>
+      </div>
+      ` : ''}
+
+      <div style="background: #2c3e50; color: white; padding: 20px; text-align: center; border-radius: 10px; margin-top: 30px;">
+        <p style="margin: 5px 0;"><strong>منصة معك للخدمات الرقمية</strong></p>
+        <p style="margin: 5px 0;">للتواصل: ma3k.2025@gmail.com | 966532441566</p>
+        <p style="margin: 5px 0;">يرجى متابعة الطلب والتواصل مع العميل لبدء العمل</p>
+      </div>
+    </div>
+  `;
+}
+
+// Helper functions for HTML/CSS generation
+function generateHtmlFromForm(formData: any): string {
+  return `<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>${formData.websiteName || 'موقع جديد'}</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <header>
+        <h1>${formData.websiteName || 'اسم الموقع'}</h1>
+        <nav>
+            <ul>
+                <li><a href="#${formData.mainSection1 || 'section1'}">${formData.mainSection1 || 'القسم الأول'}</a></li>
+                <li><a href="#${formData.mainSection2 || 'section2'}">${formData.mainSection2 || 'القسم الثاني'}</a></li>
+                <li><a href="#${formData.mainSection3 || 'section3'}">${formData.mainSection3 || 'القسم الثالث'}</a></li>
+            </ul>
+        </nav>
+    </header>
+    
+    <main>
+        <section id="hero">
+            <h2>مرحباً بك في ${formData.websiteName || 'موقعنا'}</h2>
+            <p>${formData.purpose || 'هدف الموقع'}</p>
+        </section>
+        
+        <section id="${formData.mainSection1 || 'section1'}">
+            <h2>${formData.mainSection1 || 'القسم الأول'}</h2>
+            <p>محتوى ${formData.mainSection1 || 'القسم الأول'}</p>
+        </section>
+        
+        <section id="${formData.mainSection2 || 'section2'}">
+            <h2>${formData.mainSection2 || 'القسم الثاني'}</h2>
+            <p>محتوى ${formData.mainSection2 || 'القسم الثاني'}</p>
+        </section>
+        
+        <section id="${formData.mainSection3 || 'section3'}">
+            <h2>${formData.mainSection3 || 'القسم الثالث'}</h2>
+            <p>محتوى ${formData.mainSection3 || 'القسم الثالث'}</p>
+        </section>
+    </main>
+    
+    <footer>
+        <p>© 2025 ${formData.websiteName || 'اسم الموقع'}. جميع الحقوق محفوظة.</p>
+    </footer>
+</body>
+</html>`;
+}
+
+function generateCssFromForm(formData: any): string {
+  const designType = formData.designType || 'modern';
+  const primaryColor = designType === 'classic' ? '#2c3e50' : '#3498db';
+  
+  return `/* تصميم ${formData.websiteName || 'الموقع'} */
+/* نوع التصميم: ${designType} */
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Tajawal', 'Arial', sans-serif;
+    direction: rtl;
+    text-align: right;
+    line-height: 1.6;
+    color: #333;
+    background-color: #f8f9fa;
+}
+
+header {
+    background: ${primaryColor};
+    color: white;
+    padding: 1rem 0;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+}
+
+header h1 {
+    text-align: center;
+    margin-bottom: 1rem;
+    font-size: 2.5rem;
+}
+
+nav ul {
+    display: flex;
+    justify-content: center;
+    list-style: none;
+    gap: 2rem;
+}
+
+nav a {
+    color: white;
+    text-decoration: none;
+    padding: 0.5rem 1rem;
+    border-radius: 5px;
+    transition: background-color 0.3s;
+}
+
+nav a:hover {
+    background-color: rgba(255,255,255,0.2);
+}
+
+main {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 2rem;
+}
+
+section {
+    margin-bottom: 3rem;
+    padding: 2rem;
+    background: white;
+    border-radius: 10px;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+}
+
+#hero {
+    text-align: center;
+    background: linear-gradient(135deg, ${primaryColor}, #2980b9);
+    color: white;
+}
+
+h2 {
+    margin-bottom: 1rem;
+    color: ${primaryColor};
+    font-size: 2rem;
+}
+
+#hero h2 {
+    color: white;
+}
+
+p {
+    font-size: 1.1rem;
+    margin-bottom: 1rem;
+}
+
+footer {
+    background: #34495e;
+    color: white;
+    text-align: center;
+    padding: 2rem;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    nav ul {
+        flex-direction: column;
+        gap: 1rem;
+    }
+    
+    main {
+        padding: 1rem;
+    }
+    
+    header h1 {
+        font-size: 2rem;
+    }
+}
+
+/* ${formData.additionalFeature1 || 'ميزة إضافية'} styles */
+.feature-highlight {
+    border-right: 4px solid ${primaryColor};
+    padding-right: 1rem;
+}
+
+/* Target audience: ${formData.targetAudience || 'الجمهور المستهدف'} */
+/* Budget range: ${formData.budget || 'الميزانية المحددة'} */
+/* Content type: ${formData.contentType || 'نوع المحتوى'} */`;
+}
+
+function generateSampleHtml(exportId: string): string {
+  return generateHtmlFromForm({ 
+    websiteName: `موقع-${exportId}`,
+    mainSection1: 'الرئيسية',
+    mainSection2: 'الخدمات', 
+    mainSection3: 'تواصل معنا',
+    purpose: 'موقع احترافي'
+  });
+}
+
+function generateSampleCss(exportId: string): string {
+  return generateCssFromForm({ 
+    designType: 'modern',
+    websiteName: `موقع-${exportId}`
+  });
+}
+
+function generateInvoiceHtml(invoice: any, order: any): string {
+  return `<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>فاتورة رقم ${invoice.invoiceNumber}</title>
+    <style>
+        body {
+            font-family: 'Tajawal', Arial, sans-serif;
+            direction: rtl;
+            text-align: right;
+            margin: 0;
+            padding: 20px;
+            background: #f8f9fa;
+        }
+        .invoice-container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: white;
+            padding: 40px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        .header {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+        .logo {
+            font-size: 2rem;
+            font-weight: bold;
+            color: #f59e0b;
+            margin-bottom: 10px;
+        }
+        .invoice-title {
+            font-size: 1.8rem;
+            color: #333;
+            margin: 20px 0;
+        }
+        .info-section {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 30px;
+        }
+        .info-box {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 8px;
+            flex: 1;
+            margin: 0 10px;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+        }
+        th, td {
+            padding: 12px;
+            text-align: right;
+            border-bottom: 1px solid #ddd;
+        }
+        th {
+            background-color: #f59e0b;
+            color: white;
+        }
+        .total-row {
+            font-weight: bold;
+            background-color: #f8f9fa;
+        }
+        .footer {
+            text-align: center;
+            margin-top: 40px;
+            color: #666;
+        }
+    </style>
+</head>
+<body>
+    <div class="invoice-container">
+        <div class="header">
+            <div class="logo">معك</div>
+            <h1 class="invoice-title">فاتورة ضريبية</h1>
+            <p>رقم الفاتورة: ${invoice.invoiceNumber}</p>
+            <p>تاريخ الإصدار: ${new Date(invoice.createdAt).toLocaleDateString('ar-SA')}</p>
+        </div>
+        
+        <div class="info-section">
+            <div class="info-box">
+                <h3>معلومات العميل</h3>
+                <p><strong>الاسم:</strong> ${order.customerName}</p>
+                <p><strong>البريد الإلكتروني:</strong> ${order.customerEmail}</p>
+                <p><strong>الهاتف:</strong> ${order.customerPhone || 'غير محدد'}</p>
+            </div>
+            <div class="info-box">
+                <h3>معلومات الشركة</h3>
+                <p><strong>معك للخدمات الرقمية</strong></p>
+                <p>البريد: ma3k.2025@gmail.com</p>
+                <p>الهاتف: 966532441566</p>
+            </div>
+        </div>
+        
+        <table>
+            <thead>
+                <tr>
+                    <th>الخدمة</th>
+                    <th>الوصف</th>
+                    <th>السعر</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>${order.serviceName}</td>
+                    <td>${order.description || 'خدمات رقمية متخصصة'}</td>
+                    <td>${order.price} ر.س</td>
+                </tr>
+                <tr class="total-row">
+                    <td colspan="2"><strong>المجموع الكلي</strong></td>
+                    <td><strong>${invoice.amount} ر.س</strong></td>
+                </tr>
+            </tbody>
+        </table>
+        
+        <div class="footer">
+            <p>شكراً لاختياركم خدماتنا</p>
+            <p>معك - نُصمم أحلامك الرقمية</p>
+            <p>رقم الطلب: ${order.orderNumber}</p>
+        </div>
+    </div>
+</body>
+</html>`;
 }

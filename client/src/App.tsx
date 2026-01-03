@@ -1,157 +1,129 @@
-import AdminMaintenancePage from "@/pages/admin/maintenance";
-import AdminRolesPage from "@/pages/admin/roles";
 import { Switch, Route } from "wouter";
 import { queryClient } from "./lib/queryClient";
 import { QueryClientProvider } from "@tanstack/react-query";
 import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
-import { ThemeProvider } from "@/components/theme-provider";
-import { AuthProvider } from "@/lib/auth";
-import { ProjectOnboarding } from "@/pages/project-onboarding";
-import { ClientDashboard } from "@/pages/client-dashboard";
-import Home from "@/pages/home";
-import HowItWorks from "@/pages/how-it-works";
-import Pricing from "@/pages/pricing";
+import { CartProvider } from "@/context/CartContext";
+import { AuthProvider } from "@/context/AuthContext";
+import Navbar from "@/components/layout/navbar";
+import Footer from "@/components/layout/footer";
+import ContactFloat from "@/components/layout/contact-float";
+import HomeNew from "@/pages/home-new";
+import SplashScreen from "@/pages/splash-screen";
+import WelcomeNew from "@/pages/welcome-new";
+import DigitalWelcome from "@/pages/digital-welcome";
+import ServicesComplete from "@/pages/services-complete";
+import Cart from "@/pages/cart";
+import CreativePayment from "@/pages/creative-payment";
 import About from "@/pages/about";
+import PrivacyPolicy from "@/pages/privacy-policy";
+import Portfolio from "@/pages/portfolio";
 import Contact from "@/pages/contact";
-import Support from "@/pages/support";
-import Terms from "@/pages/terms";
-import Privacy from "@/pages/privacy";
+import EmployeeLogin from "@/pages/employee-login";
+import EmployeeDashboard from "@/pages/employee-dashboard";
+import CodeTool from "@/pages/code-tool";
+import Ma3kMeet from "@/pages/ma3k-meet";
+import CoursesComplete from "@/pages/courses-complete";
 import Login from "@/pages/login";
 import Register from "@/pages/register";
-import Dashboard from "@/pages/dashboard";
-import NewStore from "@/pages/new-store";
-import Subscribe from "@/pages/subscribe";
-import EmployeeDashboard from "@/pages/employee-dashboard";
+import MyCoursesComplete from "@/pages/my-courses-complete";
+import MyProjectsComplete from "@/pages/my-projects-complete";
+import ClientDashboard from "@/pages/client-dashboard";
+import EmployeeDashboardNew from "@/pages/employee-dashboard-new";
 import AdminDashboard from "@/pages/admin-dashboard";
-import MeetingsPage from "@/pages/meetings";
-import AdminDashboardFull from "@/pages/admin-dashboard-full";
-import StoreManage from "@/pages/store-manage";
-import Storefront from "@/pages/storefront";
-import TenantsPage from "@/pages/tenants";
-import TenantDashboard from "@/pages/tenant-dashboard";
-import KanbanBoard from "@/pages/kanban-board";
-import AdminDashboardPage from "@/pages/admin/dashboard";
-import AdminUsersPage from "@/pages/admin/users";
-import AdminProductsPage from "@/pages/admin/products";
-import AdminOrdersPage from "@/pages/admin/orders";
-import AdminSubscriptionsPage from "@/pages/admin/subscriptions";
-import AdminAnalyticsPage from "@/pages/admin/analytics";
-import AdminReportsPage from "@/pages/admin/reports";
-import AdminStoresPage from "@/pages/admin/stores";
-import AdminSettingsPage from "@/pages/admin/settings";
-import AdminPerformancePage from "@/pages/admin/performance";
-import AdminSecurityPage from "@/pages/admin/security";
-import AdminLocalizationPage from "@/pages/admin/localization";
-import AdminDatabasePage from "@/pages/admin/database";
-import AdminSupportPage from "@/pages/admin/support";
-import AdminCustomizationPage from "@/pages/admin/customization";
-import AdminNotificationsPage from "@/pages/admin/notifications";
-import AdminSocialPage from "@/pages/admin/social";
-import AdminAuditPage from "@/pages/admin/audit";
-import AdminFinancialsPage from "@/pages/admin/financials";
-import AdminLogsPage from "@/pages/admin/logs";
-import AdminMarketingPage from "@/pages/admin/marketing";
-import AdminContentPage from "@/pages/admin/content";
-import AdminShippingPage from "@/pages/admin/shipping";
-import AdminCouponsPage from "@/pages/admin/coupons";
-import AdminPartnersPage from "@/pages/admin/partners";
-import AdminInventoryPage from "@/pages/admin/inventory";
-import AdminInvoicesPage from "@/pages/admin/invoices";
+import CertSearch from "@/pages/cert-search";
+import EmployeeProfile from "@/pages/employee-profile";
+import WebsiteForm from "@/pages/website-form";
+import EducationalWebsiteForm from "@/pages/educational-website-form";
+import StudentDashboard from "@/pages/student-dashboard";
+import ThankYou from "@/pages/thank-you";
 import NotFound from "@/pages/not-found";
-import { SplashScreen } from "@/components/splash-screen";
-import { HelmetProvider } from "react-helmet-async";
-import { useState, useEffect } from "react";
 
+/**
+ * Main Router
+ * Ma3k Company Platform - Unified Routes
+ * 
+ * Route organization:
+ * - Public pages: /
+ * - Client portal: /client/*
+ * - Employee portal: /employee/*
+ * - Student portal: /student/*
+ * - Authentication: /login, /register, /employee-login
+ */
 function Router() {
   return (
-    <Switch>
-      <Route path="/" component={Home} />
-      <Route path="/build" component={Home} />
-      <Route path="/systems" component={Home} />
-      <Route path="/stores" component={Home} />
-      <Route path="/custom" component={Home} />
-      <Route path="/how-it-works" component={HowItWorks} />
-      <Route path="/pricing" component={Pricing} />
-      <Route path="/about" component={About} />
-      <Route path="/contact" component={Contact} />
-      <Route path="/support" component={Support} />
-      <Route path="/terms" component={Terms} />
-      <Route path="/privacy" component={Privacy} />
-      <Route path="/login" component={Login} />
-      <Route path="/register" component={Register} />
-      <Route path="/dashboard" component={Dashboard} />
-      <Route path="/meetings" component={MeetingsPage} />
-      <Route path="/agency/onboarding" component={ProjectOnboarding} />
-      <Route path="/agency/dashboard" component={ClientDashboard} />
-      <Route path="/dashboard/stores/new" component={NewStore} />
-      <Route path="/dashboard/subscribe" component={Subscribe} />
-      <Route path="/dashboard/stores/:storeId" component={StoreManage} />
-      <Route path="/store/:slug" component={Storefront} />
-      <Route path="/tenants" component={TenantsPage} />
-      <Route path="/tenants/:slug" component={TenantDashboard} />
-      <Route path="/kanban" component={KanbanBoard} />
-      <Route path="/admin/dashboard" component={AdminDashboardPage} />
-      <Route path="/admin/users" component={AdminUsersPage} />
-      <Route path="/admin/products" component={AdminProductsPage} />
-      <Route path="/admin/orders" component={AdminOrdersPage} />
-      <Route path="/admin/subscriptions" component={AdminSubscriptionsPage} />
-      <Route path="/admin/analytics" component={AdminAnalyticsPage} />
-      <Route path="/admin/reports" component={AdminReportsPage} />
-      <Route path="/admin/stores" component={AdminStoresPage} />
-      <Route path="/admin/settings" component={AdminSettingsPage} />
-      <Route path="/admin/performance" component={AdminPerformancePage} />
-      <Route path="/admin/security" component={AdminSecurityPage} />
-      <Route path="/admin/localization" component={AdminLocalizationPage} />
-      <Route path="/admin/database" component={AdminDatabasePage} />
-      <Route path="/admin/support" component={AdminSupportPage} />
-      <Route path="/admin/customization" component={AdminCustomizationPage} />
-      <Route path="/admin/notifications" component={AdminNotificationsPage} />
-      <Route path="/admin/social" component={AdminSocialPage} />
-      <Route path="/admin/audit" component={AdminAuditPage} />
-      <Route path="/admin/financials" component={AdminFinancialsPage} />
-      <Route path="/admin/logs" component={AdminLogsPage} />
-      <Route path="/admin/marketing" component={AdminMarketingPage} />
-      <Route path="/admin/content" component={AdminContentPage} />
-      <Route path="/admin/shipping" component={AdminShippingPage} />
-      <Route path="/admin/coupons" component={AdminCouponsPage} />
-      <Route path="/admin/partners" component={AdminPartnersPage} />
-      <Route path="/admin/inventory" component={AdminInventoryPage} />
-      <Route path="/admin/invoices" component={AdminInvoicesPage} />
-      <Route path="/admin/maintenance" component={AdminMaintenancePage} />
-      <Route path="/admin/roles" component={AdminRolesPage} />
-      <Route path="/employee" component={EmployeeDashboard} />
-      <Route path="/admin" component={AdminDashboard} />
-      <Route path="/admin-full" component={AdminDashboardFull} />
-      <Route component={NotFound} />
-    </Switch>
+    <div className="min-h-screen royal-gradient">
+      <Navbar />
+      <ContactFloat />
+      <Switch>
+        {/* === PUBLIC PAGES === */}
+        <Route path="/" component={HomeNew} />
+        <Route path="/about" component={About} />
+        <Route path="/privacy" component={PrivacyPolicy} />
+        <Route path="/portfolio" component={Portfolio} />
+        <Route path="/contact" component={Contact} />
+        <Route path="/services" component={ServicesComplete} />
+
+        {/* === AUTHENTICATION === */}
+        <Route path="/login" component={Login} />
+        <Route path="/register" component={Register} />
+        <Route path="/employee-login" component={EmployeeLogin} />
+
+        {/* === CLIENT PORTAL === */}
+        <Route path="/client-dashboard" component={ClientDashboard} />
+        <Route path="/dashboard" component={ClientDashboard} />
+        <Route path="/client" component={ClientDashboard} />
+        <Route path="/cart" component={Cart} />
+        <Route path="/payment" component={CreativePayment} />
+        <Route path="/my-projects" component={MyProjectsComplete} />
+
+        {/* === EMPLOYEE PORTAL === */}
+        <Route path="/employee-dashboard" component={EmployeeDashboardNew} />
+        <Route path="/employee-profile" component={EmployeeProfile} />
+        <Route path="/admin-dashboard" component={AdminDashboard} />
+
+        {/* === STUDENT PORTAL === */}
+        <Route path="/student-dashboard" component={StudentDashboard} />
+        <Route path="/courses" component={CoursesComplete} />
+        <Route path="/my-courses" component={MyCoursesComplete} />
+        <Route path="/cert-search" component={CertSearch} />
+
+        {/* === SERVICE FORMS === */}
+        <Route path="/website-form" component={WebsiteForm} />
+        <Route path="/educational-website-form" component={EducationalWebsiteForm} />
+
+        {/* === TOOLS & FEATURES === */}
+        <Route path="/code-tool" component={CodeTool} />
+        <Route path="/ma3k-meet" component={Ma3kMeet} />
+
+        {/* === UTILITY PAGES === */}
+        <Route path="/thank-you" component={ThankYou} />
+        <Route path="/welcome" component={WelcomeNew} />
+
+        {/* === DEPRECATED (for backwards compatibility) === */}
+        <Route path="/digital-welcome" component={DigitalWelcome} />
+        <Route path="/splash" component={SplashScreen} />
+
+        {/* === 404 FALLBACK === */}
+        <Route component={NotFound} />
+      </Switch>
+      <Footer />
+    </div>
   );
 }
 
 function App() {
-  const [loading, setLoading] = useState(true);
-
-  const handleSplashComplete = () => {
-    setLoading(false);
-  };
-
-  if (loading) {
-    return <SplashScreen onComplete={handleSplashComplete} />;
-  }
-
   return (
-    <HelmetProvider>
-      <QueryClientProvider client={queryClient}>
-        <ThemeProvider>
-          <AuthProvider>
-            <TooltipProvider>
-              <Router />
-              <Toaster />
-            </TooltipProvider>
-          </AuthProvider>
-        </ThemeProvider>
-      </QueryClientProvider>
-    </HelmetProvider>
+    <QueryClientProvider client={queryClient}>
+      <AuthProvider>
+        <CartProvider>
+          <TooltipProvider>
+            <Toaster />
+            <Router />
+          </TooltipProvider>
+        </CartProvider>
+      </AuthProvider>
+    </QueryClientProvider>
   );
 }
 

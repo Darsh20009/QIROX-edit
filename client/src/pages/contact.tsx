@@ -1,260 +1,495 @@
 import { useState } from "react";
-import { useForm } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { z } from "zod";
-import { useMutation } from "@tanstack/react-query";
+import { motion } from "framer-motion";
+import { Send, Mail, Phone, MessageCircle, CheckCircle, Clock, Users, Shield } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
-import {
-  Form,
-  FormControl,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormMessage,
-} from "@/components/ui/form";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
-import { Layout } from "@/components/layout/layout";
+import { Badge } from "@/components/ui/badge";
+import { Card, CardContent } from "@/components/ui/card";
 import { useToast } from "@/hooks/use-toast";
-import { Mail, Clock, CheckCircle2, Loader2, Phone, Twitter, Instagram, Linkedin } from "lucide-react";
-import { apiRequest } from "@/lib/queryClient";
-
-const contactFormSchema = z.object({
-  name: z.string().min(2, "الاسم يجب أن يكون حرفين على الأقل"),
-  email: z.string().email("يرجى إدخال بريد إلكتروني صحيح"),
-  company: z.string().optional(),
-  projectType: z.string().min(1, "يرجى اختيار نوع المشروع"),
-  budget: z.string().optional(),
-  message: z.string().min(10, "الرسالة يجب أن تكون 10 أحرف على الأقل"),
-});
-
-type ContactFormValues = z.infer<typeof contactFormSchema>;
-
-const projectTypes = [
-  { value: "company", label: "موقع شركة" },
-  { value: "platform", label: "منصة / SaaS" },
-  { value: "system", label: "نظام أعمال" },
-  { value: "store", label: "متجر إلكتروني" },
-  { value: "custom", label: "بناء مخصص" },
-  { value: "other", label: "أخرى" },
-];
 
 export default function Contact() {
   const { toast } = useToast();
-  const [submitted, setSubmitted] = useState(false);
-
-  const form = useForm<ContactFormValues>({
-    resolver: zodResolver(contactFormSchema),
-    defaultValues: {
-      name: "",
-      email: "",
-      company: "",
-      projectType: "",
-      budget: "",
-      message: "",
-    },
+  const [formData, setFormData] = useState({
+    name: "",
+    phone: "",
+    message: "",
+    contactMethod: "email"
   });
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isSubmitted, setIsSubmitted] = useState(false);
 
-  const mutation = useMutation({
-    mutationFn: async (data: ContactFormValues) => {
-      return apiRequest("POST", "/api/contact", data);
-    },
-    onSuccess: () => {
-      setSubmitted(true);
-      toast({
-        title: "تم إرسال الرسالة!",
-        description: "سنقوم بالرد عليك خلال 24 ساعة.",
-      });
-    },
-  });
-
-  const onSubmit = (data: ContactFormValues) => {
-    mutation.mutate(data);
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+    const { name, value } = e.target;
+    setFormData(prev => ({
+      ...prev,
+      [name]: value
+    }));
   };
 
-  return (
-    <Layout>
-      <section className="py-24 md:py-32 bg-secondary/20 relative overflow-hidden">
-        <div className="absolute inset-0 -z-10">
-          <div className="absolute top-0 right-0 w-1/2 h-1/2 bg-primary/5 rounded-full blur-[120px]" />
-        </div>
-        <div className="mx-auto max-w-7xl px-6 text-center">
-          <h1 className="text-5xl md:text-7xl font-black tracking-tight text-foreground leading-tight">
-            دعنا نبدأ <span className="text-primary text-glow">قصة نجاحك</span>
-          </h1>
-          <p className="mt-8 text-xl text-muted-foreground font-medium max-w-2xl mx-auto">
-            فريقنا من الخبراء جاهز لتحويل رؤيتك إلى واقع رقمي مبهر. تواصل معنا اليوم لنقاش مشروعك.
-          </p>
-        </div>
-      </section>
+  const handleContactMethodChange = (method: string) => {
+    setFormData(prev => ({
+      ...prev,
+      contactMethod: method
+    }));
+  };
 
-      <section className="py-32">
-        <div className="mx-auto max-w-7xl px-6">
-          <div className="grid lg:grid-cols-3 gap-16 items-start">
-            <div className="lg:col-span-2 order-2 lg:order-1">
-              <Card className="border-none bg-background shadow-2xl rounded-[3rem] overflow-hidden">
-                <CardContent className="p-10 md:p-16 text-right">
-                  {submitted ? (
-                    <div className="text-center py-24 animate-in fade-in zoom-in duration-500">
-                      <div className="inline-flex items-center justify-center w-24 h-24 rounded-3xl bg-primary/10 mb-10 shadow-inner">
-                        <CheckCircle2 className="w-12 h-12 text-primary" />
-                      </div>
-                      <h3 className="text-4xl font-black mb-6">تم استلام طلبك بنجاح!</h3>
-                      <p className="text-xl text-muted-foreground font-medium">سيتواصل معك أحد مستشارينا التقنيين خلال الـ 24 ساعة القادمة.</p>
-                      <Button onClick={() => setSubmitted(false)} variant="outline" className="mt-12 h-14 px-8 rounded-2xl font-black border-2">إرسال رسالة أخرى</Button>
-                    </div>
-                  ) : (
-                    <Form {...form}>
-                      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-10">
-                        <div className="grid sm:grid-cols-2 gap-10">
-                          <FormField
-                            control={form.control}
-                            name="name"
-                            render={({ field }) => (
-                              <FormItem className="space-y-4">
-                                <FormLabel className="text-lg font-black">الاسم الكامل</FormLabel>
-                                <FormControl>
-                                  <Input placeholder="أدخل اسمك هنا" {...field} className="h-16 px-6 rounded-2xl bg-secondary/50 border-none focus-visible:ring-primary text-right font-medium text-lg" data-testid="input-name" />
-                                </FormControl>
-                                <FormMessage />
-                              </FormItem>
-                            )}
-                          />
-                          <FormField
-                            control={form.control}
-                            name="email"
-                            render={({ field }) => (
-                              <FormItem className="space-y-4">
-                                <FormLabel className="text-lg font-black">البريد الإلكتروني</FormLabel>
-                                <FormControl>
-                                  <Input type="email" placeholder="email@example.com" {...field} className="h-16 px-6 rounded-2xl bg-secondary/50 border-none focus-visible:ring-primary text-left font-medium text-lg" data-testid="input-email" />
-                                </FormControl>
-                                <FormMessage />
-                              </FormItem>
-                            )}
-                          />
-                        </div>
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setIsSubmitting(true);
 
-                        <div className="grid sm:grid-cols-2 gap-10">
-                          <FormField
-                            control={form.control}
-                            name="company"
-                            render={({ field }) => (
-                              <FormItem className="space-y-4">
-                                <FormLabel className="text-lg font-black">الشركة (اختياري)</FormLabel>
-                                <FormControl>
-                                  <Input placeholder="اسم شركتك أو مشروعك" {...field} className="h-16 px-6 rounded-2xl bg-secondary/50 border-none focus-visible:ring-primary text-right font-medium text-lg" data-testid="input-company" />
-                                </FormControl>
-                                <FormMessage />
-                              </FormItem>
-                            )}
-                          />
-                          <FormField
-                            control={form.control}
-                            name="projectType"
-                            render={({ field }) => (
-                              <FormItem className="space-y-4">
-                                <FormLabel className="text-lg font-black">نوع المشروع</FormLabel>
-                                <Select onValueChange={field.onChange} defaultValue={field.value}>
-                                  <FormControl>
-                                    <SelectTrigger className="h-16 px-6 rounded-2xl bg-secondary/50 border-none focus:ring-primary text-right font-medium text-lg" data-testid="select-project-type">
-                                      <SelectValue placeholder="اختر نوع الخدمة" />
-                                    </SelectTrigger>
-                                  </FormControl>
-                                  <SelectContent className="rounded-2xl border-border/40">
-                                    {projectTypes.map((type) => (
-                                      <SelectItem key={type.value} value={type.value} className="text-right p-3 font-bold">{type.label}</SelectItem>
-                                    ))}
-                                  </SelectContent>
-                                </Select>
-                                <FormMessage />
-                              </FormItem>
-                            )}
-                          />
-                        </div>
+    try {
+      if (formData.contactMethod === "whatsapp") {
+        const whatsappMessage = `مرحباً! أريد التواصل معكم\n\nالاسم: ${formData.name}\nرقم الهاتف: ${formData.phone}\n\nالرسالة: ${formData.message}`;
+        const whatsappUrl = `https://wa.me/201155201921?text=${encodeURIComponent(whatsappMessage)}`;
+        window.open(whatsappUrl, '_blank');
+        setIsSubmitted(true);
+      } else {
+        const response = await fetch("/api/messages", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            name: formData.name,
+            email: "ma3k.2025@gmail.com",
+            phone: formData.phone,
+            message: `طلب تواصل جديد من العميل:\n\nاسم العميل: ${formData.name}\nرقم الهاتف: ${formData.phone}\n\nرسالة العميل:\n${formData.message}\n\nطريقة التواصل المفضلة: إيميل`
+          }),
+        });
 
-                        <FormField
-                          control={form.control}
-                          name="message"
-                          render={({ field }) => (
-                            <FormItem className="space-y-4">
-                              <FormLabel className="text-lg font-black">تفاصيل المشروع</FormLabel>
-                              <FormControl>
-                                <Textarea 
-                                  placeholder="اشرح لنا فكرتك أو المتطلبات الأساسية لمشروعك..." 
-                                  className="min-h-[200px] p-6 rounded-[2rem] bg-secondary/50 border-none focus-visible:ring-primary text-right font-medium text-lg resize-none" 
-                                  {...field} 
-                                  data-testid="textarea-message"
-                                />
-                              </FormControl>
-                              <FormMessage />
-                            </FormItem>
-                          )}
-                        />
+        if (response.ok) {
+          setIsSubmitted(true);
+          setFormData({ name: "", phone: "", message: "", contactMethod: "email" });
+          
+          toast({
+            title: "تم إرسال الرسالة بنجاح",
+            description: "سنتواصل معك قريباً إن شاء الله",
+          });
+        } else {
+          throw new Error("Failed to send message");
+        }
+      }
+    } catch (error) {
+      console.error("Error sending message:", error);
+      toast({
+        title: "خطأ في الإرسال",
+        description: "حدث خطأ أثناء إرسال الرسالة. يرجى المحاولة مرة أخرى.",
+        variant: "destructive"
+      });
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
 
-                        <Button type="submit" size="lg" className="w-full h-20 text-2xl font-black rounded-[2rem] shadow-2xl shadow-primary/30 transition-all hover:scale-[1.02]" disabled={mutation.isPending} data-testid="button-submit">
-                          {mutation.isPending ? (
-                            <div className="flex items-center gap-3 justify-center">
-                              <Loader2 className="w-8 h-8 animate-spin" />
-                              جاري الإرسال...
-                            </div>
-                          ) : "أرسل الطلب الآن"}
-                        </Button>
-                      </form>
-                    </Form>
-                  )}
-                </CardContent>
-              </Card>
-            </div>
+  const benefits = [
+    { icon: Clock, text: "استجابة سريعة خلال ساعة" },
+    { icon: Users, text: "فريق متخصص ومحترف" },
+    { icon: Shield, text: "أسعار تنافسية ومناسبة" },
+    { icon: CheckCircle, text: "دعم فني مستمر" }
+  ];
 
-            <div className="space-y-10 order-1 lg:order-2">
-              <div className="space-y-10">
-                <h3 className="text-3xl font-black mb-10 text-right">معلومات التواصل</h3>
-                {[
-                  { icon: Mail, title: "البريد الإلكتروني", desc: "hello@qirox.com", color: "text-blue-500" },
-                  { icon: Phone, title: "واتساب / هاتف", desc: "+966 500 000 000", color: "text-emerald-500" },
-                  { icon: Clock, title: "ساعات العمل", desc: "الأحد - الخميس: 9ص - 6م", color: "text-amber-500" }
-                ].map((item, i) => (
-                  <Card key={i} className="border-none bg-background shadow-sm rounded-3xl overflow-hidden hover:shadow-md transition-all group">
-                    <CardContent className="p-8 text-right flex items-center gap-6 justify-end">
-                      <div className="flex-1">
-                        <h4 className="font-black text-lg mb-1">{item.title}</h4>
-                        <p className="text-muted-foreground font-medium">{item.desc}</p>
-                      </div>
-                      <div className={`w-14 h-14 rounded-2xl bg-secondary flex items-center justify-center ${item.color} group-hover:bg-primary group-hover:text-white transition-all`}>
-                        <item.icon className="w-7 h-7" />
-                      </div>
-                    </CardContent>
-                  </Card>
-                ))}
+  if (isSubmitted) {
+    return (
+      <div 
+        className="min-h-screen flex items-center justify-center py-24 px-6"
+        style={{ background: "var(--ma3k-darker)" }}
+      >
+        <motion.div
+          initial={{ opacity: 0, scale: 0.9 }}
+          animate={{ opacity: 1, scale: 1 }}
+          transition={{ duration: 0.5 }}
+          className="text-center max-w-lg mx-auto"
+        >
+          <Card 
+            className="border-0"
+            style={{ 
+              background: "var(--glass-bg)",
+              border: "1px solid var(--glass-border)"
+            }}
+          >
+            <CardContent className="p-8 md:p-12">
+              <motion.div
+                initial={{ scale: 0 }}
+                animate={{ scale: 1 }}
+                transition={{ delay: 0.2, type: "spring", stiffness: 200 }}
+                className="w-20 h-20 rounded-full flex items-center justify-center mx-auto mb-6"
+                style={{ background: "var(--ma3k-green)" }}
+              >
+                <CheckCircle className="w-10 h-10 text-white" />
+              </motion.div>
+              
+              <h1 
+                className="text-2xl md:text-3xl font-bold mb-4"
+                style={{ color: "var(--ma3k-beige)" }}
+              >
+                تم إرسال رسالتك بنجاح!
+              </h1>
+              <p 
+                className="mb-8"
+                style={{ color: "var(--ma3k-beige-dark)" }}
+              >
+                شكراً لتواصلك معنا. تم استلام رسالتك وسنرد عليك في أقرب وقت ممكن إن شاء الله.
+              </p>
+              
+              <div className="flex flex-col sm:flex-row gap-4 justify-center">
+                <Button 
+                  onClick={() => setIsSubmitted(false)}
+                  style={{ 
+                    background: "linear-gradient(135deg, var(--ma3k-teal), var(--ma3k-green))",
+                    color: "white"
+                  }}
+                  data-testid="button-send-another"
+                >
+                  إرسال رسالة أخرى
+                </Button>
+                
+                <Button 
+                  variant="outline"
+                  onClick={() => window.location.href = "/"}
+                  style={{ 
+                    borderColor: "var(--ma3k-green)",
+                    color: "var(--ma3k-green)"
+                  }}
+                  data-testid="button-back-home"
+                >
+                  العودة للرئيسية
+                </Button>
               </div>
+            </CardContent>
+          </Card>
+        </motion.div>
+      </div>
+    );
+  }
 
-              <Card className="border-none bg-primary p-10 rounded-[2.5rem] shadow-2xl shadow-primary/20 overflow-hidden relative">
-                <div className="absolute inset-0 bg-gradient-to-tr from-black/20 to-transparent pointer-events-none" />
-                <div className="relative z-10 text-white text-right">
-                  <h4 className="text-2xl font-black mb-4">انضم إلى مجتمعنا</h4>
-                  <p className="text-white/80 font-medium mb-8 leading-relaxed">تابعنا على وسائل التواصل الاجتماعي لتبقى على اطلاع بآخر التحديثات والخدمات.</p>
-                  <div className="flex gap-4 justify-end">
-                    {[Twitter, Instagram, Linkedin].map((Icon, i) => (
-                      <Button key={i} size="icon" variant="ghost" className="w-12 h-12 rounded-xl bg-white/10 hover:bg-white text-white hover:text-primary border-none">
-                        <Icon className="w-6 h-6" />
-                      </Button>
-                    ))}
+  return (
+    <div 
+      className="min-h-screen py-24"
+      style={{ background: "var(--ma3k-darker)" }}
+    >
+      <div className="container mx-auto px-6">
+        {/* Header Section */}
+        <motion.div
+          initial={{ opacity: 0, y: 30 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6 }}
+          className="text-center mb-12"
+        >
+          <Badge 
+            className="mb-6 px-4 py-2"
+            style={{ 
+              background: "var(--glass-bg)", 
+              border: "1px solid var(--ma3k-green)", 
+              color: "var(--ma3k-green)" 
+            }}
+            data-testid="badge-contact"
+          >
+            <MessageCircle className="w-4 h-4 ml-2" />
+            نحن هنا لمساعدتك
+          </Badge>
+          <h1 
+            className="text-4xl md:text-5xl font-black mb-4"
+            style={{ color: "var(--ma3k-beige)" }}
+          >
+            تواصل <span style={{ color: "var(--ma3k-green)" }}>معنا</span>
+          </h1>
+          <p 
+            className="text-lg max-w-2xl mx-auto"
+            style={{ color: "var(--ma3k-beige-dark)" }}
+          >
+            نحن هنا للإجابة على استفساراتك ومساعدتك في تحقيق أهدافك الرقمية
+          </p>
+        </motion.div>
+
+        <div className="grid lg:grid-cols-2 gap-8 max-w-6xl mx-auto">
+          {/* Contact Form */}
+          <motion.div
+            initial={{ opacity: 0, x: -30 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ duration: 0.6, delay: 0.2 }}
+          >
+            <Card 
+              className="border-0"
+              style={{ 
+                background: "var(--glass-bg)",
+                border: "1px solid var(--glass-border)"
+              }}
+            >
+              <CardContent className="p-6 md:p-8">
+                <h2 
+                  className="text-2xl font-bold mb-6"
+                  style={{ color: "var(--ma3k-beige)" }}
+                >
+                  أرسل لنا رسالة
+                </h2>
+                
+                <form onSubmit={handleSubmit} className="space-y-5">
+                  <div>
+                    <label 
+                      className="block mb-2 text-sm font-medium"
+                      style={{ color: "var(--ma3k-beige-dark)" }}
+                    >
+                      الاسم *
+                    </label>
+                    <Input
+                      type="text"
+                      name="name"
+                      value={formData.name}
+                      onChange={handleInputChange}
+                      required
+                      className="border"
+                      style={{ 
+                        background: "var(--ma3k-dark)",
+                        borderColor: "var(--ma3k-border)",
+                        color: "var(--ma3k-beige)"
+                      }}
+                      placeholder="اكتب اسمك الكريم"
+                      data-testid="input-name"
+                    />
+                  </div>
+
+                  <div>
+                    <label 
+                      className="block mb-2 text-sm font-medium"
+                      style={{ color: "var(--ma3k-beige-dark)" }}
+                    >
+                      رقم الهاتف *
+                    </label>
+                    <Input
+                      type="tel"
+                      name="phone"
+                      value={formData.phone}
+                      onChange={handleInputChange}
+                      required
+                      className="border"
+                      style={{ 
+                        background: "var(--ma3k-dark)",
+                        borderColor: "var(--ma3k-border)",
+                        color: "var(--ma3k-beige)"
+                      }}
+                      placeholder="05xxxxxxxx"
+                      data-testid="input-phone"
+                    />
+                  </div>
+
+                  <div>
+                    <label 
+                      className="block mb-2 text-sm font-medium"
+                      style={{ color: "var(--ma3k-beige-dark)" }}
+                    >
+                      الرسالة *
+                    </label>
+                    <Textarea
+                      name="message"
+                      value={formData.message}
+                      onChange={handleInputChange}
+                      required
+                      rows={4}
+                      className="resize-none border"
+                      style={{ 
+                        background: "var(--ma3k-dark)",
+                        borderColor: "var(--ma3k-border)",
+                        color: "var(--ma3k-beige)"
+                      }}
+                      placeholder="اكتب رسالتك هنا..."
+                      data-testid="textarea-message"
+                    />
+                  </div>
+
+                  {/* Contact Method Selection */}
+                  <div>
+                    <label 
+                      className="block mb-3 text-sm font-medium"
+                      style={{ color: "var(--ma3k-beige-dark)" }}
+                    >
+                      طريقة التواصل المفضلة
+                    </label>
+                    <div className="grid grid-cols-2 gap-4">
+                      <button
+                        type="button"
+                        onClick={() => handleContactMethodChange("email")}
+                        className="p-4 rounded-xl border-2 transition-all"
+                        style={{
+                          borderColor: formData.contactMethod === "email" ? "var(--ma3k-green)" : "var(--ma3k-border)",
+                          background: formData.contactMethod === "email" ? "rgba(122, 201, 67, 0.1)" : "var(--ma3k-dark)"
+                        }}
+                        data-testid="button-method-email"
+                      >
+                        <Mail className="w-6 h-6 mx-auto mb-2" style={{ color: "var(--ma3k-green)" }} />
+                        <span className="font-medium" style={{ color: "var(--ma3k-beige)" }}>الإيميل</span>
+                        <p className="text-xs mt-1" style={{ color: "var(--ma3k-beige-dark)" }}>ma3k.2025@gmail.com</p>
+                      </button>
+
+                      <button
+                        type="button"
+                        onClick={() => handleContactMethodChange("whatsapp")}
+                        className="p-4 rounded-xl border-2 transition-all"
+                        style={{
+                          borderColor: formData.contactMethod === "whatsapp" ? "var(--ma3k-teal)" : "var(--ma3k-border)",
+                          background: formData.contactMethod === "whatsapp" ? "rgba(0, 168, 150, 0.1)" : "var(--ma3k-dark)"
+                        }}
+                        data-testid="button-method-whatsapp"
+                      >
+                        <MessageCircle className="w-6 h-6 mx-auto mb-2" style={{ color: "var(--ma3k-teal)" }} />
+                        <span className="font-medium" style={{ color: "var(--ma3k-beige)" }}>واتساب</span>
+                        <p className="text-xs mt-1" style={{ color: "var(--ma3k-beige-dark)" }}>201155201921</p>
+                      </button>
+                    </div>
+                  </div>
+
+                  <Button
+                    type="submit"
+                    disabled={isSubmitting}
+                    className="w-full"
+                    style={{ 
+                      background: "linear-gradient(135deg, var(--ma3k-teal), var(--ma3k-green))",
+                      color: "white"
+                    }}
+                    data-testid="button-submit"
+                  >
+                    {isSubmitting ? (
+                      <div className="flex items-center gap-2">
+                        <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                        جاري الإرسال...
+                      </div>
+                    ) : (
+                      <div className="flex items-center gap-2">
+                        <Send className="w-5 h-5" />
+                        {formData.contactMethod === "whatsapp" ? "إرسال عبر واتساب" : "إرسال الرسالة"}
+                      </div>
+                    )}
+                  </Button>
+                </form>
+              </CardContent>
+            </Card>
+          </motion.div>
+
+          {/* Contact Info */}
+          <motion.div
+            initial={{ opacity: 0, x: 30 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ duration: 0.6, delay: 0.4 }}
+            className="space-y-6"
+          >
+            <Card 
+              className="border-0"
+              style={{ 
+                background: "var(--glass-bg)",
+                border: "1px solid var(--glass-border)"
+              }}
+            >
+              <CardContent className="p-6">
+                <h3 
+                  className="text-xl font-bold mb-6"
+                  style={{ color: "var(--ma3k-beige)" }}
+                >
+                  معلومات التواصل
+                </h3>
+                
+                <div className="space-y-5">
+                  <div className="flex items-center gap-4">
+                    <div 
+                      className="w-12 h-12 rounded-xl flex items-center justify-center"
+                      style={{ background: "linear-gradient(135deg, var(--ma3k-teal), var(--ma3k-green))" }}
+                    >
+                      <Mail className="w-6 h-6 text-white" />
+                    </div>
+                    <div>
+                      <h4 className="font-semibold" style={{ color: "var(--ma3k-beige)" }}>البريد الإلكتروني</h4>
+                      <p style={{ color: "var(--ma3k-beige-dark)" }}>ma3k.2025@gmail.com</p>
+                    </div>
+                  </div>
+
+                  <div className="flex items-center gap-4">
+                    <div 
+                      className="w-12 h-12 rounded-xl flex items-center justify-center"
+                      style={{ background: "linear-gradient(135deg, var(--ma3k-green), var(--ma3k-teal))" }}
+                    >
+                      <Phone className="w-6 h-6 text-white" />
+                    </div>
+                    <div>
+                      <h4 className="font-semibold" style={{ color: "var(--ma3k-beige)" }}>رقم الهاتف والواتساب</h4>
+                      <p dir="ltr" style={{ color: "var(--ma3k-beige-dark)" }}>+20 115 520 1921</p>
+                    </div>
+                  </div>
+
+                  <div className="flex items-center gap-4">
+                    <div 
+                      className="w-12 h-12 rounded-xl flex items-center justify-center"
+                      style={{ background: "linear-gradient(135deg, var(--ma3k-teal), var(--ma3k-green))" }}
+                    >
+                      <MessageCircle className="w-6 h-6 text-white" />
+                    </div>
+                    <div>
+                      <h4 className="font-semibold" style={{ color: "var(--ma3k-beige)" }}>الدعم الفني</h4>
+                      <p style={{ color: "var(--ma3k-beige-dark)" }}>متاح 24/7 لخدمتك</p>
+                    </div>
                   </div>
                 </div>
-              </Card>
-            </div>
-          </div>
+              </CardContent>
+            </Card>
+
+            <Card 
+              className="border-0"
+              style={{ 
+                background: "var(--glass-bg)",
+                border: "1px solid var(--glass-border)"
+              }}
+            >
+              <CardContent className="p-6">
+                <h3 
+                  className="text-xl font-bold mb-6"
+                  style={{ color: "var(--ma3k-beige)" }}
+                >
+                  أوقات العمل
+                </h3>
+                
+                <div className="space-y-4">
+                  <div className="flex justify-between items-center gap-4">
+                    <span style={{ color: "var(--ma3k-beige-dark)" }}>السبت - الخميس</span>
+                    <span className="font-semibold" style={{ color: "var(--ma3k-beige)" }}>9:00 ص - 11:00 م</span>
+                  </div>
+                  <div className="flex justify-between items-center gap-4">
+                    <span style={{ color: "var(--ma3k-beige-dark)" }}>الجمعة</span>
+                    <span className="font-semibold" style={{ color: "var(--ma3k-beige)" }}>2:00 م - 11:00 م</span>
+                  </div>
+                  <div className="flex justify-between items-center gap-4">
+                    <span style={{ color: "var(--ma3k-beige-dark)" }}>الاستجابة</span>
+                    <span className="font-semibold" style={{ color: "var(--ma3k-green)" }}>خلال ساعة واحدة</span>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+
+            <Card 
+              className="border-0"
+              style={{ 
+                background: "var(--glass-bg)",
+                border: "1px solid var(--glass-border)"
+              }}
+            >
+              <CardContent className="p-6">
+                <h3 
+                  className="text-xl font-bold mb-4"
+                  style={{ color: "var(--ma3k-beige)" }}
+                >
+                  لماذا تختارنا؟
+                </h3>
+                
+                <div className="space-y-3">
+                  {benefits.map((benefit, index) => (
+                    <div key={index} className="flex items-center gap-3">
+                      <benefit.icon className="w-5 h-5 flex-shrink-0" style={{ color: "var(--ma3k-green)" }} />
+                      <span style={{ color: "var(--ma3k-beige-dark)" }}>{benefit.text}</span>
+                    </div>
+                  ))}
+                </div>
+              </CardContent>
+            </Card>
+          </motion.div>
         </div>
-      </section>
-    </Layout>
+      </div>
+    </div>
   );
 }

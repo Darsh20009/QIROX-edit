@@ -1,27 +1,26 @@
-import mongoose from "mongoose";
+import { Pool, neonConfig } from '@neondatabase/serverless';
+import { drizzle } from 'drizzle-orm/neon-serverless';
+import ws from "ws";
+import * as schema from "@shared/schema";
 
-const MONGODB_URI = process.env.MONGODB_URI;
+neonConfig.webSocketConstructor = ws;
 
-if (!MONGODB_URI) {
-  console.warn("MONGODB_URI not set, using in-memory storage");
-}
+// Database connection with fallback support
+let db: any = null;
+let pool: Pool | null = null;
 
-export async function connectDB() {
-  if (!MONGODB_URI) {
-    console.log("Skipping MongoDB connection - no URI provided");
-    return false;
-  }
-
+if (process.env.DATABASE_URL) {
   try {
-    await mongoose.connect(MONGODB_URI);
-    console.log("Connected to MongoDB Atlas");
-    return true;
+    pool = new Pool({ connectionString: process.env.DATABASE_URL });
+    db = drizzle({ client: pool, schema });
+    console.log('Connected to PostgreSQL database');
   } catch (error) {
-    console.error("MongoDB connection error:", error);
-    return false;
+    console.warn('Failed to connect to database, will use in-memory storage:', error);
+    db = null;
+    pool = null;
   }
+} else {
+  console.log('No DATABASE_URL provided, using in-memory storage');
 }
 
-export function isConnected() {
-  return mongoose.connection.readyState === 1;
-}
+export { pool, db };

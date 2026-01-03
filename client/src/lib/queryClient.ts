@@ -1,28 +1,9 @@
 import { QueryClient, QueryFunction } from "@tanstack/react-query";
 
-function getAuthToken(): string | null {
-  if (typeof window !== "undefined") {
-    return localStorage.getItem("qirox-token");
-  }
-  return null;
-}
-
-function getAuthHeaders(): Record<string, string> {
-  const token = getAuthToken();
-  return token ? { Authorization: `Bearer ${token}` } : {};
-}
-
 async function throwIfResNotOk(res: Response) {
   if (!res.ok) {
-    let errorMessage = res.statusText;
-    try {
-      const data = await res.json();
-      errorMessage = data.error || errorMessage;
-    } catch {
-      const text = await res.text();
-      if (text) errorMessage = text;
-    }
-    throw new Error(errorMessage);
+    const text = (await res.text()) || res.statusText;
+    throw new Error(`${res.status}: ${text}`);
   }
 }
 
@@ -31,57 +12,15 @@ export async function apiRequest(
   url: string,
   data?: unknown | undefined,
 ): Promise<Response> {
-  const headers: Record<string, string> = {
-    ...getAuthHeaders(),
-  };
-  
-  if (data) {
-    headers["Content-Type"] = "application/json";
-  }
-
   const res = await fetch(url, {
     method,
-    headers,
+    headers: data ? { "Content-Type": "application/json" } : {},
     body: data ? JSON.stringify(data) : undefined,
     credentials: "include",
   });
 
   await throwIfResNotOk(res);
   return res;
-}
-
-export async function apiRequestJson<T>(
-  method: string,
-  url: string,
-  data?: unknown | undefined,
-): Promise<T> {
-  const headers: Record<string, string> = {
-    ...getAuthHeaders(),
-  };
-  
-  if (data) {
-    headers["Content-Type"] = "application/json";
-  }
-
-  const res = await fetch(url, {
-    method,
-    headers,
-    body: data ? JSON.stringify(data) : undefined,
-    credentials: "include",
-  });
-
-  if (!res.ok) {
-    let errorMessage = res.statusText;
-    try {
-      const errorData = await res.json();
-      errorMessage = errorData.error || errorMessage;
-    } catch {
-      // ignore JSON parse errors
-    }
-    throw new Error(errorMessage);
-  }
-
-  return res.json();
 }
 
 type UnauthorizedBehavior = "returnNull" | "throw";
@@ -92,24 +31,13 @@ export const getQueryFn: <T>(options: {
   async ({ queryKey }) => {
     const res = await fetch(queryKey.join("/") as string, {
       credentials: "include",
-      headers: getAuthHeaders(),
     });
 
     if (unauthorizedBehavior === "returnNull" && res.status === 401) {
       return null;
     }
 
-    if (!res.ok) {
-      let errorMessage = res.statusText;
-      try {
-        const data = await res.json();
-        errorMessage = data.error || errorMessage;
-      } catch {
-        // ignore
-      }
-      throw new Error(errorMessage);
-    }
-
+    await throwIfResNotOk(res);
     return await res.json();
   };
 
