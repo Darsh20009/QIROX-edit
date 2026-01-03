@@ -31,6 +31,8 @@ export const users = pgTable("users", {
   projectStatus: text("project_status").default("pending"),
   currentStage: text("current_stage"),
   stageDeadline: timestamp("stage_deadline"),
+  whatsapp: text("whatsapp"),
+  businessType: text("business_type"),
 });
 
 export const dailyUpdates = pgTable("daily_updates", {
@@ -63,6 +65,8 @@ export const projects = pgTable("projects", {
   isApproved: text("is_approved").notNull().default("no"),
   approvedBy: varchar("approved_by"),
   createdAt: timestamp("created_at").defaultNow().notNull(),
+  crUrl: text("cr_url"),
+  ibanUrl: text("iban_url"),
 });
 
 export const contactMessages = pgTable("contact_messages", {
@@ -101,6 +105,8 @@ export const insertUserSchema = createInsertSchema(users).pick({
   projectStatus: true,
   currentStage: true,
   stageDeadline: true,
+  whatsapp: true,
+  businessType: true,
 });
 export type User = typeof users.$inferSelect;
 export type InsertUser = z.infer<typeof insertUserSchema>;

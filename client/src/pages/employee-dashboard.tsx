@@ -113,6 +113,8 @@ export default function EmployeeDashboard() {
                             <div>
                               <h3 className="text-lg font-bold text-slate-900">{p.name}</h3>
                               <p className="text-sm text-slate-500">{p.type}</p>
+                              {p.crUrl && <a href={p.crUrl} target="_blank" className="text-xs text-primary underline block mt-1">عرض السجل التجاري</a>}
+                              {p.ibanUrl && <a href={p.ibanUrl} target="_blank" className="text-xs text-primary underline block">عرض شهادة الآيبان</a>}
                             </div>
                             <div className="flex gap-2">
                               <Button 

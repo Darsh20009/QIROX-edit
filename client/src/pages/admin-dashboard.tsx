@@ -201,6 +201,10 @@ export default function AdminDashboard() {
                           <div>
                             <p className="font-bold text-slate-900">{p.name}</p>
                             <p className="text-xs text-slate-500">{p.type}</p>
+                            <div className="flex gap-2 mt-1">
+                              {p.crUrl && <Badge variant="outline" className="text-[10px] h-4">CR</Badge>}
+                              {p.ibanUrl && <Badge variant="outline" className="text-[10px] h-4">IBAN</Badge>}
+                            </div>
                           </div>
                         </div>
                         <div className="flex items-center gap-4">

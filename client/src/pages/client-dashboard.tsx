@@ -40,6 +40,9 @@ export default function ClientDashboard() {
                 أهلاً بك، {user?.username}
               </h1>
               <p className="text-muted-foreground mt-1 font-medium">مرحباً بك في لوحة تحكم مشروعك: <span className="text-primary">{userData?.projectName || "قيد المراجعة"}</span></p>
+              <div className="mt-2 flex gap-2">
+                <Badge variant="outline" className="text-xs">رقم الواتساب: {userData?.whatsapp || userData?.phone || "غير مسجل"}</Badge>
+              </div>
             </div>
             <div className="flex gap-3">
               <Button 

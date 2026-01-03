@@ -81,12 +81,13 @@ export default function Register() {
       await register({
         email: formData.email, 
         password: formData.password, 
-        name: formData.name, 
+        username: formData.email.split('@')[0] + Math.floor(Math.random() * 1000), // Simple username generation
+        role: "visitor",
+        tenantId: "default",
         phone: formData.phone,
         projectName: formData.projectName,
         projectIdea: formData.projectIdea,
-        role: "visitor",
-        tenantId: "default",
+        whatsapp: formData.phone, // Assuming phone is whatsapp
         metadata: JSON.stringify(metadataObj)
       });
 

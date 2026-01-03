@@ -85,6 +85,8 @@ export class MemStorage implements IStorage {
       projectStatus: (insertUser as any).projectStatus || "pending",
       currentStage: (insertUser as any).currentStage || null,
       stageDeadline: (insertUser as any).stageDeadline || null,
+      whatsapp: (insertUser as any).whatsapp || null,
+      businessType: (insertUser as any).businessType || null,
     };
     this.users.set(id, user);
     return user;
@@ -120,6 +122,8 @@ export class MemStorage implements IStorage {
       tenantId: insert.tenantId || "default",
       isApproved: insert.isApproved || "no",
       approvedBy: insert.approvedBy || null,
+      crUrl: insert.crUrl ?? null,
+      ibanUrl: insert.ibanUrl ?? null,
     };
     this.projects.set(id, project);
     return project;
