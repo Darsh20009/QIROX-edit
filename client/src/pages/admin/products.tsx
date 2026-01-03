@@ -47,6 +47,20 @@ export default function AdminProducts() {
     },
   });
 
+  const statusColors: Record<string, "default" | "secondary" | "destructive" | "outline"> = {
+    active: "default",
+    inactive: "secondary",
+    out_of_stock: "destructive",
+    draft: "outline",
+  };
+
+  const statusLabels: Record<string, string> = {
+    active: "نشط",
+    inactive: "غير نشط",
+    out_of_stock: "نفذ من المخزون",
+    draft: "مسودة",
+  };
+
   return (
     <div className="flex h-screen bg-background">
       <AdminSidebar />
@@ -135,8 +149,8 @@ export default function AdminProducts() {
                             </Badge>
                           </td>
                           <td className="p-3">
-                            <Badge variant={product.status === "active" ? "default" : "secondary"}>
-                              {product.status}
+                            <Badge variant={statusColors[product.status] || "secondary"}>
+                              {statusLabels[product.status] || product.status}
                             </Badge>
                           </td>
                           <td className="p-3 flex gap-2">

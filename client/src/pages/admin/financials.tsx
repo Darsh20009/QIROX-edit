@@ -55,6 +55,62 @@ export default function AdminFinancialsPage() {
             </CardContent>
           </Card>
         </div>
+
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
+          <Card>
+            <CardHeader>
+              <CardTitle>سجل العمليات المالية</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-4">
+                {[
+                  { id: "INV-001", customer: "مؤسسة الحلول الذكية", amount: "4,500 ر.س", status: "مدفوع", date: "2024-01-01" },
+                  { id: "INV-002", customer: "شركة الإمداد", amount: "12,200 ر.س", status: "معلق", date: "2024-01-02" },
+                  { id: "INV-003", customer: "متجر الرواد", amount: "3,150 ر.س", status: "مدفوع", date: "2024-01-03" }
+                ].map((inv) => (
+                  <div key={inv.id} className="flex justify-between items-center pb-3 border-b last:border-0 hover:bg-muted/30 p-2 rounded-lg transition-colors">
+                    <div>
+                      <p className="font-bold text-sm">{inv.id}</p>
+                      <p className="text-xs text-muted-foreground">{inv.customer}</p>
+                    </div>
+                    <div className="text-right">
+                      <p className="font-black text-primary text-sm">{inv.amount}</p>
+                      <p className={`text-[10px] font-bold ${inv.status === "مدفوع" ? "text-green-500" : "text-amber-500"}`}>{inv.status}</p>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </CardContent>
+          </Card>
+          
+          <Card>
+            <CardHeader>
+              <CardTitle>توزيع المصروفات</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-6">
+                {[
+                  { category: "السيرفرات", amount: "1,200 ر.س", percentage: "30%" },
+                  { category: "التسويق", amount: "2,500 ر.س", percentage: "55%" },
+                  { category: "الدعم الفني", amount: "800 ر.س", percentage: "15%" }
+                ].map((item, i) => (
+                  <div key={i} className="space-y-2">
+                    <div className="flex justify-between text-xs">
+                      <span className="font-bold">{item.category}</span>
+                      <span className="text-muted-foreground">{item.amount} ({item.percentage})</span>
+                    </div>
+                    <div className="w-full bg-secondary h-2 rounded-full overflow-hidden">
+                      <div 
+                        className="bg-primary h-full" 
+                        style={{ width: item.percentage }}
+                      />
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </CardContent>
+          </Card>
+        </div>
       </div>
     </div>
   );

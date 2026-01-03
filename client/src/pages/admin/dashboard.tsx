@@ -72,7 +72,7 @@ export default function AdminDashboard() {
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
-            <Card className="border-primary/20 bg-primary/5 hover-elevate transition-all">
+            <Card className="border-primary/20 bg-primary/5 hover-elevate transition-all cursor-pointer" onClick={() => setLocation("/kanban")}>
               <CardHeader className="pb-2">
                 <CardTitle className="text-xs font-bold text-primary">QIROX Build</CardTitle>
               </CardHeader>
@@ -81,7 +81,7 @@ export default function AdminDashboard() {
                 <p className="text-[10px] text-muted-foreground">مشاريع نشطة</p>
               </CardContent>
             </Card>
-            <Card className="border-primary/20 bg-primary/5 hover-elevate transition-all">
+            <Card className="border-primary/20 bg-primary/5 hover-elevate transition-all cursor-pointer" onClick={() => setLocation("/admin/support")}>
               <CardHeader className="pb-2">
                 <CardTitle className="text-xs font-bold text-primary">QIROX Requests</CardTitle>
               </CardHeader>
@@ -90,7 +90,7 @@ export default function AdminDashboard() {
                 <p className="text-[10px] text-muted-foreground">طلبات معلقة</p>
               </CardContent>
             </Card>
-            <Card className="border-primary/20 bg-primary/5 hover-elevate transition-all">
+            <Card className="border-primary/20 bg-primary/5 hover-elevate transition-all cursor-pointer" onClick={() => setLocation("/meetings")}>
               <CardHeader className="pb-2">
                 <CardTitle className="text-xs font-bold text-primary">QIROX Meet</CardTitle>
               </CardHeader>
@@ -99,7 +99,7 @@ export default function AdminDashboard() {
                 <p className="text-[10px] text-muted-foreground">اجتماعات اليوم</p>
               </CardContent>
             </Card>
-            <Card className="border-primary/20 bg-primary/5 hover-elevate transition-all">
+            <Card className="border-primary/20 bg-primary/5 hover-elevate transition-all cursor-pointer" onClick={() => setLocation("/admin/financials")}>
               <CardHeader className="pb-2">
                 <CardTitle className="text-xs font-bold text-primary">QIROX Finance</CardTitle>
               </CardHeader>
@@ -117,15 +117,19 @@ export default function AdminDashboard() {
               </CardHeader>
               <CardContent>
                 <div className="space-y-4">
-                  {[1, 2, 3].map((i) => (
-                    <div key={i} className="flex justify-between items-center pb-3 border-b last:border-0">
+                  {[
+                    { id: 1004, customer: "أحمد محمد", amount: 1500, status: "مكتمل" },
+                    { id: 1003, customer: "سارة علي", amount: 750, status: "قيد التجهيز" },
+                    { id: 1002, customer: "خالد عبدالله", amount: 2200, status: "بانتظار التأكيد" }
+                  ].map((order) => (
+                    <div key={order.id} className="flex justify-between items-center pb-3 border-b last:border-0 hover:bg-muted/30 p-2 rounded-lg transition-colors">
                       <div>
-                        <p className="font-medium">طلب #{1001 + i}</p>
-                        <p className="text-sm text-muted-foreground">عميل {i}</p>
+                        <p className="font-bold">طلب #{order.id}</p>
+                        <p className="text-xs text-muted-foreground">{order.customer}</p>
                       </div>
                       <div className="text-right">
-                        <p className="font-medium">{500 * i} ر.س</p>
-                        <p className="text-sm text-green-600">مكتمل</p>
+                        <p className="font-black text-primary">{order.amount} ر.س</p>
+                        <p className={`text-[10px] font-bold ${order.status === "مكتمل" ? "text-green-500" : "text-amber-500"}`}>{order.status}</p>
                       </div>
                     </div>
                   ))}
@@ -139,13 +143,17 @@ export default function AdminDashboard() {
               </CardHeader>
               <CardContent>
                 <div className="space-y-4">
-                  {[1, 2, 3].map((i) => (
-                    <div key={i} className="flex justify-between items-center pb-3 border-b last:border-0">
+                  {[
+                    { name: "فهد العتيبي", email: "fahad@example.com", time: "قبل ساعتين" },
+                    { name: "ليلى حسن", email: "laila@qirox.net", time: "قبل 5 ساعات" },
+                    { name: "محمد إبراهيم", email: "m.ibra@gmail.com", time: "أمس" }
+                  ].map((user, i) => (
+                    <div key={i} className="flex justify-between items-center pb-3 border-b last:border-0 hover:bg-muted/30 p-2 rounded-lg transition-colors">
                       <div>
-                        <p className="font-medium">مستخدم {i}</p>
-                        <p className="text-sm text-muted-foreground">user{i}@example.com</p>
+                        <p className="font-bold">{user.name}</p>
+                        <p className="text-xs text-muted-foreground">{user.email}</p>
                       </div>
-                      <p className="text-sm text-muted-foreground">قبل {i} أيام</p>
+                      <p className="text-[10px] font-medium text-muted-foreground">{user.time}</p>
                     </div>
                   ))}
                 </div>

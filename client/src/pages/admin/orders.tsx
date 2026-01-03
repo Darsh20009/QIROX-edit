@@ -46,10 +46,24 @@ export default function AdminOrders() {
     },
   });
 
-  const statusColors: Record<string, "default" | "secondary" | "destructive"> = {
+  const statusColors: Record<string, "default" | "secondary" | "destructive" | "outline"> = {
     pending: "secondary",
-    completed: "default",
+    confirmed: "outline",
+    preparing: "outline",
+    ready: "outline",
+    shipped: "outline",
+    delivered: "default",
     cancelled: "destructive",
+  };
+
+  const statusLabels: Record<string, string> = {
+    pending: "قيد الانتظار",
+    confirmed: "تم التأكيد",
+    preparing: "جاري التجهيز",
+    ready: "جاهز للاستلام",
+    shipped: "تم الشحن",
+    delivered: "تم التوصيل",
+    cancelled: "ملغي",
   };
 
   return (
@@ -136,7 +150,7 @@ export default function AdminOrders() {
                           <td className="p-3 font-medium">{order.total} ر.س</td>
                           <td className="p-3">
                             <Badge variant={statusColors[order.status] || "secondary"}>
-                              {order.status}
+                              {statusLabels[order.status] || order.status}
                             </Badge>
                           </td>
                           <td className="p-3 text-muted-foreground">
