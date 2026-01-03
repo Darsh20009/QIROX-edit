@@ -51,6 +51,9 @@
   --color-1: 160 84% 45%;
   --color-2: 270 84% 45%;
   --color-3: 200 84% 45%;
+  --glass-bg: rgba(255, 255, 255, 0.03);
+  --glass-border: rgba(255, 255, 255, 0.08);
+  --text-glow: 0 0 15px hsl(var(--primary) / 0.3);
 }
 
 .dark {
@@ -73,6 +76,8 @@
   --border: 220 20% 14%;
   --input: 220 20% 14%;
   --ring: 160 84% 45%;
+  --glass-bg: rgba(0, 0, 0, 0.4);
+  --glass-border: rgba(255, 255, 255, 0.05);
 }
 
 @layer base {
@@ -129,11 +134,21 @@
     border: 1px solid var(--glass-border);
   }
 
-  .text-gradient {
-    @apply bg-clip-text text-transparent bg-gradient-to-r from-primary via-purple-500 to-blue-500;
+  .text-glow {
+    text-shadow: var(--text-glow);
   }
 
-  /* Hide ugly search cancel button in Chrome until we can style it properly */
+  .shadow-neon {
+    box-shadow: 0 0 20px hsl(var(--primary) / 0.2);
+  }
+
+  .animate-pulse-glow {
+    animation: pulse-glow 3s ease-in-out infinite;
+  }
+}
+
+/**
+ * Using the elevate system.
   input[type="search"]::-webkit-search-cancel-button {
     @apply hidden;
   }

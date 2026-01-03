@@ -200,11 +200,11 @@ export default function Home() {
             </div>
 
             <h1 className="text-6xl md:text-8xl font-black tracking-tight leading-tight">
-              نصمم <span className="text-gradient">المستقبل</span> <br />
-              بذكاء <span className="relative inline-block">
+              نصمم <span className="text-gradient drop-shadow-[0_0_15px_rgba(34,197,94,0.3)]">المستقبل</span> <br />
+              بذكاء <span className="relative inline-block text-glow">
                 QIROX
                 <motion.span 
-                  className="absolute -bottom-2 left-0 w-full h-3 bg-primary/20 -z-10 rounded-full"
+                  className="absolute -bottom-2 left-0 w-full h-3 bg-primary/20 -z-10 rounded-full blur-[2px]"
                   initial={{ width: 0 }}
                   animate={{ width: "100%" }}
                   transition={{ delay: 1, duration: 1 }}

@@ -36,21 +36,21 @@ export default function ClientDashboard() {
           
           <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 animate-in fade-in slide-in-from-top-4 duration-700">
             <div>
-              <h1 className="text-3xl font-black bg-clip-text text-transparent bg-gradient-to-r from-primary to-primary/60">
+              <h1 className="text-4xl font-black bg-clip-text text-transparent bg-gradient-to-r from-primary via-emerald-500 to-teal-500 drop-shadow-[0_0_10px_rgba(16,185,129,0.2)]">
                 أهلاً بك، {user?.username}
               </h1>
-              <p className="text-muted-foreground mt-1 font-medium">مرحباً بك في لوحة تحكم مشروعك: <span className="text-primary">{userData?.projectName || "قيد المراجعة"}</span></p>
+              <p className="text-muted-foreground mt-1 font-medium">مرحباً بك في لوحة تحكم مشروعك: <span className="text-primary font-bold">{userData?.projectName || "قيد المراجعة"}</span></p>
               <div className="mt-2 flex gap-2">
-                <Badge variant="outline" className="text-xs">رقم الواتساب: {userData?.whatsapp || userData?.phone || "غير مسجل"}</Badge>
+                <Badge variant="outline" className="text-xs bg-primary/5 border-primary/20 text-primary px-3 py-1 rounded-full">رقم الواتساب: {userData?.whatsapp || userData?.phone || "غير مسجل"}</Badge>
               </div>
             </div>
             <div className="flex gap-3">
               <Button 
                 variant="outline" 
-                className="rounded-xl border-white/10 backdrop-blur-sm hover-elevate"
+                className="rounded-2xl border-primary/20 bg-primary/5 backdrop-blur-md hover-elevate active-elevate-2 font-bold px-6 h-12"
                 onClick={() => window.open(`https://wa.me/${userData?.assignedEmployeePhone || '966532441566'}`)}
               >
-                <MessageSquare className="ml-2 h-4 w-4" />
+                <MessageSquare className="ml-2 h-5 w-5 text-primary" />
                 تواصل مع المسؤول
               </Button>
             </div>

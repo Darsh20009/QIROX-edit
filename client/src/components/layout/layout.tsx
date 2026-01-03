@@ -72,40 +72,43 @@ export function Layout({ children }: LayoutProps) {
   return (
     <div className="min-h-screen bg-background flex flex-col">
       {/* Refined Sidebar for Desktop */}
-      <div className="hidden md:flex w-72 flex-col fixed inset-y-0 right-0 border-l border-border/40 bg-card/30 backdrop-blur-2xl glass-morphism">
+      <div className="hidden md:flex w-72 flex-col fixed inset-y-0 right-0 border-l border-primary/10 bg-background/40 backdrop-blur-3xl glass-morphism z-50">
         <div className="flex-1 flex flex-col pt-8 pb-4 overflow-y-auto">
           <div className="flex items-center px-8 mb-12">
             <div 
               id="interactive-logo"
               onClick={handleDownload}
-              className="flex items-center gap-3 cursor-pointer group"
+              className="flex items-center gap-4 cursor-pointer group"
               title="تحميل الأداة الذكية"
             >
-              <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-primary via-purple-600 to-blue-600 flex items-center justify-center text-white shadow-xl shadow-primary/30 transform transition-transform group-hover:scale-110 active:scale-95 animate-pulse-glow">
-                <span className="text-3xl font-black italic">Q</span>
+              <div className="w-14 h-14 rounded-[1.25rem] bg-gradient-to-br from-primary via-emerald-500 to-teal-500 flex items-center justify-center text-white shadow-[0_10px_30px_rgba(16,185,129,0.3)] transform transition-all group-hover:scale-110 group-hover:rotate-3 active:scale-95 animate-pulse-glow">
+                <span className="text-3xl font-black italic drop-shadow-md">Q</span>
               </div>
-              <span className="text-2xl font-black tracking-tighter text-gradient">QIROX</span>
+              <div className="flex flex-col">
+                <span className="text-2xl font-black tracking-tighter text-gradient leading-none">QIROX</span>
+                <span className="text-[10px] font-bold text-primary tracking-[0.3em] mt-1 opacity-70">SYSTEMS</span>
+              </div>
             </div>
           </div>
           
           <nav className="flex-1 px-4 space-y-2">
-            <p className="text-xs font-black text-muted-foreground px-4 mb-4 uppercase tracking-[0.2em]">القائمة الرئيسية</p>
+            <p className="text-[10px] font-black text-primary/40 px-6 mb-4 uppercase tracking-[0.4em]">المنظومة الذكية</p>
             {navigation.map((item) => {
               const isActive = location === item.href;
               return (
                 <Link key={item.name} href={item.href}>
-                  <a className={`group flex items-center justify-between px-4 py-3.5 text-sm font-bold rounded-2xl transition-all ${
+                  <a className={`group flex items-center justify-between px-6 py-4 text-sm font-black rounded-3xl transition-all duration-300 ${
                     isActive 
-                      ? "bg-primary text-primary-foreground shadow-lg shadow-primary/20" 
-                      : "text-muted-foreground hover:bg-secondary hover:text-foreground"
+                      ? "bg-primary text-primary-foreground shadow-[0_10px_20px_rgba(0,0,0,0.1)] scale-[1.02]" 
+                      : "text-muted-foreground hover:bg-primary/5 hover:text-primary"
                   }`}>
                     <div className="flex items-center">
-                      <item.icon className={`ml-3 flex-shrink-0 h-5 w-5 transition-colors ${
+                      <item.icon className={`ml-4 flex-shrink-0 h-5 w-5 transition-transform duration-300 group-hover:scale-110 ${
                         isActive ? "text-primary-foreground" : "text-muted-foreground group-hover:text-primary"
                       }`} />
                       {item.name}
                     </div>
-                    {isActive && <ChevronRight className="h-4 w-4" />}
+                    {isActive && <motion.div layoutId="active-nav" className="w-1.5 h-1.5 rounded-full bg-primary-foreground shadow-[0_0_10px_white]" />}
                   </a>
                 </Link>
               );
@@ -113,24 +116,27 @@ export function Layout({ children }: LayoutProps) {
           </nav>
         </div>
 
-        <div className="p-4 border-t border-border/40">
-          <div className="bg-secondary/50 rounded-2xl p-4 mb-4">
-            <div className="flex items-center gap-3 mb-3">
-              <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center text-primary font-bold">
+        <div className="p-6 border-t border-primary/10">
+          <div className="bg-primary/5 rounded-3xl p-5 mb-4 border border-primary/10 backdrop-blur-xl">
+            <div className="flex items-center gap-4 mb-4">
+              <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-primary to-emerald-600 flex items-center justify-center text-primary-foreground font-black text-xl shadow-lg">
                 {user.username[0].toUpperCase()}
               </div>
               <div className="flex-1 min-w-0">
-                <p className="text-sm font-bold truncate">{user.username}</p>
-                <p className="text-xs text-muted-foreground truncate">خطة الرواد</p>
+                <p className="text-sm font-black truncate text-foreground">{user.username}</p>
+                <div className="flex items-center gap-1 mt-0.5">
+                   <div className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
+                   <p className="text-[10px] font-bold text-emerald-500 uppercase tracking-wider">خطة الرواد</p>
+                </div>
               </div>
             </div>
             <Button 
               variant="ghost" 
-              className="w-full justify-start text-destructive hover:text-destructive hover:bg-destructive/10 rounded-xl font-bold h-10" 
+              className="w-full justify-start text-destructive hover:text-white hover:bg-destructive rounded-2xl font-black h-12 transition-all active-elevate-2" 
               onClick={() => logout()}
             >
-              <LogOut className="ml-2 h-4 w-4" />
-              خروج
+              <LogOut className="ml-3 h-5 w-5" />
+              تسجيل خروج
             </Button>
           </div>
         </div>
