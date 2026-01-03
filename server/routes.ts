@@ -124,7 +124,8 @@ export async function registerRoutes(
         data.password, 
         data.name, 
         data.phone,
-        "visitor", // Explicitly set role for public registration
+        req.body.metadata,
+        "visitor",
         "default"
       );
       
@@ -1366,6 +1367,36 @@ export async function registerRoutes(
       res.json({ success: true });
     } catch (error) {
       res.status(500).json({ error: "فشل في حذف المهمة" });
+    }
+  });
+
+  app.get("/api/daily-updates", authMiddleware, async (req: AuthRequest, res) => {
+    try {
+      const updates = await storage.getDailyUpdates(req.user!.userId);
+      res.json(updates);
+    } catch (error) {
+      res.status(500).json({ error: "Failed to fetch updates" });
+    }
+  });
+
+  app.post("/api/daily-updates", authMiddleware, roleMiddleware("system_admin", "qirox_pm"), async (req: AuthRequest, res) => {
+    try {
+      const update = await storage.createDailyUpdate({
+        userId: req.body.userId,
+        content: req.body.content,
+      });
+      res.status(201).json(update);
+    } catch (error) {
+      res.status(500).json({ error: "Failed to create update" });
+    }
+  });
+
+  app.get("/api/daily-updates", authMiddleware, async (req: AuthRequest, res) => {
+    try {
+      const updates = await storage.getDailyUpdates(req.user!.userId);
+      res.json(updates);
+    } catch (error) {
+      res.status(500).json({ error: "Failed to fetch updates" });
     }
   });
 

@@ -18,8 +18,19 @@ export interface IUser extends Document {
   name: string;
   role: UserRole;
   phone?: string;
+  metadata?: string;
   isActive: boolean;
   tenantId: string;
+  projectName?: string | null;
+  commercialRegisterUrl?: string | null;
+  ibanCertificateUrl?: string | null;
+  projectIdea?: string | null;
+  selectedPlanId?: string | null;
+  assignedEmployeeId?: string | null;
+  domainInfo?: string | null;
+  projectStatus?: string | null;
+  currentStage?: string | null;
+  stageDeadline?: Date | null;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -41,6 +52,17 @@ const UserSchema = new Schema<IUser>(
     },
     isActive: { type: Boolean, default: true },
     tenantId: { type: String, default: "default" },
+    metadata: { type: String },
+    projectName: { type: String },
+    commercialRegisterUrl: { type: String },
+    ibanCertificateUrl: { type: String },
+    projectIdea: { type: String },
+    selectedPlanId: { type: String },
+    assignedEmployeeId: { type: String },
+    domainInfo: { type: String },
+    projectStatus: { type: String, default: "pending" },
+    currentStage: { type: String },
+    stageDeadline: { type: Date },
   },
   { timestamps: true }
 );

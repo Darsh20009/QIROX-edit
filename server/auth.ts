@@ -87,6 +87,7 @@ export async function registerUser(
   password: string,
   name: string,
   phone?: string,
+  metadata?: string,
   role: UserRole = "visitor",
   tenantId: string = "default"
 ): Promise<{ user: IUser; token: string }> {
@@ -101,8 +102,19 @@ export async function registerUser(
     password: hashedPassword,
     name,
     phone,
+    metadata,
     role,
     tenantId,
+    projectName: null,
+    commercialRegisterUrl: null,
+    ibanCertificateUrl: null,
+    projectIdea: null,
+    selectedPlanId: null,
+    assignedEmployeeId: null,
+    domainInfo: null,
+    projectStatus: "pending",
+    currentStage: null,
+    stageDeadline: null,
   });
 
   const token = generateToken(user);

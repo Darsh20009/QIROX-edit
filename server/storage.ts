@@ -22,6 +22,9 @@ export interface IStorage {
   getProject(id: string): Promise<Project | undefined>;
   createProject(project: InsertProject): Promise<Project>;
   updateProject(id: string, updates: Partial<Project>): Promise<Project>;
+  
+  getDailyUpdates(userId: string): Promise<any[]>;
+  createDailyUpdate(update: any): Promise<any>;
 
   createAuditLog(log: InsertAuditLog): Promise<AuditLog>;
   getAuditLogs(tenantId?: string): Promise<AuditLog[]>;
@@ -46,6 +49,7 @@ export class MemStorage implements IStorage {
   private projects: Map<string, Project>;
   private auditLogs: Map<string, AuditLog>;
   private contactMessages: Map<string, ContactMessage>;
+  private dailyUpdates: Map<string, any>;
 
   constructor() {
     this.users = new Map();
@@ -53,6 +57,7 @@ export class MemStorage implements IStorage {
     this.projects = new Map();
     this.auditLogs = new Map();
     this.contactMessages = new Map();
+    this.dailyUpdates = new Map();
   }
 
   async getUser(id: string): Promise<User | undefined> { return this.users.get(id); }
@@ -68,7 +73,18 @@ export class MemStorage implements IStorage {
       email: insertUser.email,
       role: insertUser.role || "visitor",
       tenantId: insertUser.tenantId || "default",
-      metadata: insertUser.metadata || null
+      metadata: insertUser.metadata || null,
+      phone: insertUser.phone || null,
+      projectName: (insertUser as any).projectName || null,
+      commercialRegisterUrl: (insertUser as any).commercialRegisterUrl || null,
+      ibanCertificateUrl: (insertUser as any).ibanCertificateUrl || null,
+      projectIdea: (insertUser as any).projectIdea || null,
+      selectedPlanId: (insertUser as any).selectedPlanId || null,
+      assignedEmployeeId: (insertUser as any).assignedEmployeeId || null,
+      domainInfo: (insertUser as any).domainInfo || null,
+      projectStatus: (insertUser as any).projectStatus || "pending",
+      currentStage: (insertUser as any).currentStage || null,
+      stageDeadline: (insertUser as any).stageDeadline || null,
     };
     this.users.set(id, user);
     return user;
@@ -114,6 +130,16 @@ export class MemStorage implements IStorage {
     const updated = { ...project, ...updates };
     this.projects.set(id, updated);
     return updated;
+  }
+
+  async getDailyUpdates(userId: string): Promise<any[]> {
+    return Array.from(this.dailyUpdates.values()).filter(u => u.userId === userId);
+  }
+  async createDailyUpdate(insert: any): Promise<any> {
+    const id = randomUUID();
+    const update = { ...insert, id, createdAt: new Date() };
+    this.dailyUpdates.set(id, update);
+    return update;
   }
 
   async createAuditLog(insert: InsertAuditLog): Promise<AuditLog> {
