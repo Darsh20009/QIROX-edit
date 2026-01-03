@@ -8,6 +8,7 @@ import { Layout } from "@/components/layout/layout";
 import { useAuth } from "@/lib/auth";
 import { useToast } from "@/hooks/use-toast";
 import { Loader2, Mail, Lock, ArrowLeft } from "lucide-react";
+import { motion } from "framer-motion";
 
 export default function Login() {
   const [email, setEmail] = useState("");
@@ -51,17 +52,24 @@ export default function Login() {
     <Layout>
       <div className="min-h-[80vh] flex items-center justify-center py-12 px-4">
         <div className="w-full max-w-md">
-          <div className="text-center mb-8">
-            <h1 className="text-3xl font-bold text-foreground mb-2" data-testid="text-login-title">
+          <div className="text-center mb-10">
+            <motion.div 
+              initial={{ scale: 0.5, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              className="inline-flex items-center justify-center w-20 h-20 rounded-[2rem] bg-gradient-to-br from-primary via-emerald-500 to-teal-500 text-white shadow-2xl mb-6 shadow-primary/20"
+            >
+              <span className="text-4xl font-black italic">Q</span>
+            </motion.div>
+            <h1 className="text-4xl font-black text-foreground tracking-tighter mb-2" data-testid="text-login-title">
               QIROX
             </h1>
-            <p className="text-muted-foreground">
+            <p className="text-muted-foreground font-bold tracking-widest uppercase text-xs opacity-60">
               Build systems. Stay human.
             </p>
           </div>
 
-          <Card className="border-0 shadow-lg">
-            <CardContent className="p-8">
+          <Card className="border-0 bg-white/5 backdrop-blur-2xl shadow-2xl rounded-[2.5rem] overflow-hidden border border-white/10">
+            <CardContent className="p-8 sm:p-12">
               <form onSubmit={handleSubmit} className="space-y-5">
                 <div className="space-y-2">
                   <Label htmlFor="email" className="text-sm font-medium">البريد الإلكتروني</Label>
@@ -99,25 +107,25 @@ export default function Login() {
                   </div>
                 </div>
 
-                <Button type="submit" className="w-full h-12 text-base font-semibold" disabled={isLoading} data-testid="button-login">
+                <Button type="submit" className="w-full h-14 text-lg font-black rounded-2xl shadow-xl shadow-primary/20 active-elevate-2 transition-all" disabled={isLoading} data-testid="button-login">
                   {isLoading ? (
                     <>
                       <Loader2 className="ml-2 h-5 w-5 animate-spin" />
-                      جاري تسجيل الدخول...
+                      جاري الدخول...
                     </>
                   ) : (
                     <>
-                      تسجيل الدخول
-                      <ArrowLeft className="h-5 w-5" />
+                      دخول المنظومة
+                      <ArrowLeft className="h-5 w-5 mr-2" />
                     </>
                   )}
                 </Button>
               </form>
 
-              <div className="mt-8 pt-6 border-t text-center">
-                <span className="text-muted-foreground">ليس لديك حساب؟ </span>
-                <Link href="/register" className="text-primary font-semibold hover:underline" data-testid="link-register">
-                  إنشاء حساب جديد
+              <div className="mt-10 pt-8 border-t border-white/5 text-center">
+                <p className="text-muted-foreground font-bold text-sm mb-4">ليس لديك حساب؟</p>
+                <Link href="/register" className="inline-flex items-center justify-center w-full h-12 rounded-2xl border border-primary/20 text-primary font-black hover:bg-primary/5 transition-all" data-testid="link-register">
+                  بدء تسجيل حساب جديد
                 </Link>
               </div>
             </CardContent>

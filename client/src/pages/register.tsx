@@ -144,24 +144,24 @@ export default function Register() {
 
   return (
     <Layout>
-      <div className="min-h-screen flex items-center justify-center py-20 px-4 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-primary/10 via-background to-background">
+      <div className="min-h-screen flex items-center justify-center py-12 sm:py-20 px-4 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-primary/10 via-background to-background">
         <div className="w-full max-w-2xl relative">
-          <div className="absolute -top-20 -left-20 w-64 h-64 bg-primary/10 rounded-full blur-3xl animate-pulse" />
-          <div className="absolute -bottom-20 -right-20 w-64 h-64 bg-primary/10 rounded-full blur-3xl animate-pulse delay-700" />
+          <div className="absolute -top-20 -left-20 w-64 h-64 bg-primary/10 rounded-full blur-3xl animate-pulse hidden sm:block" />
+          <div className="absolute -bottom-20 -right-20 w-64 h-64 bg-primary/10 rounded-full blur-3xl animate-pulse delay-700 hidden sm:block" />
 
-          <div className="text-center mb-10">
+          <div className="text-center mb-8 sm:mb-10">
             <Badge variant="outline" className="mb-4 border-primary/30 text-primary animate-bounce">
               ابدأ رحلة النجاح الآن
             </Badge>
-            <h1 className="text-4xl font-black mb-3 bg-clip-text text-transparent bg-gradient-to-r from-primary via-primary/80 to-primary/50">
+            <h1 className="text-3xl sm:text-4xl font-black mb-3 tracking-tighter bg-clip-text text-transparent bg-gradient-to-r from-primary via-primary/80 to-primary/50">
               انضم إلى عائلة QIROX
             </h1>
-            <p className="text-muted-foreground text-lg">
+            <p className="text-muted-foreground text-sm sm:text-lg font-bold opacity-70">
               خطوات بسيطة تفصلك عن تحويل فكرتك إلى واقع ملموس
             </p>
           </div>
 
-          <div className="flex justify-between mb-12 relative px-10">
+          <div className="flex justify-between mb-8 sm:mb-12 relative px-6 sm:px-10">
             <div className="absolute top-1/2 left-0 w-full h-0.5 bg-muted -translate-y-1/2 z-0" />
             <div 
               className="absolute top-1/2 left-0 h-0.5 bg-primary -translate-y-1/2 transition-all duration-500 z-0" 
@@ -170,27 +170,27 @@ export default function Register() {
             {steps.map((s) => (
               <div key={s.id} className="relative z-10 flex flex-col items-center">
                 <div 
-                  className={`w-12 h-12 rounded-2xl flex items-center justify-center transition-all duration-500 border-2 ${
+                  className={`w-10 h-10 sm:w-12 sm:h-12 rounded-xl sm:rounded-2xl flex items-center justify-center transition-all duration-500 border-2 ${
                     step >= s.id ? 'bg-primary border-primary text-primary-foreground shadow-lg shadow-primary/20 scale-110' : 'bg-background border-muted text-muted-foreground'
                   }`}
                 >
-                  <s.icon className="h-5 w-5" />
+                  <s.icon className="h-4 w-4 sm:h-5 sm:w-5" />
                 </div>
-                <span className={`mt-2 text-xs font-bold transition-colors ${step >= s.id ? 'text-primary' : 'text-muted-foreground'}`}>
+                <span className={`mt-2 text-[10px] sm:text-xs font-black transition-colors ${step >= s.id ? 'text-primary' : 'text-muted-foreground'}`}>
                   {s.title}
                 </span>
               </div>
             ))}
           </div>
 
-          <Card className="border-0 bg-background/40 backdrop-blur-xl shadow-2xl overflow-hidden rounded-3xl border border-white/10">
-            <CardContent className="p-8 md:p-12">
+          <Card className="border-0 bg-white/5 backdrop-blur-2xl shadow-2xl overflow-hidden rounded-[2.5rem] border border-white/10">
+            <CardContent className="p-8 sm:p-12">
               <form onSubmit={handleSubmit} className="space-y-8">
                 {step === 1 && (
                   <div className="space-y-6 animate-in fade-in slide-in-from-left-4 duration-500">
-                    <div className="grid md:grid-cols-2 gap-6">
+                    <div className="grid sm:grid-cols-2 gap-6">
                       <div className="space-y-2">
-                        <Label className="text-sm font-bold mr-1">الاسم الكامل</Label>
+                        <Label className="text-sm font-black mr-1">الاسم الكامل</Label>
                         <div className="relative group">
                           <User className="absolute right-3 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground group-focus-within:text-primary transition-colors" />
                           <Input
@@ -198,13 +198,13 @@ export default function Register() {
                             placeholder="أحمد محمد"
                             value={formData.name}
                             onChange={handleInputChange}
-                            className="pr-11 h-12 rounded-xl bg-background/50 border-white/10 focus:border-primary/50 transition-all"
+                            className="pr-11 h-12 rounded-2xl bg-background/50 border-white/10 focus:border-primary/50 transition-all"
                             required
                           />
                         </div>
                       </div>
                       <div className="space-y-2">
-                        <Label className="text-sm font-bold mr-1">رقم الواتساب (إجباري)</Label>
+                        <Label className="text-sm font-black mr-1">رقم الواتساب (إجباري)</Label>
                         <div className="relative group">
                           <Phone className="absolute right-3 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground group-focus-within:text-primary transition-colors" />
                           <Input
@@ -212,7 +212,7 @@ export default function Register() {
                             placeholder="05xxxxxxxx"
                             value={formData.phone}
                             onChange={handleInputChange}
-                            className="pr-11 h-12 rounded-xl bg-background/50 border-white/10 focus:border-primary/50"
+                            className="pr-11 h-12 rounded-2xl bg-background/50 border-white/10 focus:border-primary/50"
                             required
                             dir="ltr"
                           />
@@ -220,7 +220,7 @@ export default function Register() {
                       </div>
                     </div>
                     <div className="space-y-2">
-                      <Label className="text-sm font-bold mr-1">البريد الإلكتروني</Label>
+                      <Label className="text-sm font-black mr-1">البريد الإلكتروني</Label>
                       <div className="relative group">
                         <Mail className="absolute right-3 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground group-focus-within:text-primary transition-colors" />
                         <Input
@@ -229,15 +229,15 @@ export default function Register() {
                           placeholder="example@email.com"
                           value={formData.email}
                           onChange={handleInputChange}
-                          className="pr-11 h-12 rounded-xl bg-background/50 border-white/10 focus:border-primary/50"
+                          className="pr-11 h-12 rounded-2xl bg-background/50 border-white/10 focus:border-primary/50"
                           required
                           dir="ltr"
                         />
                       </div>
                     </div>
-                    <div className="grid md:grid-cols-2 gap-6">
+                    <div className="grid sm:grid-cols-2 gap-6">
                       <div className="space-y-2">
-                        <Label className="text-sm font-bold mr-1">كلمة المرور</Label>
+                        <Label className="text-sm font-black mr-1">كلمة المرور</Label>
                         <div className="relative group">
                           <Lock className="absolute right-3 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground group-focus-within:text-primary transition-colors" />
                           <Input
@@ -246,7 +246,7 @@ export default function Register() {
                             placeholder="••••••••"
                             value={formData.password}
                             onChange={handleInputChange}
-                            className="pr-11 h-12 rounded-xl bg-background/50 border-white/10 focus:border-primary/50"
+                            className="pr-11 h-12 rounded-2xl bg-background/50 border-white/10 focus:border-primary/50"
                             required
                             minLength={6}
                             dir="ltr"
@@ -254,7 +254,7 @@ export default function Register() {
                         </div>
                       </div>
                       <div className="space-y-2">
-                        <Label className="text-sm font-bold mr-1">تأكيد كلمة المرور</Label>
+                        <Label className="text-sm font-black mr-1">تأكيد كلمة المرور</Label>
                         <div className="relative group">
                           <Lock className="absolute right-3 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground group-focus-within:text-primary transition-colors" />
                           <Input
@@ -263,7 +263,7 @@ export default function Register() {
                             placeholder="••••••••"
                             value={formData.confirmPassword}
                             onChange={handleInputChange}
-                            className="pr-11 h-12 rounded-xl bg-background/50 border-white/10 focus:border-primary/50"
+                            className="pr-11 h-12 rounded-2xl bg-background/50 border-white/10 focus:border-primary/50"
                             required
                             dir="ltr"
                           />
@@ -276,7 +276,7 @@ export default function Register() {
                 {step === 2 && (
                   <div className="space-y-6 animate-in fade-in slide-in-from-left-4 duration-500">
                     <div className="space-y-2">
-                      <Label className="text-sm font-bold mr-1">اسم المشروع</Label>
+                      <Label className="text-sm font-black mr-1">اسم المشروع</Label>
                       <div className="relative group">
                         <Briefcase className="absolute right-3 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground group-focus-within:text-primary transition-colors" />
                         <Input
@@ -284,13 +284,13 @@ export default function Register() {
                           placeholder="مثلاً: متجر كيو روكس"
                           value={formData.projectName}
                           onChange={handleInputChange}
-                          className="pr-11 h-12 rounded-xl bg-background/50 border-white/10 focus:border-primary/50"
+                          className="pr-11 h-12 rounded-2xl bg-background/50 border-white/10 focus:border-primary/50"
                           required
                         />
                       </div>
                     </div>
                     <div className="space-y-2">
-                      <Label className="text-sm font-bold mr-1">اشرح لنا فكرة مشروعك</Label>
+                      <Label className="text-sm font-black mr-1">اشرح لنا فكرة مشروعك</Label>
                       <div className="relative group">
                         <Lightbulb className="absolute right-3 top-4 h-5 w-5 text-muted-foreground group-focus-within:text-primary transition-colors" />
                         <textarea
@@ -298,7 +298,7 @@ export default function Register() {
                           placeholder="اكتب هنا ما يدور في ذهنك..."
                           value={formData.projectIdea}
                           onChange={(e) => setFormData(prev => ({ ...prev, projectIdea: e.target.value }))}
-                          className="w-full min-h-[150px] pr-11 py-3 rounded-xl bg-background/50 border border-white/10 focus:border-primary/50 focus:ring-0 resize-none transition-all"
+                          className="w-full min-h-[150px] pr-11 py-3 rounded-2xl bg-background/50 border border-white/10 focus:border-primary/50 focus:ring-0 resize-none transition-all"
                           required
                         />
                       </div>
@@ -310,12 +310,12 @@ export default function Register() {
                   <div className="space-y-8 animate-in fade-in slide-in-from-left-4 duration-500">
                     <div className="grid gap-6">
                       <div className="space-y-4">
-                        <Label className="text-sm font-bold block mb-2">السجل التجاري (إن وجد)</Label>
+                        <Label className="text-sm font-black block mb-2">السجل التجاري (إن وجد)</Label>
                         <label className="flex flex-col items-center justify-center w-full h-32 border-2 border-dashed border-white/10 rounded-2xl cursor-pointer hover:bg-white/5 hover:border-primary/30 transition-all group">
                           <div className="flex flex-col items-center justify-center pt-5 pb-6">
-                            <Upload className={`h-8 w-8 mb-2 ${formData.commercialRegister ? 'text-green-500' : 'text-muted-foreground group-hover:text-primary'}`} />
-                            <p className="text-sm text-muted-foreground">
-                              {formData.commercialRegister ? formData.commercialRegister.name : "اضغط لرفع الملف"}
+                            <Upload className={`h-8 w-8 mb-2 ${formData.commercialRegister ? 'text-emerald-500' : 'text-muted-foreground group-hover:text-primary'}`} />
+                            <p className="text-sm font-bold text-muted-foreground px-4 text-center">
+                              {formData.commercialRegister ? formData.commercialRegister.name : "اضغط لرفع السجل"}
                             </p>
                           </div>
                           <input type="file" className="hidden" onChange={(e) => handleFileChange(e, 'commercialRegister')} />
@@ -323,12 +323,12 @@ export default function Register() {
                       </div>
 
                       <div className="space-y-4">
-                        <Label className="text-sm font-bold block mb-2">شهادة الآيبان (IBAN)</Label>
+                        <Label className="text-sm font-black block mb-2">شهادة الآيبان (IBAN)</Label>
                         <label className="flex flex-col items-center justify-center w-full h-32 border-2 border-dashed border-white/10 rounded-2xl cursor-pointer hover:bg-white/5 hover:border-primary/30 transition-all group">
                           <div className="flex flex-col items-center justify-center pt-5 pb-6">
-                            <Upload className={`h-8 w-8 mb-2 ${formData.ibanCertificate ? 'text-green-500' : 'text-muted-foreground group-hover:text-primary'}`} />
-                            <p className="text-sm text-muted-foreground">
-                              {formData.ibanCertificate ? formData.ibanCertificate.name : "اضغط لرفع الملف"}
+                            <Upload className={`h-8 w-8 mb-2 ${formData.ibanCertificate ? 'text-emerald-500' : 'text-muted-foreground group-hover:text-primary'}`} />
+                            <p className="text-sm font-bold text-muted-foreground px-4 text-center">
+                              {formData.ibanCertificate ? formData.ibanCertificate.name : "اضغط لرفع الشهادة"}
                             </p>
                           </div>
                           <input type="file" className="hidden" onChange={(e) => handleFileChange(e, 'ibanCertificate')} />
@@ -338,19 +338,19 @@ export default function Register() {
 
                     <div className="p-4 rounded-2xl bg-primary/5 border border-primary/10 flex items-start gap-3">
                       <CheckCircle2 className="h-5 w-5 text-primary mt-0.5" />
-                      <p className="text-xs text-muted-foreground leading-relaxed">
+                      <p className="text-xs font-bold text-muted-foreground leading-relaxed">
                         بمجرد إنشاء الحساب، سيتم تعيين مسؤول خاص لمشروعك لمتابعة كافة التفاصيل والتواصل معك عبر الواتساب لتنفيذ الخطة.
                       </p>
                     </div>
                   </div>
                 )}
 
-                <div className="flex gap-4 pt-4">
+                <div className="flex flex-col sm:flex-row gap-4 pt-4">
                   {step > 1 && (
                     <Button 
                       type="button" 
                       variant="outline" 
-                      className="flex-1 h-14 rounded-2xl font-bold border-white/10 hover:bg-white/5"
+                      className="w-full sm:flex-1 h-14 rounded-2xl font-black border-white/10 hover:bg-white/5 no-default-hover-elevate"
                       onClick={prevStep}
                     >
                       <ChevronRight className="ml-2 h-5 w-5" />
@@ -361,7 +361,7 @@ export default function Register() {
                   {step < 3 ? (
                     <Button 
                       type="button" 
-                      className="flex-[2] h-14 rounded-2xl font-black text-lg shadow-xl shadow-primary/20"
+                      className="w-full sm:flex-[2] h-14 rounded-2xl font-black text-lg shadow-xl shadow-primary/20"
                       onClick={nextStep}
                     >
                       التالي
@@ -370,7 +370,7 @@ export default function Register() {
                   ) : (
                     <Button 
                       type="submit" 
-                      className="flex-[2] h-14 rounded-2xl font-black text-lg shadow-xl shadow-primary/30"
+                      className="w-full sm:flex-[2] h-14 rounded-2xl font-black text-lg shadow-xl shadow-primary/30"
                       disabled={isLoading}
                     >
                       {isLoading ? (
@@ -388,6 +388,13 @@ export default function Register() {
                   )}
                 </div>
               </form>
+
+              <div className="mt-10 pt-8 border-t border-white/5 text-center">
+                <p className="text-muted-foreground font-black text-sm mb-4">لديك حساب بالفعل؟</p>
+                <Link href="/login" className="inline-flex items-center justify-center w-full h-12 rounded-2xl border border-primary/20 text-primary font-black hover:bg-primary/5 transition-all">
+                  تسجيل الدخول الآن
+                </Link>
+              </div>
             </CardContent>
           </Card>
         </div>

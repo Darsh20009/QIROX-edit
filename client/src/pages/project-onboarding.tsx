@@ -12,6 +12,7 @@ import { useToast } from "@/hooks/use-toast";
 import { useLocation } from "wouter";
 import { apiRequest } from "@/lib/queryClient";
 import { SiWhatsapp } from "react-icons/si";
+import { motion } from "framer-motion";
 
 export function ProjectOnboarding() {
   const { toast } = useToast();
@@ -38,13 +39,13 @@ export function ProjectOnboarding() {
   }
 
   return (
-    <div className="container mx-auto py-10 px-4 max-w-3xl" dir="rtl">
-      <Card className="border-2">
-        <CardHeader className="text-center space-y-2">
-          <CardTitle className="text-3xl font-bold">ابدأ رحلتك الرقمية</CardTitle>
-          <CardDescription className="text-lg">حوّل رؤيتك إلى واقع احترافي مع فريقنا المبدع</CardDescription>
+    <div className="container mx-auto py-6 sm:py-10 px-4 max-w-3xl" dir="rtl">
+      <Card className="border-0 bg-white/5 backdrop-blur-2xl shadow-2xl rounded-[2rem] overflow-hidden border border-white/10">
+        <CardHeader className="text-center space-y-2 p-6 sm:p-10">
+          <CardTitle className="text-2xl sm:text-3xl font-black tracking-tighter">ابدأ رحلتك الرقمية</CardTitle>
+          <CardDescription className="text-base sm:text-lg font-bold opacity-70">حوّل رؤيتك إلى واقع احترافي مع فريقنا المبدع</CardDescription>
         </CardHeader>
-        <CardContent>
+        <CardContent className="p-6 sm:p-10 pt-0">
           <Form {...form}>
             <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
               <FormField
@@ -112,14 +113,14 @@ export function ProjectOnboarding() {
                   </FormItem>
                 )}
               />
-              <div className="flex gap-4 pt-4">
-                <Button type="submit" className="flex-1" size="lg">تأكيد وإرسال الطلب</Button>
+              <div className="flex flex-col sm:flex-row gap-4 pt-4">
+                <Button type="submit" className="w-full sm:flex-1 h-12 rounded-2xl font-black text-lg shadow-xl shadow-primary/20" size="lg">تأكيد وإرسال الطلب</Button>
                 <Button 
                   type="button" 
                   variant="outline" 
                   size="lg"
                   onClick={() => window.open("https://wa.me/966532441566", "_blank")}
-                  className="gap-2"
+                  className="w-full sm:w-auto gap-2 h-12 rounded-2xl font-black border-primary/20 hover:bg-primary/5 no-default-hover-elevate"
                 >
                   <SiWhatsapp className="w-5 h-5 text-green-600" />
                   دعم واتساب
