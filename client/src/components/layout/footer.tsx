@@ -1,232 +1,129 @@
 import { Link } from "wouter";
-import { Phone, Mail, MapPin, Globe, Clock, ArrowUp } from "lucide-react";
-import { SiWhatsapp, SiInstagram, SiX, SiLinkedin } from "react-icons/si";
-import logoImage from "@assets/Screenshot 2025-01-18 200736_1760982548460.png";
+import qiroxLogo from "@assets/qirox_without_background_1767002019509.png";
+import { Twitter, Instagram, Mail, Phone, MapPin } from "lucide-react";
+import { SiX } from "react-icons/si";
 
-export default function Footer() {
-  const scrollToTop = () => {
-    window.scrollTo({ top: 0, behavior: "smooth" });
-  };
-
-  const quickLinks = [
-    { href: "/services", label: "خدماتنا" },
-    { href: "/courses", label: "الدورات التدريبية" },
-    { href: "/about", label: "من نحن" },
+const footerLinks = {
+  product: [
+    { href: "/how-it-works", label: "كيف يعمل" },
+    { href: "/pricing", label: "الأسعار" },
+    { href: "/build", label: "بناء منصة" },
+    { href: "/stores", label: "المتاجر" },
+  ],
+  company: [
+    { href: "/about", label: "عن QIROX" },
     { href: "/contact", label: "تواصل معنا" },
-    { href: "/portfolio", label: "أعمالنا" },
-  ];
+    { href: "/careers", label: "الوظائف" },
+    { href: "/blog", label: "المدونة" },
+  ],
+  legal: [
+    { href: "/terms", label: "الشروط والأحكام" },
+    { href: "/privacy", label: "سياسة الخصوصية" },
+    { href: "/security", label: "الأمان" },
+  ],
+};
 
-  const services = [
-    { href: "/services", label: "تصميم المواقع" },
-    { href: "/services", label: "المتاجر الإلكترونية" },
-    { href: "/services", label: "المنصات التعليمية" },
-    { href: "/services", label: "تطوير التطبيقات" },
-  ];
-
-  const socialLinks = [
-    { icon: SiWhatsapp, href: "https://wa.me/", label: "واتساب" },
-    { icon: SiInstagram, href: "https://instagram.com/", label: "انستقرام" },
-    { icon: SiX, href: "https://x.com/", label: "إكس" },
-    { icon: SiLinkedin, href: "https://linkedin.com/", label: "لينكدإن" },
-  ];
-
+export function Footer() {
   return (
-    <footer 
-      className="relative overflow-hidden"
-      style={{ background: "var(--ma3k-darker)" }}
-    >
-      {/* Main Footer Content */}
-      <div className="container mx-auto px-6 py-12">
-        <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-8 lg:gap-12">
-          
-          {/* About Section */}
-          <div className="lg:col-span-1">
-            <div className="flex items-center gap-3 mb-4">
-              <img 
-                src={logoImage} 
-                alt="معك" 
-                className="w-12 h-12 rounded-full object-cover"
-                style={{ border: "2px solid rgba(79, 169, 152, 0.3)" }}
-              />
-              <span 
-                className="text-xl font-bold"
-                style={{ color: "var(--ma3k-beige)" }}
-              >
-                معك
-              </span>
-            </div>
-            <p 
-              className="text-sm leading-relaxed mb-4"
-              style={{ color: "var(--ma3k-beige-dark)" }}
-            >
-              شريكك الموثوق في التحول الرقمي. نقدم حلول رقمية متكاملة تساعدك على تحقيق أهدافك.
+    <footer className="bg-secondary/30 border-t border-border/40 pt-24 pb-12">
+      <div className="mx-auto max-w-7xl px-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-16 mb-20">
+          <div className="lg:col-span-2 space-y-8 text-right">
+            <Link href="/" className="inline-block transition-transform hover:scale-105" data-testid="link-footer-logo">
+              <img src={qiroxLogo} alt="QIROX" className="h-12 w-auto dark:invert" />
+            </Link>
+            <p className="text-lg text-muted-foreground leading-relaxed max-w-sm font-medium" data-testid="text-footer-tagline">
+              نحن نعيد تعريف صناعة البرمجيات في العالم العربي، من خلال تقديم حلول تقنية تجمع بين القوة والجمال وسهولة الاستخدام.
             </p>
-            
-            {/* Social Links */}
-            <div className="flex items-center gap-3">
-              {socialLinks.map((social, index) => (
-                <a
-                  key={index}
-                  href={social.href}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="w-9 h-9 rounded-lg flex items-center justify-center transition-colors"
-                  style={{ 
-                    background: "rgba(79, 169, 152, 0.1)",
-                    color: "var(--ma3k-beige-dark)"
-                  }}
-                  aria-label={social.label}
-                  data-testid={`social-${social.label}`}
-                >
-                  <social.icon className="w-4 h-4" />
-                </a>
-              ))}
+            <div className="flex gap-4 justify-end">
+              <a href="https://x.com/QIROXtec" target="_blank" rel="noopener noreferrer" className="w-12 h-12 rounded-xl bg-background flex items-center justify-center text-muted-foreground hover:bg-primary hover:text-white transition-all shadow-sm">
+                <SiX className="w-5 h-5" />
+              </a>
+              <a href="https://www.instagram.com/qirox.tec/" target="_blank" rel="noopener noreferrer" className="w-12 h-12 rounded-xl bg-background flex items-center justify-center text-muted-foreground hover:bg-primary hover:text-white transition-all shadow-sm">
+                <Instagram className="w-5 h-5" />
+              </a>
             </div>
           </div>
 
-          {/* Quick Links */}
-          <div>
-            <h4 
-              className="text-base font-semibold mb-4"
-              style={{ color: "var(--ma3k-beige)" }}
-            >
-              روابط سريعة
-            </h4>
-            <ul className="space-y-2">
-              {quickLinks.map((link, index) => (
-                <li key={index}>
-                  <Link href={link.href}>
-                    <span
-                      className="text-sm transition-colors cursor-pointer hover:underline"
-                      style={{ color: "var(--ma3k-beige-dark)" }}
-                      data-testid={`footer-link-${link.label}`}
-                    >
-                      {link.label}
-                    </span>
+          <div className="text-right">
+            <h3 className="text-lg font-black mb-8 uppercase tracking-widest text-foreground/80">المنتج</h3>
+            <ul className="space-y-4">
+              {footerLinks.product.map((link) => (
+                <li key={link.href}>
+                  <Link
+                    href={link.href}
+                    className="text-muted-foreground hover:text-primary transition-colors font-bold"
+                    data-testid={`link-footer-${link.href.replace("/", "") || "home"}`}
+                  >
+                    <span className="cursor-pointer">{link.label}</span>
                   </Link>
                 </li>
               ))}
             </ul>
           </div>
 
-          {/* Services */}
-          <div>
-            <h4 
-              className="text-base font-semibold mb-4"
-              style={{ color: "var(--ma3k-beige)" }}
-            >
-              خدماتنا
-            </h4>
-            <ul className="space-y-2">
-              {services.map((service, index) => (
-                <li key={index}>
-                  <Link href={service.href}>
-                    <span
-                      className="text-sm transition-colors cursor-pointer hover:underline"
-                      style={{ color: "var(--ma3k-beige-dark)" }}
-                    >
-                      {service.label}
-                    </span>
+          <div className="text-right">
+            <h3 className="text-lg font-black mb-8 uppercase tracking-widest text-foreground/80">الشركة</h3>
+            <ul className="space-y-4">
+              {footerLinks.company.map((link) => (
+                <li key={link.href}>
+                  <Link
+                    href={link.href}
+                    className="text-muted-foreground hover:text-primary transition-colors font-bold"
+                    data-testid={`link-footer-${link.href.replace("/", "") || "home"}`}
+                  >
+                    <span className="cursor-pointer">{link.label}</span>
                   </Link>
                 </li>
               ))}
             </ul>
           </div>
 
-          {/* Contact Info */}
-          <div>
-            <h4 
-              className="text-base font-semibold mb-4"
-              style={{ color: "var(--ma3k-beige)" }}
-            >
-              تواصل معنا
-            </h4>
-            <ul className="space-y-3">
-              <li className="flex items-center gap-3">
-                <div 
-                  className="w-8 h-8 rounded-lg flex items-center justify-center"
-                  style={{ background: "rgba(79, 169, 152, 0.1)" }}
-                >
-                  <Mail className="w-4 h-4" style={{ color: "var(--ma3k-green)" }} />
+          <div className="text-right">
+            <h3 className="text-lg font-black mb-8 uppercase tracking-widest text-foreground/80">اتصل بنا</h3>
+            <ul className="space-y-6">
+              <li className="flex items-center gap-4 text-muted-foreground font-medium justify-end">
+                <a href="mailto:support@qirox.online" className="hover:text-primary transition-colors">
+                  support@qirox.online
+                </a>
+                <div className="w-10 h-10 rounded-lg bg-primary/5 flex items-center justify-center text-primary">
+                  <Mail className="w-5 h-5" />
                 </div>
-                <span 
-                  className="text-sm"
-                  style={{ color: "var(--ma3k-beige-dark)" }}
-                >
-                  ma3k.2025@gmail.com
-                </span>
               </li>
-              <li className="flex items-center gap-3">
-                <div 
-                  className="w-8 h-8 rounded-lg flex items-center justify-center"
-                  style={{ background: "rgba(79, 169, 152, 0.1)" }}
-                >
-                  <Phone className="w-4 h-4" style={{ color: "var(--ma3k-green)" }} />
+              <li className="flex items-center gap-4 text-muted-foreground font-medium justify-end">
+                <a href="https://wa.me/201155201921" target="_blank" rel="noopener noreferrer" className="hover:text-primary transition-colors">
+                  +201155201921 (WhatsApp)
+                </a>
+                <div className="w-10 h-10 rounded-lg bg-primary/5 flex items-center justify-center text-primary">
+                  <Phone className="w-5 h-5" />
                 </div>
-                <span 
-                  className="text-sm"
-                  style={{ color: "var(--ma3k-beige-dark)" }}
-                >
-                  +201155201921
-                </span>
               </li>
-              <li className="flex items-center gap-3">
-                <div 
-                  className="w-8 h-8 rounded-lg flex items-center justify-center"
-                  style={{ background: "rgba(79, 169, 152, 0.1)" }}
-                >
-                  <Clock className="w-4 h-4" style={{ color: "var(--ma3k-green)" }} />
+              <li className="flex items-center gap-4 text-muted-foreground font-medium justify-end">
+                <a href="tel:+966532441566" className="hover:text-primary transition-colors">
+                  +966532441566
+                </a>
+                <div className="w-10 h-10 rounded-lg bg-primary/5 flex items-center justify-center text-primary">
+                  <Phone className="w-5 h-5" />
                 </div>
-                <span 
-                  className="text-sm"
-                  style={{ color: "var(--ma3k-beige-dark)" }}
-                >
-                  24/7 متاحون دائماً
-                </span>
               </li>
             </ul>
           </div>
         </div>
-      </div>
 
-      {/* Bottom Bar */}
-      <div 
-        className="border-t"
-        style={{ borderColor: "rgba(79, 169, 152, 0.15)" }}
-      >
-        <div className="container mx-auto px-6 py-4">
-          <div className="flex flex-col md:flex-row items-center justify-between gap-4">
-            <p 
-              className="text-sm text-center md:text-right"
-              style={{ color: "var(--ma3k-beige-dark)" }}
-            >
-              جميع الحقوق محفوظة &copy; {new Date().getFullYear()} معك
+        <div className="pt-12 border-t border-border/40 flex flex-col md:flex-row items-center justify-between gap-8">
+          <div className="flex items-center gap-8 order-2 md:order-1">
+            <p className="text-sm text-muted-foreground font-medium" data-testid="text-footer-copyright">
+              © {new Date().getFullYear()} QIROX TEC. جميع الحقوق محفوظة.
             </p>
-            
-            <div className="flex items-center gap-4">
-              <Link href="/privacy">
-                <span 
-                  className="text-sm cursor-pointer hover:underline"
-                  style={{ color: "var(--ma3k-beige-dark)" }}
-                >
-                  سياسة الخصوصية
-                </span>
-              </Link>
-              
-              <button
-                onClick={scrollToTop}
-                className="w-9 h-9 rounded-lg flex items-center justify-center transition-colors"
-                style={{ 
-                  background: "rgba(79, 169, 152, 0.1)",
-                  color: "var(--ma3k-beige)"
-                }}
-                aria-label="العودة للأعلى"
-                data-testid="button-scroll-top"
-              >
-                <ArrowUp className="w-4 h-4" />
-              </button>
+            <div className="hidden md:flex gap-6">
+              {footerLinks.legal.map((link) => (
+                <Link key={link.href} href={link.href} className="text-xs text-muted-foreground hover:text-primary transition-colors font-bold">
+                  <span className="cursor-pointer">{link.label}</span>
+                </Link>
+              ))}
             </div>
           </div>
+          <p className="text-sm font-black text-primary/80 order-1 md:order-2">صُنع بحب في المملكة 🇸🇦</p>
         </div>
       </div>
     </footer>
