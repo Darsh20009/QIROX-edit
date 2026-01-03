@@ -143,18 +143,18 @@ export default function AdminDashboard() {
           </nav>
         </aside>
 
-        <main className="flex-1 p-8">
-          <header className="flex justify-between items-center mb-8">
+        <main className="flex-1 p-4 md:p-8">
+          <header className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-8">
             <div>
-              <h1 className="text-3xl font-bold text-slate-900">مركز التحكم الإداري</h1>
+              <h1 className="text-2xl md:text-3xl font-bold text-slate-900">مركز التحكم الإداري</h1>
               <p className="text-slate-500 mt-1">مرحباً بك مجدداً، {user?.name}</p>
             </div>
-            <div className="flex gap-3">
-              <Button variant="outline" className="gap-2" onClick={() => window.open("https://wa.me/966532441566")}>
+            <div className="flex flex-wrap gap-3 w-full sm:w-auto">
+              <Button variant="outline" className="flex-1 sm:flex-none gap-2" onClick={() => window.open("https://wa.me/966532441566")}>
                 <MessageSquare className="w-4 h-4" />
-                الدعم الفني
+                الدعم
               </Button>
-              <Button asChild className="gap-2">
+              <Button asChild className="flex-1 sm:flex-none gap-2">
                 <Link href="/agency/onboarding">
                   <Plus className="w-4 h-4" />
                   مشروع جديد
@@ -163,7 +163,7 @@ export default function AdminDashboard() {
             </div>
           </header>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6 mb-8">
             {stats.map((stat, i) => (
               <Card key={i} className="border-none shadow-sm hover-elevate overflow-hidden">
                 <CardContent className="p-6">
@@ -190,11 +190,11 @@ export default function AdminDashboard() {
                     <Button variant="ghost" size="sm" className="text-primary">عرض الكل</Button>
                   </div>
                 </CardHeader>
-                <CardContent className="p-0">
-                  <div className="divide-y">
+                <CardContent className="p-0 overflow-x-auto no-scrollbar">
+                  <div className="divide-y min-w-[600px] sm:min-w-0">
                     {projects?.slice(0, 5).map((p: any) => (
-                      <div key={p.id} className="p-4 hover:bg-slate-50 transition-colors flex justify-between items-center">
-                        <div className="flex items-center gap-4">
+                      <div key={p.id} className="p-4 hover:bg-slate-50 transition-colors flex flex-wrap sm:flex-nowrap justify-between items-center gap-4">
+                        <div className="flex items-center gap-4 flex-1">
                           <div className="w-10 h-10 rounded-full bg-slate-100 flex items-center justify-center font-bold text-slate-600">
                             {p.name?.[0] || 'P'}
                           </div>

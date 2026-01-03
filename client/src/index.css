@@ -143,6 +143,38 @@
     border: 1px solid var(--glass-border);
   }
 
+  /* Optimized for Mobile Touch */
+  @media (max-width: 768px) {
+    .glass-morphism {
+      backdrop-filter: blur(8px);
+      -webkit-backdrop-filter: blur(8px);
+    }
+    
+    /* Increase touch targets for accessibility */
+    button, a, input, select {
+      @apply min-h-[44px];
+    }
+    
+    /* Responsive font scaling */
+    h1 { @apply text-2xl !important; }
+    h2 { @apply text-xl !important; }
+    p { @apply text-sm !important; }
+
+    /* Fix container spacing on mobile */
+    .container {
+      @apply px-4 !important;
+    }
+    
+    /* Hide scrollbars but keep functionality */
+    .no-scrollbar::-webkit-scrollbar {
+      display: none;
+    }
+    .no-scrollbar {
+      -ms-overflow-style: none;
+      scrollbar-width: none;
+    }
+  }
+
   .text-glow {
     text-shadow: var(--text-glow);
   }
