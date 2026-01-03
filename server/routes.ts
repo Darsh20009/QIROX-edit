@@ -162,7 +162,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   // Orders routes with email notification and RBAC
   // POST: Create order (Clients only)
-  app.post("/api/orders", requireAuth, async (req, res) => {
+  app.post("/api/orders", async (req, res) => {
+    if (!req.isAuthenticated || !req.isAuthenticated()) {
+      return res.status(401).json({ error: "Unauthorized" });
+    }
     try {
       const orderData = insertOrderSchema.parse(req.body);
       
@@ -1061,7 +1064,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   // Authentication Routes
   app.get("/api/auth/me", (req, res) => {
-    if (req.isAuthenticated()) {
+    if (req.isAuthenticated && req.isAuthenticated()) {
       res.json({ user: req.user });
     } else {
       res.status(401).json({ error: "Not authenticated" });

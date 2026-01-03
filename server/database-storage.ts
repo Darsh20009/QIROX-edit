@@ -686,16 +686,11 @@ export class DatabaseStorage implements IStorage {
     return await db.select().from(schema.ticketResponses).where(and(...conditions));
   }
 
-  async getTicketStats(): Promise<{ open: number; inProgress: number; resolved: number; closed: number; total: number }> {
-    const allTickets = await this.getAllTickets();
-    return {
-      open: allTickets.filter(t => t.status === "open").length,
-      inProgress: allTickets.filter(t => t.status === "in_progress").length,
-      resolved: allTickets.filter(t => t.status === "resolved").length,
-      closed: allTickets.filter(t => t.status === "closed").length,
-      total: allTickets.length
-    };
-  }
+  async getReviews(targetId: string, targetType: string): Promise<Review[]> {
+    return await db.select().from(schema.reviews)
+      .where(and(
+        eq(schema.reviews.targetId, targetId),
+        eq(schema.reviews.targetType, targetType),
         eq(schema.reviews.isApproved, true)
       ));
   }
@@ -1133,7 +1128,7 @@ export class DatabaseStorage implements IStorage {
     }).from(schema.enrollments);
 
     const [meetingsResult] = await db.select({
-      upcoming: sql<number>`COUNT(CASE WHEN scheduled_at >= CURRENT_TIMESTAMP AND status = 'scheduled' THEN 1 END)`
+      upcoming: sql<number>`COUNT(CASE WHEN ${schema.meetings.scheduledAt} >= CURRENT_TIMESTAMP AND status = 'scheduled' THEN 1 END)`
     }).from(schema.meetings);
 
     return {
@@ -1153,7 +1148,9 @@ export class DatabaseStorage implements IStorage {
       totalEnrollments: enrollmentsResult?.total || 0,
       completedEnrollments: Number(enrollmentsResult?.completed) || 0,
       averageProjectDuration: 14,
-      upcomingMeetings: Number(meetingsResult?.upcoming) || 0
+      upcomingMeetings: Number(meetingsResult?.upcoming) || 0,
+      openTickets: (await this.getTicketStats()).open,
+      completedCourses: Number(enrollmentsResult?.completed) || 0
     };
   }
 
@@ -1190,99 +1187,163 @@ export class DatabaseStorage implements IStorage {
     return reports;
   }
 
-  async getProjectsReport(): Promise<Array<{
-    projectId: string;
-    projectName: string;
-    clientName: string;
-    status: string;
-    daysRemaining: number;
-    totalTasks: number;
-    completedTasks: number;
-    progress: number;
-  }>> {
-    const projects = await this.getAllProjects();
-    const clients = await this.getClients();
-    const reports = [];
+  // Chat Conversations
+  async createChatConversation(data: InsertChatConversation): Promise<ChatConversation> {
+    const [result] = await db.insert(schema.chatConversations).values(data).returning();
+    return result;
+  }
 
-    for (const project of projects) {
-      const client = clients.find(c => c.id === project.clientId);
-      const tasks = await db.select().from(schema.employeeTasks)
-        .where(eq(schema.employeeTasks.projectId, project.id));
-      const completedTasks = tasks.filter(t => t.isCompleted).length;
+  async getChatConversation(id: string): Promise<ChatConversation | undefined> {
+    const [result] = await db.select().from(schema.chatConversations).where(eq(schema.chatConversations.id, id));
+    return result;
+  }
 
-      reports.push({
-        projectId: project.id,
-        projectName: project.projectName,
-        clientName: client?.fullName || 'غير معروف',
-        status: project.status,
-        daysRemaining: project.daysRemaining || 0,
-        totalTasks: tasks.length,
-        completedTasks,
-        progress: tasks.length > 0 ? Math.round((completedTasks / tasks.length) * 100) : 0
-      });
-    }
+  async getClientConversations(clientId: string): Promise<ChatConversation[]> {
+    return await db.select().from(schema.chatConversations).where(eq(schema.chatConversations.clientId, clientId));
+  }
 
-    return reports;
+  async getEmployeeConversations(employeeId: string): Promise<ChatConversation[]> {
+    return await db.select().from(schema.chatConversations).where(eq(schema.chatConversations.employeeId, employeeId));
+  }
+
+  async getAllConversations(): Promise<ChatConversation[]> {
+    return await db.select().from(schema.chatConversations);
+  }
+
+  async getProjectConversation(projectId: string): Promise<ChatConversation | undefined> {
+    const [result] = await db.select().from(schema.chatConversations).where(eq(schema.chatConversations.projectId, projectId));
+    return result;
+  }
+
+  async updateConversationLastMessage(id: string): Promise<void> {
+    await db.update(schema.chatConversations)
+      .set({ lastMessageAt: new Date() })
+      .where(eq(schema.chatConversations.id, id));
+  }
+
+  // Chat Messages
+  async createChatMessage(data: InsertChatMessage): Promise<ChatMessage> {
+    const [result] = await db.insert(schema.chatMessages).values(data).returning();
+    await this.updateConversationLastMessage(data.conversationId);
+    return result;
+  }
+
+  async getChatMessages(conversationId: string): Promise<ChatMessage[]> {
+    return await db.select().from(schema.chatMessages)
+      .where(eq(schema.chatMessages.conversationId, conversationId))
+      .orderBy(schema.chatMessages.createdAt);
+  }
+
+  async markMessagesAsRead(conversationId: string, recipientId: string): Promise<void> {
+    await db.update(schema.chatMessages)
+      .set({ isRead: true })
+      .where(and(
+        eq(schema.chatMessages.conversationId, conversationId),
+        sql`sender_id != ${recipientId}`
+      ));
+  }
+
+  async getUnreadMessagesCount(userId: string, userType: string): Promise<number> {
+    // Basic implementation for unread count
+    const [result] = await db.select({ count: count() }).from(schema.chatMessages)
+      .where(and(
+        eq(schema.chatMessages.isRead, false),
+        sql`sender_id != ${userId}`
+      ));
+    return result?.count || 0;
+  }
+
+  // Modification Requests
+  async createModificationRequest(data: InsertModificationRequest): Promise<ModificationRequest> {
+    const [result] = await db.insert(schema.modificationRequests).values(data).returning();
+    return result;
+  }
+
+  async getModificationRequest(id: string): Promise<ModificationRequest | undefined> {
+    const [result] = await db.select().from(schema.modificationRequests).where(eq(schema.modificationRequests.id, id));
+    return result;
+  }
+
+  async getProjectModificationRequests(projectId: string): Promise<ModificationRequest[]> {
+    return await db.select().from(schema.modificationRequests).where(eq(schema.modificationRequests.projectId, projectId));
+  }
+
+  async getClientModificationRequests(clientId: string): Promise<ModificationRequest[]> {
+    return await db.select().from(schema.modificationRequests).where(eq(schema.modificationRequests.clientId, clientId));
+  }
+
+  async getAllModificationRequests(): Promise<ModificationRequest[]> {
+    return await db.select().from(schema.modificationRequests);
+  }
+
+  async updateModificationRequestStatus(id: string, status: string, assignedTo?: string): Promise<ModificationRequest | undefined> {
+    const updateData: any = { status, updatedAt: new Date() };
+    if (assignedTo) updateData.assignedTo = assignedTo;
+    const [result] = await db.update(schema.modificationRequests)
+      .set(updateData)
+      .where(eq(schema.modificationRequests.id, id))
+      .returning();
+    return result;
+  }
+
+  // Feature Requests
+  async createFeatureRequest(data: InsertFeatureRequest): Promise<FeatureRequest> {
+    const [result] = await db.insert(schema.featureRequests).values(data).returning();
+    return result;
+  }
+
+  async getFeatureRequest(id: string): Promise<FeatureRequest | undefined> {
+    const [result] = await db.select().from(schema.featureRequests).where(eq(schema.featureRequests.id, id));
+    return result;
+  }
+
+  async getProjectFeatureRequests(projectId: string): Promise<FeatureRequest[]> {
+    return await db.select().from(schema.featureRequests).where(eq(schema.featureRequests.projectId, projectId));
+  }
+
+  async getClientFeatureRequests(clientId: string): Promise<FeatureRequest[]> {
+    return await db.select().from(schema.featureRequests).where(eq(schema.featureRequests.clientId, clientId));
+  }
+
+  async getAllFeatureRequests(): Promise<FeatureRequest[]> {
+    return await db.select().from(schema.featureRequests);
+  }
+
+  async updateFeatureRequestStatus(id: string, status: string, adminNotes?: string, estimatedCost?: number, estimatedDays?: number): Promise<FeatureRequest | undefined> {
+    const updateData: any = { status, updatedAt: new Date() };
+    if (adminNotes) updateData.adminNotes = adminNotes;
+    if (estimatedCost) updateData.estimatedCost = estimatedCost;
+    if (estimatedDays) updateData.estimatedDays = estimatedDays;
+    const [result] = await db.update(schema.featureRequests)
+      .set(updateData)
+      .where(eq(schema.featureRequests.id, id))
+      .returning();
+    return result;
   }
 
   async getFinancialReport(): Promise<{
     totalRevenue: number;
     monthlyRevenue: number;
-    weeklyRevenue: number;
+    paidOrders: number;
+    pendingPayments: number;
     averageOrderValue: number;
-    topServices: Array<{ serviceName: string; count: number; revenue: number }>;
-    revenueByMonth: Array<{ month: string; revenue: number }>;
   }> {
     const orders = await this.getOrders();
-    const completedOrders = orders.filter(o => o.paymentStatus === 'completed');
-    
-    const now = new Date();
-    const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
-    const startOfWeek = new Date(now);
-    startOfWeek.setDate(now.getDate() - now.getDay());
-
-    const monthlyOrders = completedOrders.filter(o => new Date(o.createdAt) >= startOfMonth);
-    const weeklyOrders = completedOrders.filter(o => new Date(o.createdAt) >= startOfWeek);
-
-    const totalRevenue = completedOrders.reduce((sum, o) => sum + o.price, 0);
-    const monthlyRevenue = monthlyOrders.reduce((sum, o) => sum + o.price, 0);
-    const weeklyRevenue = weeklyOrders.reduce((sum, o) => sum + o.price, 0);
-    const averageOrderValue = completedOrders.length > 0 ? Math.round(totalRevenue / completedOrders.length) : 0;
-
-    const serviceMap = new Map<string, { count: number; revenue: number }>();
-    for (const order of completedOrders) {
-      const existing = serviceMap.get(order.serviceName) || { count: 0, revenue: 0 };
-      serviceMap.set(order.serviceName, {
-        count: existing.count + 1,
-        revenue: existing.revenue + order.price
-      });
-    }
-
-    const topServices = Array.from(serviceMap.entries())
-      .map(([serviceName, data]) => ({ serviceName, ...data }))
-      .sort((a, b) => b.revenue - a.revenue)
-      .slice(0, 5);
-
-    const revenueByMonth: Array<{ month: string; revenue: number }> = [];
-    for (let i = 5; i >= 0; i--) {
-      const date = new Date(now.getFullYear(), now.getMonth() - i, 1);
-      const monthOrders = completedOrders.filter(o => {
-        const orderDate = new Date(o.createdAt);
-        return orderDate.getMonth() === date.getMonth() && orderDate.getFullYear() === date.getFullYear();
-      });
-      revenueByMonth.push({
-        month: date.toLocaleDateString('ar-SA', { month: 'short', year: 'numeric' }),
-        revenue: monthOrders.reduce((sum, o) => sum + o.price, 0)
-      });
-    }
+    const totalRevenue = orders.reduce((sum, o) => sum + (o.price || 0), 0);
+    const monthlyOrders = orders.filter(o => {
+      const date = o.createdAt ? new Date(o.createdAt) : new Date();
+      return date.getMonth() === new Date().getMonth();
+    });
+    const monthlyRevenue = monthlyOrders.reduce((sum, o) => sum + (o.price || 0), 0);
+    const paidOrders = orders.filter(o => o.paymentStatus === "completed").length;
+    const pendingPayments = orders.filter(o => o.paymentStatus === "pending").length;
 
     return {
       totalRevenue,
       monthlyRevenue,
-      weeklyRevenue,
-      averageOrderValue,
-      topServices,
-      revenueByMonth
+      paidOrders,
+      pendingPayments,
+      averageOrderValue: orders.length > 0 ? totalRevenue / orders.length : 0
     };
   }
 }
