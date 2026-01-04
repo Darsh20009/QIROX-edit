@@ -90,7 +90,7 @@ export default function AdminDashboard() {
                 <p className="text-[10px] text-muted-foreground">طلبات معلقة</p>
               </CardContent>
             </Card>
-            <Card className="border-primary/20 bg-primary/5 hover-elevate transition-all cursor-pointer" onClick={() => setLocation("/admin/analytics")}>
+            <Card className="border-primary/20 bg-primary/5 hover-elevate transition-all cursor-pointer" onClick={() => setLocation("/admin/cloud")}>
               <CardHeader className="pb-2">
                 <CardTitle className="text-xs font-bold text-primary">QIROX Cloud</CardTitle>
               </CardHeader>
