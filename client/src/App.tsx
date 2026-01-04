@@ -31,6 +31,7 @@ import Storefront from "@/pages/storefront";
 import TenantsPage from "@/pages/tenants";
 import TenantDashboard from "@/pages/tenant-dashboard";
 import KanbanBoard from "@/pages/kanban-board";
+import KanbanPage from "@/pages/kanban";
 import AdminDashboardPage from "@/pages/admin/dashboard";
 import AdminUsersPage from "@/pages/admin/users";
 import AdminProductsPage from "@/pages/admin/products";
@@ -91,6 +92,7 @@ function Router() {
       <Route path="/tenants" component={TenantsPage} />
       <Route path="/tenants/:slug" component={TenantDashboard} />
       <Route path="/kanban" component={KanbanBoard} />
+      <Route path="/build/kanban" component={KanbanPage} />
       <Route path="/admin/dashboard" component={AdminDashboardPage} />
       <Route path="/admin/users" component={AdminUsersPage} />
       <Route path="/admin/products" component={AdminProductsPage} />
