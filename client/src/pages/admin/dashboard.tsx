@@ -72,6 +72,15 @@ export default function AdminDashboard() {
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
+            <Card className="border-primary/20 bg-primary/5 hover-elevate transition-all cursor-pointer" onClick={() => setLocation("/admin/stores")}>
+              <CardHeader className="pb-2">
+                <CardTitle className="text-xs font-bold text-primary">QIROX Core</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="text-xl font-bold">12</div>
+                <p className="text-[10px] text-muted-foreground">مستأجرين نشطين</p>
+              </CardContent>
+            </Card>
             <Card className="border-primary/20 bg-primary/5 hover-elevate transition-all cursor-pointer" onClick={() => setLocation("/build/kanban")}>
               <CardHeader className="pb-2">
                 <CardTitle className="text-xs font-bold text-primary">QIROX Build</CardTitle>
