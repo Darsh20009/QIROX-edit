@@ -3,7 +3,7 @@ import { useLocation } from "wouter";
 import { useEffect } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { AdminSidebar } from "@/components/admin-sidebar";
-import { Users, Package, ShoppingCart, CreditCard } from "lucide-react";
+import { Users, Package, ShoppingCart, CreditCard, Shield } from "lucide-react";
 
 export default function AdminDashboard() {
   const { user, isLoading } = useAuth();
@@ -72,6 +72,18 @@ export default function AdminDashboard() {
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
+            <Card className="border-primary/20 bg-primary/5 hover-elevate transition-all cursor-pointer" onClick={() => setLocation("/admin/settings")}>
+              <CardHeader className="pb-2">
+                <CardTitle className="text-xs font-bold text-primary">إعدادات النظام</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="text-xl font-bold flex items-center gap-2 justify-end">
+                  <Shield className="w-4 h-4" />
+                  <span>آمن</span>
+                </div>
+                <p className="text-[10px] text-muted-foreground">تحديث منذ ساعة</p>
+              </CardContent>
+            </Card>
             <Card className="border-primary/20 bg-primary/5 hover-elevate transition-all cursor-pointer" onClick={() => setLocation("/admin/stores")}>
               <CardHeader className="pb-2">
                 <CardTitle className="text-xs font-bold text-primary">QIROX Core</CardTitle>

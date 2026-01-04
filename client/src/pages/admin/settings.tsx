@@ -4,6 +4,7 @@ import { AdminSidebar } from "@/components/admin-sidebar";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Badge } from "@/components/ui/badge";
 import { Save, User, Settings2, Bell, ShieldCheck } from "lucide-react";
 import { Switch } from "@/components/ui/switch";
 
@@ -92,6 +93,54 @@ export default function AdminSettings() {
                   <Save className="h-4 w-4" />
                   حفظ البيانات
                 </Button>
+              </CardContent>
+            </Card>
+          </TabsContent>
+
+          <TabsContent value="security" className="space-y-6">
+            <Card>
+              <CardHeader>
+                <CardTitle>حماية الحساب</CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <div className="flex items-center justify-between p-3 border rounded-xl bg-muted/20">
+                  <div className="flex items-center gap-3 flex-row-reverse">
+                    <ShieldCheck className="h-5 w-5 text-primary" />
+                    <div className="text-right">
+                      <p className="font-bold text-sm">المصادقة الثنائية (2FA)</p>
+                      <p className="text-xs text-muted-foreground">إضافة طبقة حماية إضافية لحسابك</p>
+                    </div>
+                  </div>
+                  <Switch />
+                </div>
+                <div className="space-y-2 text-right">
+                  <Label>تغيير كلمة المرور</Label>
+                  <Input type="password" placeholder="كلمة المرور الحالية" />
+                  <Input type="password" placeholder="كلمة المرور الجديدة" />
+                  <Button variant="outline" className="w-full">تحديث كلمة المرور</Button>
+                </div>
+              </CardContent>
+            </Card>
+
+            <Card>
+              <CardHeader>
+                <CardTitle>الأجهزة المسجلة</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-4">
+                  {[
+                    { device: "MacBook Pro", location: "الرياض، السعودية", status: "نشط حالياً", current: true },
+                    { device: "iPhone 15", location: "جدة، السعودية", status: "نشط منذ ساعتين", current: false }
+                  ].map((device, i) => (
+                    <div key={i} className="flex justify-between items-center p-3 border rounded-xl flex-row-reverse">
+                      <div className="text-right">
+                        <p className="font-bold text-sm">{device.device} {device.current && <Badge className="text-[8px] h-4 px-1">هذا الجهاز</Badge>}</p>
+                        <p className="text-xs text-muted-foreground">{device.location} • {device.status}</p>
+                      </div>
+                      {!device.current && <Button variant="ghost" size="sm" className="text-destructive">إلغاء الارتباط</Button>}
+                    </div>
+                  ))}
+                </div>
               </CardContent>
             </Card>
           </TabsContent>
