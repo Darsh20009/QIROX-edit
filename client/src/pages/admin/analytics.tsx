@@ -90,6 +90,57 @@ export default function AdminAnalytics() {
             </CardContent>
           </Card>
         </div>
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
+          <Card>
+            <CardHeader>
+              <CardTitle className="text-right">أداء السيرفرات (QIROX Cloud)</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-6">
+                {[
+                  { label: "وقت التشغيل (Uptime)", value: "99.98%", status: "healthy" },
+                  { label: "استهلاك الذاكرة", value: "42%", status: "warning" },
+                  { label: "استهلاك المعالج", value: "18%", status: "healthy" },
+                  { label: "زمن الاستجابة", value: "45ms", status: "healthy" },
+                ].map((metric, i) => (
+                  <div key={i} className="flex justify-between items-center p-3 bg-muted/20 rounded-lg">
+                    <span className="text-sm font-medium">{metric.label}</span>
+                    <div className="flex items-center gap-2">
+                      <span className="text-sm font-bold">{metric.value}</span>
+                      <div className={`w-2 h-2 rounded-full ${metric.status === "healthy" ? "bg-green-500" : "bg-amber-500"}`} />
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardHeader>
+              <CardTitle className="text-right">توزيع الترافيك الجغرافي</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-4">
+                {[
+                  { country: "المملكة العربية السعودية", percentage: 45 },
+                  { country: "مصر", percentage: 25 },
+                  { country: "الإمارات", percentage: 20 },
+                  { country: "أخرى", percentage: 10 },
+                ].map((item, i) => (
+                  <div key={i} className="space-y-1">
+                    <div className="flex justify-between text-xs">
+                      <span className="font-bold">{item.percentage}%</span>
+                      <span>{item.country}</span>
+                    </div>
+                    <div className="w-full bg-secondary h-1.5 rounded-full overflow-hidden">
+                      <div className="bg-primary h-full float-right" style={{ width: `${item.percentage}%` }} />
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </CardContent>
+          </Card>
+        </div>
       </div>
     </div>
   );

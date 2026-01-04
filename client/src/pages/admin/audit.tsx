@@ -23,6 +23,33 @@ export default function AdminAuditPage() {
       <div className="flex-1 overflow-auto p-8">
         <h1 className="text-3xl font-bold mb-8 text-right">سجل النشاطات (Audit Logs)</h1>
         
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
+          <Card className="bg-primary/5 border-primary/20">
+            <CardHeader className="pb-2">
+              <CardTitle className="text-xs font-bold text-right">إجمالي العمليات</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-black text-right">1,240</div>
+            </CardContent>
+          </Card>
+          <Card className="bg-amber-500/5 border-amber-500/20">
+            <CardHeader className="pb-2">
+              <CardTitle className="text-xs font-bold text-right">تنبيهات أمنية</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-black text-amber-500 text-right">12</div>
+            </CardContent>
+          </Card>
+          <Card className="bg-destructive/5 border-destructive/20">
+            <CardHeader className="pb-2">
+              <CardTitle className="text-xs font-bold text-right">محاولات مرفوضة</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-black text-destructive text-right">3</div>
+            </CardContent>
+          </Card>
+        </div>
+
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center gap-2 justify-end">
