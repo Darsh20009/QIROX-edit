@@ -1,5 +1,5 @@
 import { Store, Coffee, GraduationCap, ShieldCheck, Zap, Globe, HeartHandshake, CreditCard, Apple, Landmark, Wallet, Layers, Rocket } from "lucide-react";
-import { SiGoogle, SiApplepay, SiStc } from "react-icons/si";
+import { SiGoogle, SiApplepay } from "react-icons/si";
 
 export const PARTNERS = [
   { name: "PayTabs", icon: CreditCard, color: "text-blue-600" },
@@ -9,7 +9,7 @@ export const PARTNERS = [
   { name: "Google", icon: SiGoogle, color: "text-blue-500" },
   { name: "Al-Rajhi", icon: Landmark, color: "text-blue-800" },
   { name: "Apple Pay", icon: SiApplepay, color: "text-black dark:text-white" },
-  { name: "STC Pay", icon: SiStc, color: "text-purple-600" },
+  { name: "STC Pay", icon: Wallet, color: "text-purple-600" },
   { name: "التعاونية", icon: ShieldCheck, color: "text-green-700" },
 ];
 
