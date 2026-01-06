@@ -9,6 +9,7 @@ import { ThemeProvider } from "@/components/theme-provider";
 import { AuthProvider } from "@/lib/auth";
 import { ProjectOnboarding } from "@/pages/project-onboarding";
 import ClientDashboard from "@/pages/client-dashboard";
+import Developers from "@/pages/developers";
 import Home from "@/pages/home";
 import HowItWorks from "@/pages/how-it-works";
 import Pricing from "@/pages/pricing";
@@ -69,6 +70,7 @@ function Router() {
   return (
     <Switch>
       <Route path="/" component={Home} />
+      <Route path="/developers" component={Developers} />
       <Route path="/build" component={Home} />
       <Route path="/systems" component={Home} />
       <Route path="/stores" component={Home} />

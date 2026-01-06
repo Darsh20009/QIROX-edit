@@ -26,6 +26,7 @@ export function Header() {
   const { user, isLoading } = useAuth();
 
   const navItems = [
+    { label: "المطورين", href: "/developers" },
     { label: "كيف يعمل", href: "/how-it-works" },
     { label: "الأسعار", href: "/pricing" },
     { label: "من نحن", href: "/about" },
