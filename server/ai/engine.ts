@@ -2,6 +2,7 @@
 import { generateFromPrompt } from "./templates";
 import { generateJSONFromPrompt, interpretDSL } from "./architecture";
 import { processSmartRequest } from "./processor";
+import { tokenize, runInference } from "./tokenizer";
 
 // QIROX AI Engine - Local Inference
 // This module will eventually load local weights (ONNX/TensorFlow)
@@ -16,10 +17,13 @@ export async function generateSiteStructure(prompt: string) {
   try {
     // Stage 0: Smart Processing & Intent Analysis
     const smartAnalysis = processSmartRequest(prompt);
-    console.log("[AI Engine] Smart Analysis Result:", smartAnalysis.intent);
-    console.log("[AI Engine] Thinking Process:", smartAnalysis.reasoning.conclusion);
+    
+    // Stage 1: Tokenization (Preparing for model)
+    const tokens = tokenize(prompt);
+    const inferenceResult = await runInference(tokens);
+    console.log("[AI Engine] Inference Result:", inferenceResult);
 
-    // Stage 1: NLP Understanding & JSON Structure Generation
+    // Stage 2: NLP Understanding & JSON Structure Generation
     const jsonStructure = generateJSONFromPrompt(prompt);
     
     // Stage 2: DSL Interpretation (JSON to HTML/React)

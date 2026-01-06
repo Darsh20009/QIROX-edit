@@ -660,6 +660,9 @@ export async function registerRoutes(
       const { prompt } = req.body;
       if (!prompt) return res.status(400).json({ error: "Prompt is required" });
 
+      // Simulated WebSocket update for "Live Generation"
+      console.log(`[QIROX-Live] Starting generation for ${req.user?.userId}`);
+      
       const result = await generateSiteStructure(prompt);
       
       await storage.createAuditLog({
