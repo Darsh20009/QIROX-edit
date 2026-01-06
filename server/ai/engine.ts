@@ -1,3 +1,4 @@
+// @ts-ignore
 import { generateFromPrompt } from "./templates";
 
 /**
@@ -6,7 +7,7 @@ import { generateFromPrompt } from "./templates";
  * Currently using a rule-based engine to simulate local AI generation
  */
 export async function generateSiteStructure(prompt: string) {
-  console.log(\`[AI Engine] Generating site structure for: \${prompt}\`);
+  console.log(`[AI Engine] Generating site structure for: ${prompt}`);
   
   // Simulate heavy computation
   await new Promise(resolve => setTimeout(resolve, 1500));

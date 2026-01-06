@@ -677,9 +677,6 @@ export async function registerRoutes(
       res.status(500).json({ error: "AI Engine inference failed" });
     }
   });
-      res.status(500).json({ error: "Failed to schedule meeting" });
-    }
-  });
 
   app.get("/api/admin/staff", authMiddleware, roleMiddleware("system_admin", "qirox_pm"), async (req, res) => {
     try {
