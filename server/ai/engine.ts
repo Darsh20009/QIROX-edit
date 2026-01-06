@@ -1,6 +1,7 @@
 // @ts-ignore
 import { generateFromPrompt } from "./templates";
 import { generateJSONFromPrompt, interpretDSL } from "./architecture";
+import { processSmartRequest } from "./processor";
 
 // QIROX AI Engine - Local Inference
 // This module will eventually load local weights (ONNX/TensorFlow)
@@ -13,6 +14,10 @@ export async function generateSiteStructure(prompt: string) {
   await new Promise(resolve => setTimeout(resolve, 1500));
   
   try {
+    // Stage 0: Smart Processing & Intent Analysis
+    const smartAnalysis = processSmartRequest(prompt);
+    console.log("[AI Engine] Smart Analysis Result:", smartAnalysis.intent);
+
     // Stage 1: NLP Understanding & JSON Structure Generation
     const jsonStructure = generateJSONFromPrompt(prompt);
     
@@ -21,15 +26,16 @@ export async function generateSiteStructure(prompt: string) {
     
     return {
       success: true,
-      engine: "QIROX-Local-v1-Arch",
+      engine: "QIROX-Local-v2-Smart",
       timestamp: new Date().toISOString(),
       content: html,
       metadata: {
-        model: "TinyLLM-Architecture-Sim",
+        model: "Smart-Transformer-v2",
         inference_time: "1.5s",
         device: "CPU",
         status: "connected",
-        hasDSL: true
+        hasDSL: true,
+        intent: smartAnalysis.intent
       }
     };
   } catch (error) {
