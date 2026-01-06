@@ -23,6 +23,7 @@ import { Membership } from "./models/Membership";
 import { extractTenant, verifyTenantAccess, requireTenantRole, type TenantRequest } from "./middleware/tenantMiddleware";
 // import tenantsRouter from "./routes/tenants"; // Removed
 import { Project, Task } from "./models/Project";
+import { generateSiteStructure } from "./ai/engine";
 
 const rateLimitMap = new Map<string, { count: number; resetTime: number }>();
 const RATE_LIMIT_WINDOW = 60 * 1000;
@@ -649,6 +650,33 @@ export async function registerRoutes(
 
       res.status(201).json(meeting);
     } catch (error) {
+      res.status(500).json({ error: "Failed to schedule meeting" });
+    }
+  });
+
+  // ==================== LOCAL AI ENGINE ROUTES ====================
+  app.post("/api/ai/generate-site", authMiddleware, async (req: AuthRequest, res) => {
+    try {
+      const { prompt } = req.body;
+      if (!prompt) return res.status(400).json({ error: "Prompt is required" });
+
+      const result = await generateSiteStructure(prompt);
+      
+      await storage.createAuditLog({
+        userId: req.user!.userId,
+        tenantId: "default",
+        action: "AI_GENERATE_SITE",
+        module: "AI-Engine",
+        details: `Site generated locally for prompt: ${prompt.substring(0, 50)}...`,
+        ipAddress: req.ip,
+      });
+
+      res.json(result);
+    } catch (error) {
+      console.error("AI Generation error:", error);
+      res.status(500).json({ error: "AI Engine inference failed" });
+    }
+  });
       res.status(500).json({ error: "Failed to schedule meeting" });
     }
   });
