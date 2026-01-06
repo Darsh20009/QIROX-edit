@@ -29,12 +29,14 @@ import {
   FileSpreadsheet,
   Wrench,
   ShieldAlert,
+  Sparkles,
 } from "lucide-react";
 import { useAuth } from "@/lib/auth";
 import { LogoQ } from "@/components/ui/logo-q";
 
 const menuItems = [
   { label: "لوحة التحكم", href: "/admin/dashboard", icon: LayoutDashboard },
+  { label: "الذكاء الاصطناعي", href: "/admin/ai", icon: Sparkles },
   { label: "المستخدمين", href: "/admin/users", icon: Users },
   { label: "المنتجات", href: "/admin/products", icon: Package },
   { label: "الطلبات", href: "/admin/orders", icon: ShoppingCart },
