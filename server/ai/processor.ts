@@ -41,19 +41,28 @@ export function analyzeSemanticIntent(prompt: string): SemanticIntent {
   return intent;
 }
 
+import { performSmartReasoning, getSmartRecommendations } from "./thinking";
+
 /**
- * Smart Processor - Coordinates intent and generation
+ * Smart Processor - Coordinates intent, reasoning, and generation
  */
 export function processSmartRequest(prompt: string) {
   console.log(`[Smart Processor] Analyzing: "${prompt}"`);
   const intent = analyzeSemanticIntent(prompt);
   
+  // New Thinking Layer
+  const reasoning = performSmartReasoning(intent);
+  const recommendations = getSmartRecommendations(intent.category);
+  
   return {
     intent,
-    recommendation: {
+    reasoning,
+    recommendations,
+    executionPlan: {
       template: intent.category === "unknown" ? "landing_page" : intent.category,
       colorPalette: intent.tone === "bold" ? "vibrant" : "corporate",
-      layoutType: "grid-system"
+      layoutType: "grid-system",
+      suggestedComponents: recommendations
     }
   };
 }

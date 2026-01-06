@@ -17,6 +17,7 @@ export async function generateSiteStructure(prompt: string) {
     // Stage 0: Smart Processing & Intent Analysis
     const smartAnalysis = processSmartRequest(prompt);
     console.log("[AI Engine] Smart Analysis Result:", smartAnalysis.intent);
+    console.log("[AI Engine] Thinking Process:", smartAnalysis.reasoning.conclusion);
 
     // Stage 1: NLP Understanding & JSON Structure Generation
     const jsonStructure = generateJSONFromPrompt(prompt);
