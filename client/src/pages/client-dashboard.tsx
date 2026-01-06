@@ -7,7 +7,8 @@ import { Badge } from "@/components/ui/badge";
 import { 
   CheckCircle2, Clock, FileText, Globe, 
   MessageSquare, User, Activity, Calendar,
-  ArrowUpRight, Download, ExternalLink, ShieldCheck
+  ArrowUpRight, Download, ExternalLink, ShieldCheck,
+  Star, Settings
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { motion } from "framer-motion";
@@ -35,26 +36,45 @@ export default function ClientDashboard() {
       <div className="min-h-screen p-4 md:p-8 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-primary/5 via-background to-background">
         <div className="max-w-7xl mx-auto space-y-8">
           
+          <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+            <div>
+              <h1 className="text-4xl font-black bg-clip-text text-transparent bg-gradient-to-r from-primary via-emerald-500 to-teal-500 drop-shadow-[0_0_10px_rgba(16,185,129,0.2)]">
+                أهلاً بك، {user?.username}
+              </h1>
+              <p className="text-muted-foreground mt-1 font-medium italic">يسعدنا متابعة تطور مشروعك: <span className="text-primary font-bold">{userData?.projectName || "قيد المراجعة"}</span></p>
+            </div>
+            <div className="flex gap-3">
+              <Button 
+                variant="outline" 
+                className="rounded-2xl border-primary/20 bg-primary/5 backdrop-blur-md hover-elevate active-elevate-2 font-bold px-6 h-12 shadow-lg shadow-primary/5"
+                onClick={() => window.open(`https://wa.me/${userData?.assignedEmployeePhone || '966532441566'}`)}
+              >
+                <MessageSquare className="ml-2 h-5 w-5 text-primary" />
+                تحدث مع مدير مشروعك
+              </Button>
+            </div>
+          </div>
+
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            <Card className="bg-primary text-white rounded-3xl p-8 flex flex-col justify-between h-48 shadow-xl shadow-primary/20">
-              <p className="font-bold opacity-80">الحالة العامة</p>
+            <Card className="bg-primary text-white rounded-3xl p-8 flex flex-col justify-between h-48 shadow-2xl shadow-primary/30 border-0 group hover:scale-[1.02] transition-transform">
+              <p className="font-bold opacity-80 uppercase tracking-widest text-xs">الحالة العامة</p>
               <div className="flex items-end justify-between">
                 <h3 className="text-4xl font-black">نشط</h3>
-                <Activity className="w-12 h-12 opacity-20" />
+                <Activity className="w-12 h-12 opacity-20 group-hover:scale-110 transition-transform" />
               </div>
             </Card>
-            <Card className="bg-secondary rounded-3xl p-8 flex flex-col justify-between h-48">
-              <p className="font-bold text-muted-foreground">اكتمال المشروع</p>
+            <Card className="bg-white dark:bg-zinc-900 border border-white/10 rounded-3xl p-8 flex flex-col justify-between h-48 shadow-xl hover-elevate transition-all">
+              <p className="font-bold text-muted-foreground uppercase tracking-widest text-xs">اكتمال المشروع</p>
               <div className="flex items-end justify-between">
                 <h3 className="text-4xl font-black text-primary">35%</h3>
-                <CheckCircle2 className="w-12 h-12 text-primary opacity-20" />
+                <CheckCircle2 className="w-12 h-12 text-primary opacity-10" />
               </div>
             </Card>
-            <Card className="bg-secondary rounded-3xl p-8 flex flex-col justify-between h-48">
-              <p className="font-bold text-muted-foreground">المرحلة الحالية</p>
+            <Card className="bg-white dark:bg-zinc-900 border border-white/10 rounded-3xl p-8 flex flex-col justify-between h-48 shadow-xl hover-elevate transition-all">
+              <p className="font-bold text-muted-foreground uppercase tracking-widest text-xs">المرحلة الحالية</p>
               <div className="flex items-end justify-between">
-                <h3 className="text-2xl font-black text-primary">الهوية</h3>
-                <Star className="w-12 h-12 text-primary opacity-20" />
+                <h3 className="text-2xl font-black text-primary">الهوية البصرية</h3>
+                <Star className="w-12 h-12 text-primary opacity-10" />
               </div>
             </Card>
           </div>

@@ -90,25 +90,30 @@ export default function AdminDashboard() {
           </div>
 
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-            <Card>
-              <CardHeader>
-                <CardTitle>آخر الطلبات</CardTitle>
+            <Card className="rounded-[2rem] border-0 shadow-xl bg-background/50 backdrop-blur-sm">
+              <CardHeader className="px-8 pt-8">
+                <CardTitle className="text-xl font-black">آخر العمليات</CardTitle>
               </CardHeader>
-              <CardContent>
+              <CardContent className="px-8 pb-8">
                 <div className="space-y-4">
                   {[
-                    { id: 1004, customer: "أحمد محمد", amount: 1500, status: "مكتمل" },
-                    { id: 1003, customer: "سارة علي", amount: 750, status: "قيد التجهيز" },
-                    { id: 1002, customer: "خالد عبدالله", amount: 2200, status: "بانتظار التأكيد" }
+                    { id: 1004, customer: "أحمد محمد", amount: 1500, status: "مكتمل", type: "متجر إلكتروني" },
+                    { id: 1003, customer: "سارة علي", amount: 750, status: "قيد التجهيز", type: "تجديد اشتراك" },
+                    { id: 1002, customer: "خالد عبدالله", amount: 2200, status: "بانتظار التأكيد", type: "باقة مطاعم" }
                   ].map((order) => (
-                    <div key={order.id} className="flex justify-between items-center pb-3 border-b last:border-0 hover:bg-muted/30 p-2 rounded-lg transition-colors">
-                      <div>
-                        <p className="font-bold">طلب #{order.id}</p>
-                        <p className="text-xs text-muted-foreground">{order.customer}</p>
+                    <div key={order.id} className="flex justify-between items-center p-4 rounded-2xl hover:bg-primary/5 transition-all group border border-transparent hover:border-primary/10">
+                      <div className="flex items-center gap-4">
+                        <div className="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center font-black text-primary">
+                          #{order.id.toString().slice(-2)}
+                        </div>
+                        <div>
+                          <p className="font-black text-foreground">{order.customer}</p>
+                          <p className="text-xs text-muted-foreground">{order.type}</p>
+                        </div>
                       </div>
                       <div className="text-right">
                         <p className="font-black text-primary">{order.amount} ر.س</p>
-                        <p className={`text-[10px] font-bold ${order.status === "مكتمل" ? "text-green-500" : "text-amber-500"}`}>{order.status}</p>
+                        <Badge variant="outline" className={`text-[10px] font-bold rounded-full border-0 ${order.status === "مكتمل" ? "bg-emerald-500/10 text-emerald-500" : "bg-amber-500/10 text-amber-500"}`}>{order.status}</Badge>
                       </div>
                     </div>
                   ))}
@@ -116,23 +121,28 @@ export default function AdminDashboard() {
               </CardContent>
             </Card>
 
-            <Card>
-              <CardHeader>
-                <CardTitle>آخر المستخدمين</CardTitle>
+            <Card className="rounded-[2rem] border-0 shadow-xl bg-background/50 backdrop-blur-sm">
+              <CardHeader className="px-8 pt-8">
+                <CardTitle className="text-xl font-black">المستخدمين الجدد</CardTitle>
               </CardHeader>
-              <CardContent>
+              <CardContent className="px-8 pb-8">
                 <div className="space-y-4">
                   {[
-                    { name: "فهد العتيبي", email: "fahad@example.com", time: "قبل ساعتين" },
-                    { name: "ليلى حسن", email: "laila@qirox.net", time: "قبل 5 ساعات" },
-                    { name: "محمد إبراهيم", email: "m.ibra@gmail.com", time: "أمس" }
+                    { name: "فهد العتيبي", email: "fahad@example.com", time: "قبل ساعتين", role: "صاحب متجر" },
+                    { name: "ليلى حسن", email: "laila@qirox.net", time: "قبل 5 ساعات", role: "مطعم" },
+                    { name: "محمد إبراهيم", email: "m.ibra@gmail.com", time: "أمس", role: "مطور" }
                   ].map((user, i) => (
-                    <div key={i} className="flex justify-between items-center pb-3 border-b last:border-0 hover:bg-muted/30 p-2 rounded-lg transition-colors">
-                      <div>
-                        <p className="font-bold">{user.name}</p>
-                        <p className="text-xs text-muted-foreground">{user.email}</p>
+                    <div key={i} className="flex justify-between items-center p-4 rounded-2xl hover:bg-primary/5 transition-all border border-transparent hover:border-primary/10">
+                      <div className="flex items-center gap-4">
+                        <div className="w-12 h-12 rounded-full bg-secondary flex items-center justify-center font-black text-primary border-2 border-background shadow-sm">
+                          {user.name[0]}
+                        </div>
+                        <div>
+                          <p className="font-black">{user.name}</p>
+                          <p className="text-xs text-muted-foreground">{user.role}</p>
+                        </div>
                       </div>
-                      <p className="text-[10px] font-medium text-muted-foreground">{user.time}</p>
+                      <p className="text-[10px] font-bold text-muted-foreground bg-muted px-2 py-1 rounded-full">{user.time}</p>
                     </div>
                   ))}
                 </div>

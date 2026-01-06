@@ -84,58 +84,69 @@ export default function EmployeeDashboard() {
           </div>
         </aside>
 
-        <main className="flex-1 p-8">
-          <header className="flex justify-between items-center mb-8">
+        <main className="flex-1 p-8 bg-slate-50/50">
+          <header className="flex justify-between items-center mb-10">
             <div>
-              <h1 className="text-3xl font-bold text-slate-900">لوحة الموظفين</h1>
-              <p className="text-slate-500 mt-1">إدارة المشاريع والطلبات المسندة إليك</p>
+              <h1 className="text-4xl font-black text-slate-900 tracking-tight">لوحة العمليات</h1>
+              <p className="text-slate-500 mt-2 font-medium">إدارة تدفق المشاريع وضمان الجودة</p>
             </div>
-            <Button variant="outline" className="gap-2" onClick={() => window.open("https://wa.me/966532441566")}>
-              <MessageSquare className="w-4 h-4" />
-              الدعم الفني
-            </Button>
+            <div className="flex gap-4">
+              <Button className="rounded-2xl h-12 px-6 font-bold shadow-lg shadow-primary/20">
+                <Plus className="w-5 h-5 ml-2" />
+                مشروع جديد
+              </Button>
+              <Button variant="outline" className="rounded-2xl h-12 px-6 font-bold bg-white" onClick={() => window.open("https://wa.me/966532441566")}>
+                <MessageSquare className="w-5 h-5 ml-2 text-primary" />
+                الدعم الفني
+              </Button>
+            </div>
           </header>
 
           <div className="grid lg:grid-cols-3 gap-8">
             <div className="lg:col-span-2 space-y-8">
               {pendingApproval.length > 0 && (
-                <Card className="border-2 border-amber-200 shadow-sm bg-amber-50/30">
-                  <CardHeader>
-                    <CardTitle className="flex items-center gap-2 text-amber-700">
-                      <Clock className="w-5 h-5" />
-                      مشاريع تنتظر الموافقة ({pendingApproval.length})
+                <Card className="border-0 shadow-2xl shadow-amber-500/10 bg-amber-50/50 rounded-[2.5rem] overflow-hidden">
+                  <CardHeader className="p-8 pb-4">
+                    <CardTitle className="flex items-center gap-3 text-amber-700 text-2xl font-black">
+                      <div className="p-2 bg-amber-500/20 rounded-xl">
+                        <Clock className="w-6 h-6" />
+                      </div>
+                      طلبات الاعتماد ({pendingApproval.length})
                     </CardTitle>
-                    <CardDescription>هذه المشاريع تحتاج إلى مراجعة واعتماد لبدء العمل</CardDescription>
+                    <CardDescription className="text-amber-600/80 font-bold">مراجعة بيانات العميل والموافقة المبدئية</CardDescription>
                   </CardHeader>
-                  <CardContent className="p-0">
-                    <div className="divide-y divide-amber-100">
+                  <CardContent className="p-4 pt-0">
+                    <div className="space-y-4">
                       {pendingApproval.map((p) => (
-                        <div key={p.id} className="p-6">
-                          <div className="flex justify-between items-start mb-4">
+                        <div key={p.id} className="p-6 bg-white rounded-[2rem] shadow-sm border border-amber-100/50 flex flex-col md:flex-row justify-between items-center gap-6">
+                          <div className="flex items-center gap-4 text-center md:text-right">
+                            <div className="w-16 h-16 rounded-2xl bg-amber-100 flex items-center justify-center text-amber-700 font-black text-2xl">
+                              {p.name[0]}
+                            </div>
                             <div>
-                              <h3 className="text-lg font-bold text-slate-900">{p.name}</h3>
-                              <p className="text-sm text-slate-500">{p.type}</p>
-                              {p.crUrl && <a href={p.crUrl} target="_blank" className="text-xs text-primary underline block mt-1">عرض السجل التجاري</a>}
-                              {p.ibanUrl && <a href={p.ibanUrl} target="_blank" className="text-xs text-primary underline block">عرض شهادة الآيبان</a>}
+                              <h3 className="text-xl font-black text-slate-900">{p.name}</h3>
+                              <p className="text-sm text-slate-500 font-bold">{p.type}</p>
+                              <div className="flex gap-3 mt-2">
+                                {p.crUrl && <Badge variant="outline" className="text-[10px] cursor-pointer" onClick={() => window.open(p.crUrl)}>السجل التجاري</Badge>}
+                                {p.ibanUrl && <Badge variant="outline" className="text-[10px] cursor-pointer" onClick={() => window.open(p.ibanUrl)}>الآيبان</Badge>}
+                              </div>
                             </div>
-                            <div className="flex gap-2">
-                              <Button 
-                                size="sm" 
-                                variant="default" 
-                                className="bg-emerald-600 hover:bg-emerald-700"
-                                onClick={() => approveMutation.mutate({ projectId: p.id, status: "yes" })}
-                              >
-                                <CheckCircle2 className="w-4 h-4 mr-1" />
-                                اعتماد
-                              </Button>
-                              <Button 
-                                size="sm" 
-                                variant="destructive"
-                                onClick={() => approveMutation.mutate({ projectId: p.id, status: "rejected" })}
-                              >
-                                رفض
-                              </Button>
-                            </div>
+                          </div>
+                          <div className="flex gap-3 w-full md:w-auto">
+                            <Button 
+                              className="flex-1 md:flex-none rounded-xl h-12 px-8 bg-emerald-600 hover:bg-emerald-700 font-black"
+                              onClick={() => approveMutation.mutate({ projectId: p.id, status: "yes" })}
+                            >
+                              <CheckCircle2 className="w-5 h-5 ml-2" />
+                              اعتماد المشروع
+                            </Button>
+                            <Button 
+                              variant="ghost"
+                              className="flex-1 md:flex-none rounded-xl h-12 px-6 text-red-500 hover:bg-red-50 font-bold"
+                              onClick={() => approveMutation.mutate({ projectId: p.id, status: "rejected" })}
+                            >
+                              رفض
+                            </Button>
                           </div>
                         </div>
                       ))}
@@ -144,31 +155,50 @@ export default function EmployeeDashboard() {
                 </Card>
               )}
 
-              <Card className="border-none shadow-sm">
-                <CardHeader>
-                  <CardTitle>قائمة المشاريع النشطة</CardTitle>
+              <Card className="border-0 shadow-2xl shadow-slate-200/50 rounded-[2.5rem] bg-white overflow-hidden">
+                <CardHeader className="p-8">
+                  <div className="flex justify-between items-center">
+                    <CardTitle className="text-2xl font-black">المشاريع القائمة</CardTitle>
+                    <Badge variant="secondary" className="rounded-full px-4 py-1">{activeProjects.length} مشروع</Badge>
+                  </div>
                 </CardHeader>
-                <CardContent className="p-0">
-                  <div className="divide-y">
+                <CardContent className="p-4 pt-0">
+                  <div className="space-y-4">
                     {activeProjects.length === 0 ? (
-                      <div className="p-8 text-center text-muted-foreground">لا توجد مشاريع نشطة حالياً</div>
+                      <div className="p-20 text-center text-slate-400 font-bold">لا توجد مشاريع نشطة حالياً</div>
                     ) : (
                       activeProjects.map((p) => (
-                        <div key={p.id} className="p-6 hover:bg-slate-50 transition-colors">
-                          <div className="flex justify-between items-start mb-4">
-                            <div>
-                              <h3 className="text-lg font-bold text-slate-900">{p.name}</h3>
-                              <p className="text-sm text-slate-500">{p.type}</p>
+                        <div key={p.id} className="p-6 rounded-[2rem] border border-slate-100 hover:bg-slate-50 transition-all group">
+                          <div className="flex justify-between items-start mb-6">
+                            <div className="flex items-center gap-4">
+                              <div className="w-14 h-14 rounded-2xl bg-primary/10 flex items-center justify-center text-primary">
+                                <Briefcase className="w-7 h-7" />
+                              </div>
+                              <div>
+                                <h3 className="text-xl font-black text-slate-900 group-hover:text-primary transition-colors">{p.name}</h3>
+                                <p className="text-sm text-slate-500 font-bold">{p.type}</p>
+                              </div>
                             </div>
-                            <Badge className="bg-primary/10 text-primary border-none">
-                              {p.status}
-                            </Badge>
+                            <div className="text-left">
+                              <Badge className="bg-emerald-500 text-white border-none rounded-full px-4 font-bold">
+                                {p.status}
+                              </Badge>
+                            </div>
                           </div>
-                          <div className="flex items-center gap-4">
-                            <div className="flex-1 h-2 bg-slate-100 rounded-full">
-                              <div className="h-full bg-primary rounded-full transition-all" style={{ width: `${p.progress}%` }} />
+                          <div className="space-y-2">
+                            <div className="flex justify-between text-xs font-black uppercase tracking-widest text-slate-400">
+                              <span>نسبة الإنجاز</span>
+                              <span className="text-primary">{p.progress}%</span>
                             </div>
-                            <span className="text-sm font-medium">{p.progress}%</span>
+                            <div className="h-3 bg-slate-100 rounded-full overflow-hidden">
+                              <motion.div 
+                                initial={{ width: 0 }}
+                                animate={{ width: `${p.progress}%` }}
+                                className="h-full bg-primary rounded-full relative shadow-[0_0_15px_rgba(16,185,129,0.3)]"
+                              >
+                                <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/30 to-transparent animate-shimmer" />
+                              </motion.div>
+                            </div>
                           </div>
                         </div>
                       ))
