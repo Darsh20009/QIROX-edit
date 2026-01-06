@@ -14,9 +14,11 @@ import {
   MessageSquare, 
   LayoutDashboard,
   LogOut,
-  ExternalLink,
-  Plus
+  Plus,
+  Activity
 } from "lucide-react";
+import { motion } from "framer-motion";
+import { LogoQ } from "@/components/ui/logo-q";
 
 export default function EmployeeDashboard() {
   const { user, isLoading: authLoading, logout } = useAuth();
@@ -32,7 +34,7 @@ export default function EmployeeDashboard() {
     }
   }, [user, authLoading, setLocation]);
 
-  const { data: projects, isLoading: projectsLoading } = useQuery<any[]>({
+  const { data: projects } = useQuery<any[]>({
     queryKey: ["/api/projects"],
     enabled: !!user && (user.role === "employee" || user.role === "admin"),
   });
@@ -58,8 +60,6 @@ export default function EmployeeDashboard() {
   return (
     <div className="min-h-screen bg-[#f8fafc]" dir="rtl">
       <div className="flex">
-import { LogoQ } from "@/components/ui/logo-q";
-...
         <aside className="w-72 min-h-screen bg-slate-900 text-white hidden lg:block p-6">
           <div className="pb-8 border-b border-slate-800 mb-8 flex items-center gap-3">
             <LogoQ className="w-10 h-10" />

@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { Link, useLocation } from "wouter";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Layout } from "@/components/layout/layout";
@@ -9,6 +9,7 @@ import { useAuth } from "@/lib/auth";
 import { useToast } from "@/hooks/use-toast";
 import { Loader2, Mail, Lock, ArrowLeft } from "lucide-react";
 import { motion } from "framer-motion";
+import { LogoQ } from "@/components/ui/logo-q";
 
 export default function Login() {
   const [email, setEmail] = useState("");
@@ -52,8 +53,6 @@ export default function Login() {
     <Layout>
       <div className="min-h-[80vh] flex items-center justify-center py-12 px-4">
         <div className="w-full max-w-md">
-import { LogoQ } from "@/components/ui/logo-q";
-...
           <div className="text-center mb-10">
             <motion.div 
               initial={{ scale: 0.5, opacity: 0 }}
