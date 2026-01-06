@@ -3,11 +3,12 @@ import { generateFromPrompt } from "./templates";
 
 // QIROX AI Engine - Local Inference
 // This module will eventually load local weights (ONNX/TensorFlow)
-// Currently using a rule-based engine to simulate local AI generation
+// Currently using a rule-based engine to simulate local AI generation.
+// Connection: Ensure the local server is running on port 5000 for internal API calls.
 export async function generateSiteStructure(prompt: string) {
-  console.log(`[AI Engine] Generating site structure for: ${prompt}`);
+  console.log(`[AI Engine] Local inference started for prompt: ${prompt}`);
   
-  // Simulate heavy computation
+  // Simulate heavy computation (e.g., loading model weights)
   await new Promise(resolve => setTimeout(resolve, 1500));
   
   try {
@@ -21,11 +22,12 @@ export async function generateSiteStructure(prompt: string) {
       metadata: {
         model: "Rule-Based-Transformer-Sim",
         inference_time: "1.5s",
-        device: "CPU"
+        device: "CPU",
+        status: "connected"
       }
     };
   } catch (error) {
-    console.error("[AI Engine] Inference Error:", error);
-    throw new Error("AI Inference failed");
+    console.error("[AI Engine] Inference Failure:", error);
+    throw new Error("AI Engine: Local inference failed. Check internal connection.");
   }
 }

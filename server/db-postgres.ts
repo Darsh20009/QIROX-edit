@@ -1,17 +1,22 @@
 import { Pool } from "pg";
 
+if (!process.env.DATABASE_URL) {
+  console.warn("DATABASE_URL not set. PostgreSQL connection will be skipped.");
+}
+
 const pool = new Pool({
   connectionString: process.env.DATABASE_URL,
 });
 
 export async function connectPostgres() {
+  if (!process.env.DATABASE_URL) return false;
   try {
     const client = await pool.connect();
-    console.log("Connected to PostgreSQL");
+    console.log("Connected to PostgreSQL successfully");
     client.release();
     return true;
   } catch (error) {
-    console.error("PostgreSQL connection error:", error);
+    console.error("PostgreSQL connection failure:", error);
     return false;
   }
 }
