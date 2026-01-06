@@ -52,13 +52,15 @@ export default function Login() {
     <Layout>
       <div className="min-h-[80vh] flex items-center justify-center py-12 px-4">
         <div className="w-full max-w-md">
+import { LogoQ } from "@/components/ui/logo-q";
+...
           <div className="text-center mb-10">
             <motion.div 
               initial={{ scale: 0.5, opacity: 0 }}
               animate={{ scale: 1, opacity: 1 }}
-              className="inline-flex items-center justify-center w-20 h-20 rounded-[2rem] bg-gradient-to-br from-primary via-emerald-500 to-teal-500 text-white shadow-2xl mb-6 shadow-primary/20"
+              className="mb-6"
             >
-              <span className="text-4xl font-black italic">Q</span>
+              <LogoQ className="w-20 h-20 mx-auto" />
             </motion.div>
             <h1 className="text-4xl font-black text-foreground tracking-tighter mb-2" data-testid="text-login-title">
               QIROX

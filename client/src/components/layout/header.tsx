@@ -37,9 +37,12 @@ export function Header() {
     <header className="sticky top-0 z-50 w-full border-b border-border/40 bg-background/80 backdrop-blur-xl transition-all">
       <div className="mx-auto max-w-7xl px-6">
         <div className="flex h-20 items-center justify-between gap-8">
+import { LogoQ } from "@/components/ui/logo-q";
+...
           <div className="flex items-center gap-12">
             <Link href="/" className="flex items-center gap-2 group transition-transform hover:scale-105" data-testid="link-logo">
-              <img src={qiroxLogo} alt="QIROX" className="h-12 w-auto dark:invert" />
+              <LogoQ className="h-10 w-10" />
+              <span className="text-2xl font-black tracking-tighter dark:text-white">QIROX</span>
             </Link>
 
             <nav className="hidden md:flex items-center gap-8">

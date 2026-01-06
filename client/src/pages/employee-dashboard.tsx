@@ -58,10 +58,15 @@ export default function EmployeeDashboard() {
   return (
     <div className="min-h-screen bg-[#f8fafc]" dir="rtl">
       <div className="flex">
+import { LogoQ } from "@/components/ui/logo-q";
+...
         <aside className="w-72 min-h-screen bg-slate-900 text-white hidden lg:block p-6">
-          <div className="pb-8 border-b border-slate-800 mb-8">
-            <h1 className="text-2xl font-black text-primary tracking-tighter">QIROX <span className="text-white">TEAM</span></h1>
-            <p className="text-[10px] text-slate-500 font-bold mt-1 uppercase tracking-widest">إدارة العمليات والإنتاج</p>
+          <div className="pb-8 border-b border-slate-800 mb-8 flex items-center gap-3">
+            <LogoQ className="w-10 h-10" />
+            <div>
+              <h1 className="text-xl font-black text-primary tracking-tighter leading-none">QIROX <span className="text-white">TEAM</span></h1>
+              <p className="text-[8px] text-slate-500 font-bold mt-1 uppercase tracking-widest">إدارة العمليات والإنتاج</p>
+            </div>
           </div>
           <nav className="space-y-2">
             {[

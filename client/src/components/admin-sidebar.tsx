@@ -70,10 +70,10 @@ export function AdminSidebar() {
 
   return (
     <div className="w-64 bg-card border-l border-border h-screen flex flex-col p-4 gap-4 sticky top-0">
+import { LogoQ } from "@/components/ui/logo-q";
+...
       <div className="mb-6 flex items-center gap-3 p-2 bg-secondary/30 rounded-2xl border border-border/40">
-        <div className="w-10 h-10 rounded-xl bg-primary flex items-center justify-center text-white font-bold shadow-neon">
-          Q
-        </div>
+        <LogoQ className="w-10 h-10" />
         <div>
           <h2 className="text-sm font-black tracking-tight">QIROX CORE</h2>
           <p className="text-[10px] text-muted-foreground uppercase tracking-widest font-bold">{user?.role?.replace('_', ' ')}</p>
