@@ -678,6 +678,7 @@ export async function registerRoutes(
     }
   });
 
+  // ==================== ADMIN STAFF ROUTES ====================
   app.get("/api/admin/staff", authMiddleware, roleMiddleware("system_admin", "qirox_pm"), async (req, res) => {
     try {
       const staff = await User.find({ role: { $in: ["qirox_pm", "qirox_specialist", "system_admin"] } }).select("name email role phone");
