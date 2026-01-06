@@ -58,28 +58,30 @@ export default function EmployeeDashboard() {
   return (
     <div className="min-h-screen bg-[#f8fafc]" dir="rtl">
       <div className="flex">
-        <aside className="w-64 min-h-screen bg-white border-l shadow-sm hidden lg:block">
-          <div className="p-6 border-b">
-            <h1 className="text-xl font-bold text-primary">Qirox Team</h1>
+        <aside className="w-72 min-h-screen bg-slate-900 text-white hidden lg:block p-6">
+          <div className="pb-8 border-b border-slate-800 mb-8">
+            <h1 className="text-2xl font-black text-primary tracking-tighter">QIROX <span className="text-white">TEAM</span></h1>
+            <p className="text-[10px] text-slate-500 font-bold mt-1 uppercase tracking-widest">إدارة العمليات والإنتاج</p>
           </div>
-          <nav className="p-4 space-y-2">
-            <Link href="/employee">
-              <div className="flex items-center gap-3 p-3 bg-primary/10 text-primary rounded-lg cursor-pointer">
-                <LayoutDashboard className="w-5 h-5" />
-                <span className="font-medium">لوحة الموظفين</span>
+          <nav className="space-y-2">
+            {[
+              { label: "لوحة التحكم", icon: LayoutDashboard, href: "/employee", active: true },
+              { label: "المشاريع المسندة", icon: Briefcase, href: "#" },
+              { label: "المحادثات", icon: MessageSquare, href: "#" },
+              { label: "التقارير", icon: Activity, href: "#" }
+            ].map((item, i) => (
+              <div key={i} className={`flex items-center gap-3 p-4 rounded-2xl cursor-pointer transition-all ${item.active ? 'bg-primary text-white shadow-lg shadow-primary/20' : 'text-slate-400 hover:bg-slate-800 hover:text-white'}`}>
+                <item.icon className="w-5 h-5" />
+                <span className="font-bold">{item.label}</span>
               </div>
-            </Link>
-            <div className="flex items-center gap-3 p-3 text-muted-foreground hover:bg-muted rounded-lg cursor-pointer transition-colors">
-              <Briefcase className="w-5 h-5" />
-              <span>مهامي</span>
-            </div>
-            <div className="pt-8 border-t mt-8">
-              <Button variant="ghost" className="w-full justify-start gap-3 text-red-600 hover:text-red-700 hover:bg-red-50" onClick={logout}>
-                <LogOut className="w-5 h-5" />
-                <span>تسجيل الخروج</span>
-              </Button>
-            </div>
+            ))}
           </nav>
+          <div className="absolute bottom-10 left-6 right-6">
+            <Button variant="ghost" className="w-full justify-start gap-3 text-slate-400 hover:text-white hover:bg-slate-800 h-14 rounded-2xl" onClick={logout}>
+              <LogOut className="w-5 h-5" />
+              <span className="font-bold">تسجيل الخروج</span>
+            </Button>
+          </div>
         </aside>
 
         <main className="flex-1 p-8">

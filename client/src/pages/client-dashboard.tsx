@@ -35,26 +35,28 @@ export default function ClientDashboard() {
       <div className="min-h-screen p-4 md:p-8 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-primary/5 via-background to-background">
         <div className="max-w-7xl mx-auto space-y-8">
           
-          <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 animate-in fade-in slide-in-from-top-4 duration-700">
-            <div>
-              <h1 className="text-4xl font-black bg-clip-text text-transparent bg-gradient-to-r from-primary via-emerald-500 to-teal-500 drop-shadow-[0_0_10px_rgba(16,185,129,0.2)]">
-                أهلاً بك، {user?.username}
-              </h1>
-              <p className="text-muted-foreground mt-1 font-medium">مرحباً بك في لوحة تحكم مشروعك: <span className="text-primary font-bold">{userData?.projectName || "قيد المراجعة"}</span></p>
-              <div className="mt-2 flex gap-2">
-                <Badge variant="outline" className="text-xs bg-primary/5 border-primary/20 text-primary px-3 py-1 rounded-full">رقم الواتساب: {userData?.whatsapp || userData?.phone || "غير مسجل"}</Badge>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <Card className="bg-primary text-white rounded-3xl p-8 flex flex-col justify-between h-48 shadow-xl shadow-primary/20">
+              <p className="font-bold opacity-80">الحالة العامة</p>
+              <div className="flex items-end justify-between">
+                <h3 className="text-4xl font-black">نشط</h3>
+                <Activity className="w-12 h-12 opacity-20" />
               </div>
-            </div>
-            <div className="flex gap-3">
-              <Button 
-                variant="outline" 
-                className="rounded-2xl border-primary/20 bg-primary/5 backdrop-blur-md hover-elevate active-elevate-2 font-bold px-6 h-12"
-                onClick={() => window.open(`https://wa.me/${userData?.assignedEmployeePhone || '966532441566'}`)}
-              >
-                <MessageSquare className="ml-2 h-5 w-5 text-primary" />
-                تواصل مع المسؤول
-              </Button>
-            </div>
+            </Card>
+            <Card className="bg-secondary rounded-3xl p-8 flex flex-col justify-between h-48">
+              <p className="font-bold text-muted-foreground">اكتمال المشروع</p>
+              <div className="flex items-end justify-between">
+                <h3 className="text-4xl font-black text-primary">35%</h3>
+                <CheckCircle2 className="w-12 h-12 text-primary opacity-20" />
+              </div>
+            </Card>
+            <Card className="bg-secondary rounded-3xl p-8 flex flex-col justify-between h-48">
+              <p className="font-bold text-muted-foreground">المرحلة الحالية</p>
+              <div className="flex items-end justify-between">
+                <h3 className="text-2xl font-black text-primary">الهوية</h3>
+                <Star className="w-12 h-12 text-primary opacity-20" />
+              </div>
+            </Card>
           </div>
 
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
