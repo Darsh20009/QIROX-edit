@@ -123,6 +123,21 @@
  * need to be distinguished from eachother visually.
  */
 @layer utilities {
+  @keyframes scroll {
+    0% { transform: translateX(0); }
+    100% { transform: translateX(100%); }
+  }
+
+  .animate-scroll {
+    animation: scroll 40s linear infinite;
+    display: flex;
+    width: max-content;
+  }
+
+  [dir="rtl"] .animate-scroll {
+    animation: scroll 40s linear infinite reverse;
+  }
+
   .animate-float {
     animation: float 6s ease-in-out infinite;
   }
