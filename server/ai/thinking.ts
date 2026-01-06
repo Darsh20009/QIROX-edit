@@ -1,3 +1,5 @@
+import { storeInMemory, synthesizeInformation } from "./memory";
+
 /**
  * Smart Thinking Logic - Knowledge Synthesis and Reasoning
  */
@@ -32,6 +34,10 @@ export function performSmartReasoning(intent: any): ReasoningChain {
     steps.push("Applying white-space optimization logic");
     confidence += 0.05;
   }
+
+  // Record thinking to memory
+  const synthesis = synthesizeInformation(intent.category, intent.tone);
+  storeInMemory(`thinking_${Date.now()}`, { intent, conclusion, steps });
 
   return { steps, conclusion, confidence };
 }
