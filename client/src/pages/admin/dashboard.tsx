@@ -3,7 +3,8 @@ import { useLocation } from "wouter";
 import { useEffect } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { AdminSidebar } from "@/components/admin-sidebar";
-import { Users, Package, ShoppingCart, CreditCard, Shield } from "lucide-react";
+import { Users, Package, ShoppingCart, CreditCard, Shield, Globe, Activity } from "lucide-react";
+import { Badge } from "@/components/ui/badge";
 
 export default function AdminDashboard() {
   const { user, isLoading } = useAuth();

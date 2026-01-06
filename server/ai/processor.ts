@@ -18,12 +18,15 @@ export function analyzeSemanticIntent(prompt: string): SemanticIntent {
   };
 
   // Category Detection
-  if (p.includes("عقار") || p.includes("real estate") || p.includes("بيت") || p.includes("شقة")) {
+  if (p.includes("عقار") || p.includes("real estate") || p.includes("بيت") || p.includes("شقة") || p.includes("فيلا")) {
     intent.category = "real_estate";
-  } else if (p.includes("متجر") || p.includes("بيع") || p.includes("تسوق") || p.includes("store")) {
+    intent.tone = p.includes("فخم") || p.includes("luxury") ? "bold" : "professional";
+  } else if (p.includes("متجر") || p.includes("بيع") || p.includes("تسوق") || p.includes("store") || p.includes("shop")) {
     intent.category = "ecommerce";
-  } else if (p.includes("شركة") || p.includes("مؤسسة") || p.includes("business")) {
+    intent.tone = "bold";
+  } else if (p.includes("شركة") || p.includes("مؤسسة") || p.includes("business") || p.includes("corporate")) {
     intent.category = "corporate";
+    intent.tone = "professional";
   }
 
   // Tone Detection
