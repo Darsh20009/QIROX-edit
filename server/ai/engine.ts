@@ -1,5 +1,6 @@
 // @ts-ignore
 import { generateFromPrompt } from "./templates";
+import { generateJSONFromPrompt, interpretDSL } from "./architecture";
 
 // QIROX AI Engine - Local Inference
 // This module will eventually load local weights (ONNX/TensorFlow)
@@ -12,18 +13,23 @@ export async function generateSiteStructure(prompt: string) {
   await new Promise(resolve => setTimeout(resolve, 1500));
   
   try {
-    const html = generateFromPrompt(prompt);
+    // Stage 1: NLP Understanding & JSON Structure Generation
+    const jsonStructure = generateJSONFromPrompt(prompt);
+    
+    // Stage 2: DSL Interpretation (JSON to HTML/React)
+    const html = interpretDSL(jsonStructure);
     
     return {
       success: true,
-      engine: "QIROX-Local-v1",
+      engine: "QIROX-Local-v1-Arch",
       timestamp: new Date().toISOString(),
       content: html,
       metadata: {
-        model: "Rule-Based-Transformer-Sim",
+        model: "TinyLLM-Architecture-Sim",
         inference_time: "1.5s",
         device: "CPU",
-        status: "connected"
+        status: "connected",
+        hasDSL: true
       }
     };
   } catch (error) {
