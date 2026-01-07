@@ -46,7 +46,14 @@ export class QiroxConnect {
     });
   }
 
+  async subscribeToEvents(callback: (event: any) => void) {
+    const eventSource = new EventSource(`${this.baseUrl}/api/v1/events?apiKey=${this.apiKey}`);
+    eventSource.onmessage = (e) => callback(JSON.parse(e.data));
+    return () => eventSource.close();
+  }
+
   async verifyWebhook(payload: string, signature: string, secret: string): Promise<boolean> {
+    // Note: In a browser this is a stub. Real verification should happen on the external backend.
     return !!(payload && signature && secret);
   }
 }

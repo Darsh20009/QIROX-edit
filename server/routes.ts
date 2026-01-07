@@ -142,15 +142,58 @@ export async function registerRoutes(
   // API Key Middleware
   const authenticateApiKey = async (req: Request, res: Response, next: NextFunction) => {
     const apiKey = req.header("X-API-Key");
-    if (!apiKey) return next(); // Allow other auth methods to handle it
+    if (!apiKey) return next();
 
     const keyData = await storage.getApiKey(apiKey);
     if (!keyData) return res.status(401).json({ message: "Invalid API Key" });
     
     // Attach tenant context
     (req as any).tenantId = keyData.tenantId;
+    (req as any).scopes = keyData.scopes ? keyData.scopes.split(',') : ['all'];
     next();
   };
+
+  // Webhook Engine & Signature Helper
+  const sendWebhook = async (webhook: any, event: string, payload: any) => {
+    try {
+      const crypto = await import("crypto");
+      const signature = crypto.createHmac('sha256', webhook.secret).update(JSON.stringify(payload)).digest('hex');
+      
+      const attemptFetch = async (retryCount = 0) => {
+        try {
+          const response = await fetch(webhook.url, {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+              "X-QIROX-Signature": signature,
+              "X-QIROX-Event": event
+            },
+            body: JSON.stringify(payload),
+          });
+          if (!response.ok && retryCount < 3) setTimeout(() => attemptFetch(retryCount + 1), 5000 * Math.pow(2, retryCount));
+        } catch (e) {
+          if (retryCount < 3) setTimeout(() => attemptFetch(retryCount + 1), 5000 * Math.pow(2, retryCount));
+        }
+      };
+      await attemptFetch();
+    } catch (err) { console.error("Webhook dispatcher error:", err); }
+  };
+
+  // Event Stream (SSE)
+  app.get("/api/v1/events", authenticateApiKey, async (req, res) => {
+    if (!(req as any).tenantId) return res.status(401).json({ message: "Auth required" });
+
+    res.setHeader("Content-Type", "text/event-stream");
+    res.setHeader("Cache-Control", "no-cache");
+    res.setHeader("Connection", "keep-alive");
+    res.flushHeaders();
+
+    const interval = setInterval(() => {
+      res.write(`data: ${JSON.stringify({ type: "ping", time: new Date() })}\n\n`);
+    }, 15000);
+
+    req.on("close", () => clearInterval(interval));
+  });
 
   // External API Endpoints
   app.get("/api/v1/products", authenticateApiKey, async (req, res) => {
