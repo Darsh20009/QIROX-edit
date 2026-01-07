@@ -124,7 +124,7 @@ export function Layout({ children }: LayoutProps) {
           <div className="bg-primary/5 rounded-3xl p-5 mb-4 border border-primary/10 backdrop-blur-xl">
             <div className="flex items-center gap-4 mb-4">
               <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-primary to-emerald-600 flex items-center justify-center text-primary-foreground font-black text-xl shadow-lg">
-                {user.username[0].toUpperCase()}
+                {user.username?.[0]?.toUpperCase() || "U"}
               </div>
               <div className="flex-1 min-w-0">
                 <p className="text-sm font-black truncate text-foreground">{user.username}</p>
@@ -209,15 +209,15 @@ export function Layout({ children }: LayoutProps) {
               </div>
 
               <div className="mt-auto pt-6 border-t border-white/5">
-                <div className="flex items-center gap-4 p-4 bg-white/5 rounded-2xl mb-4">
-                  <div className="w-10 h-10 rounded-xl bg-primary/20 flex items-center justify-center text-primary font-black">
-                    {user.username[0].toUpperCase()}
-                  </div>
-                  <div className="flex-1 min-w-0">
-                    <p className="text-sm font-black truncate">{user.username}</p>
-                    <p className="text-[10px] font-bold text-primary opacity-70 uppercase tracking-wider">خطة الرواد</p>
-                  </div>
+              <div className="flex items-center gap-4 p-4 bg-white/5 rounded-2xl mb-4">
+                <div className="w-10 h-10 rounded-xl bg-primary/20 flex items-center justify-center text-primary font-black">
+                  {user.username?.[0]?.toUpperCase() || "U"}
                 </div>
+                <div className="flex-1 min-w-0">
+                  <p className="text-sm font-black truncate">{user.username}</p>
+                  <p className="text-[10px] font-bold text-primary opacity-70 uppercase tracking-wider">خطة الرواد</p>
+                </div>
+              </div>
                 <Button 
                   variant="ghost" 
                   className="w-full justify-start text-destructive h-14 rounded-2xl font-black text-base hover:bg-destructive/10" 
