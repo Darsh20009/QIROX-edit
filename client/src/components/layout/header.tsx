@@ -40,7 +40,6 @@ export function Header() {
           <div className="flex items-center gap-12">
             <Link href="/" className="flex items-center gap-2 group transition-transform hover:scale-105" data-testid="link-logo">
               <LogoQ className="h-10 w-10" />
-              <span className="text-2xl font-black tracking-tighter dark:text-white">QIROX</span>
             </Link>
 
             <nav className="hidden md:flex items-center gap-8">
