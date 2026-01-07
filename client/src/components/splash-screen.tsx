@@ -1,111 +1,91 @@
-import { motion, AnimatePresence } from "framer-motion";
-import { useEffect, useState } from "react";
+import { motion } from "framer-motion";
+import { useEffect } from "react";
 import saudiHeroImage from "@assets/generated_images/saudi_man_with_flag_splash_screen_image.png";
-import qiroxLogo from "@assets/QIROX_LOGO_1767780768121.png";
 
 export function SplashScreen({ onComplete }: { onComplete: () => void }) {
-  const [stage, setStage] = useState(1);
-
   useEffect(() => {
-    const stage1Timer = setTimeout(() => setStage(2), 2500);
-    const completeTimer = setTimeout(() => onComplete(), 5500);
-    return () => {
-      clearTimeout(stage1Timer);
-      clearTimeout(completeTimer);
-    };
+    const timer = setTimeout(() => onComplete(), 4500);
+    return () => clearTimeout(timer);
   }, [onComplete]);
 
   return (
     <div className="fixed inset-0 z-[100] bg-black flex flex-col items-center justify-center overflow-hidden">
-      <AnimatePresence mode="wait">
-        {stage === 1 ? (
+      {/* Background Image with Cinematic Wash */}
+      <motion.div
+        initial={{ opacity: 0, scale: 1.1 }}
+        animate={{ opacity: 1, scale: 1 }}
+        transition={{ duration: 1.5, ease: "easeOut" }}
+        className="absolute inset-0 z-0"
+      >
+        <div 
+          className="absolute inset-0 bg-cover bg-center bg-no-repeat"
+          style={{ backgroundImage: `url(${saudiHeroImage})` }}
+        />
+        <div className="absolute inset-0 bg-gradient-to-t from-black via-black/60 to-transparent" />
+      </motion.div>
+      
+      {/* Integrated Content Section */}
+      <div className="relative z-10 flex flex-col items-center justify-end h-full pb-20 w-full px-6">
+        <motion.div
+          initial={{ y: 40, opacity: 0 }}
+          animate={{ y: 0, opacity: 1 }}
+          transition={{ delay: 0.5, duration: 1 }}
+          className="flex flex-col items-center space-y-6"
+        >
+          {/* Brand Name & Identity */}
+          <div className="text-center space-y-2">
+            <h1 className="text-7xl md:text-8xl font-black text-white tracking-tighter drop-shadow-[0_10px_30px_rgba(0,0,0,0.5)]">
+              QIROX
+            </h1>
+            <div className="flex items-center justify-center gap-3">
+              <div className="h-[1px] w-12 bg-primary/50" />
+              <p className="text-primary font-black text-xs tracking-[0.6em] uppercase ml-[0.6em]">
+                Future Tech
+              </p>
+              <div className="h-[1px] w-12 bg-primary/50" />
+            </div>
+          </div>
+
+          {/* Slogan / Vision */}
+          <div className="bg-black/20 backdrop-blur-md px-6 py-3 rounded-full border border-white/10">
+            <p className="text-white/80 text-sm md:text-base font-bold tracking-tight">
+              بكل فخر.. نصنع المستقبل
+            </p>
+          </div>
+
+          {/* Saudi Vision 2030 Badge */}
           <motion.div
-            key="saudi-stage"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
-            exit={{ opacity: 0, scale: 1.1, filter: "blur(20px)" }}
-            transition={{ duration: 1.2, ease: "easeInOut" }}
-            className="absolute inset-0 z-0"
+            transition={{ delay: 1.2, duration: 1 }}
+            className="flex items-center gap-2 px-4 py-1.5 rounded-lg bg-primary/10 border border-primary/20"
           >
-            {/* Background Image with Dark Wash */}
-            <div 
-              className="absolute inset-0 bg-cover bg-center bg-no-repeat"
-              style={{ backgroundImage: `url(${saudiHeroImage})` }}
-            />
-            <div className="absolute inset-0 bg-gradient-to-t from-black via-black/40 to-transparent" />
-            
-            {/* National Message */}
-            <div className="absolute inset-0 flex flex-col items-center justify-end pb-24 px-6 text-center">
-              <motion.div
-                initial={{ y: 30, opacity: 0 }}
-                animate={{ y: 0, opacity: 1 }}
-                transition={{ delay: 0.5, duration: 0.8 }}
-                className="space-y-4"
-              >
-                <h2 className="text-4xl md:text-6xl font-black text-white tracking-tighter drop-shadow-2xl">
-                  بكل فخر.. نصنع المستقبل
-                </h2>
-                <div className="flex items-center justify-center gap-4">
-                  <div className="h-[2px] w-12 bg-primary" />
-                  <p className="text-primary font-bold text-lg tracking-widest uppercase">
-                    Saudi Vision 2030
-                  </p>
-                  <div className="h-[2px] w-12 bg-primary" />
-                </div>
-              </motion.div>
-            </div>
+            <span className="text-[10px] text-primary font-black uppercase tracking-widest">Saudi Vision 2030</span>
           </motion.div>
-        ) : (
-          <motion.div
-            key="brand-stage"
-            initial={{ opacity: 0, scale: 0.9 }}
-            animate={{ opacity: 1, scale: 1 }}
-            transition={{ duration: 1, ease: [0.16, 1, 0.3, 1] }}
-            className="relative z-10 flex flex-col items-center"
-          >
-            <motion.div 
-              className="relative p-8"
-              animate={{ 
-                boxShadow: ["0 0 0px rgba(34,197,94,0)", "0 0 50px rgba(34,197,94,0.1)", "0 0 0px rgba(34,197,94,0)"] 
-              }}
-              transition={{ duration: 3, repeat: Infinity }}
-            >
-              <img 
-                src={qiroxLogo} 
-                alt="QIROX Logo" 
-                className="w-48 h-auto brightness-0 invert" 
-              />
-            </motion.div>
-            
-            <motion.div
-              initial={{ opacity: 0, y: 10 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.4, duration: 0.6 }}
-              className="text-center mt-6"
-            >
-              <p className="text-white/40 text-[10px] font-black uppercase tracking-[0.8em] ml-[0.8em]">
-                Build systems. Stay human.
-              </p>
-              
-              <div className="mt-8 w-48 h-[2px] bg-white/10 relative overflow-hidden rounded-full mx-auto">
-                <motion.div
-                  initial={{ x: "-100%" }}
-                  animate={{ x: "100%" }}
-                  transition={{ 
-                    duration: 2,
-                    repeat: Infinity,
-                    ease: "easeInOut"
-                  }}
-                  className="absolute inset-0 bg-primary"
-                />
-              </div>
-            </motion.div>
-          </motion.div>
-        )}
-      </AnimatePresence>
 
-      {/* Ambient Green Glow for both stages */}
-      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-primary/5 blur-[150px] rounded-full pointer-events-none z-0" />
+          {/* Progress Bar */}
+          <div className="w-48 h-[1px] bg-white/10 relative overflow-hidden rounded-full mt-4">
+            <motion.div
+              initial={{ x: "-100%" }}
+              animate={{ x: "100%" }}
+              transition={{ 
+                duration: 2.5,
+                repeat: Infinity,
+                ease: "linear"
+              }}
+              className="absolute inset-0 bg-gradient-to-r from-transparent via-primary to-transparent"
+            />
+          </div>
+        </motion.div>
+      </div>
+
+      {/* Final Fade Out Effect */}
+      <motion.div
+        initial={{ opacity: 0 }}
+        animate={{ opacity: [0, 0, 1] }}
+        transition={{ duration: 4.5, times: [0, 0.8, 1], ease: "linear" }}
+        className="absolute inset-0 bg-black z-50 pointer-events-none"
+      />
     </div>
   );
 }
