@@ -96,7 +96,7 @@ export default function Home() {
         <div className="container mx-auto px-6">
           <div className="text-center max-w-3xl mx-auto mb-24 space-y-6">
             <h2 className="text-5xl md:text-7xl font-black">خطط <span className="text-primary">إبداعية</span> بسيطة</h2>
-            <p className="text-xl text-muted-foreground font-medium">خطوات سهلة، وضوح تام، ودعم لا ينقطع. اختر باقتك وابدأ رحلة النجاح.</p>
+            <p className="text-xl text-muted-foreground font-medium leading-relaxed">خطوات سهلة، وضوح تام، ودعم لا ينقطع. اختر باقتك وابدأ رحلة النجاح.</p>
           </div>
 
           <div className="grid lg:grid-cols-2 gap-12 max-w-6xl mx-auto">
