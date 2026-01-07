@@ -17,6 +17,7 @@ export interface IStorage {
   getTenant(id: string): Promise<Tenant | undefined>;
   getTenantBySlug(slug: string): Promise<Tenant | undefined>;
   createTenant(tenant: InsertTenant): Promise<Tenant>;
+  updateTenant(id: string, updates: Partial<Tenant>): Promise<Tenant>;
 
   getProjects(userId?: string): Promise<Project[]>;
   getProject(id: string): Promise<Project | undefined>;
@@ -99,9 +100,26 @@ export class MemStorage implements IStorage {
   }
   async createTenant(insert: InsertTenant): Promise<Tenant> {
     const id = randomUUID();
-    const tenant: Tenant = { ...insert, id, createdAt: new Date(), settings: insert.settings || null, plan: insert.plan || "basic" };
+    const tenant: Tenant = { 
+      ...insert, 
+      id, 
+      createdAt: new Date(), 
+      settings: insert.settings || null, 
+      plan: insert.plan || "basic",
+      isExternal: insert.isExternal ?? false,
+      externalDomain: insert.externalDomain ?? null,
+      externalRepoUrl: insert.externalRepoUrl ?? null,
+      hostingProvider: insert.hostingProvider ?? null
+    };
     this.tenants.set(id, tenant);
     return tenant;
+  }
+  async updateTenant(id: string, updates: Partial<Tenant>): Promise<Tenant> {
+    const tenant = this.tenants.get(id);
+    if (!tenant) throw new Error("Tenant not found");
+    const updated = { ...tenant, ...updates };
+    this.tenants.set(id, updated);
+    return updated;
   }
 
   async getProjects(userId?: string): Promise<Project[]> {
@@ -196,6 +214,7 @@ export class MongoStorage implements IStorage {
   async getTenant(id: string): Promise<Tenant | undefined> { return this.memStorage.getTenant(id); }
   async getTenantBySlug(slug: string): Promise<Tenant | undefined> { return this.memStorage.getTenantBySlug(slug); }
   async createTenant(tenant: InsertTenant): Promise<Tenant> { return this.memStorage.createTenant(tenant); }
+  async updateTenant(id: string, updates: Partial<Tenant>): Promise<Tenant> { return this.memStorage.updateTenant(id, updates); }
   async getProjects(userId?: string): Promise<Project[]> { return this.memStorage.getProjects(userId); }
   async getProject(id: string): Promise<Project | undefined> { return this.memStorage.getProject(id); }
   async createProject(project: InsertProject): Promise<Project> { return this.memStorage.createProject(project); }

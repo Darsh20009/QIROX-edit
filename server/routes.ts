@@ -454,18 +454,42 @@ export async function registerRoutes(
       const tenant = await storage.getTenant(user.tenantId || "default");
       if (!tenant) return res.status(404).json({ error: "Tenant not found" });
 
-      // In a real production system, this mapping would be handled by a proxy (like Nginx/Traefik)
-      // or a cloud-native routing service. Here we simulate the status based on DB data.
       res.json({
         slug: tenant.slug,
         subdomain: `${tenant.slug}.qirox.online`,
         status: "active",
-        ssl: "valid", // Placeholder for Auto SSL verification
-        dns: "configured", // Placeholder for DNS propagation check
-        publishedVersion: "1.0.0"
+        ssl: "valid",
+        dns: "configured",
+        publishedVersion: "1.0.0",
+        isExternal: tenant.isExternal,
+        externalDomain: tenant.externalDomain,
+        externalRepoUrl: tenant.externalRepoUrl,
+        hostingProvider: tenant.hostingProvider
       });
     } catch (error) {
       res.status(500).json({ error: "Failed to fetch cloud status" });
+    }
+  });
+
+  app.patch("/api/cloud/external-mode", authMiddleware, async (req: AuthRequest, res) => {
+    try {
+      const user = await User.findById(req.user!.userId);
+      if (!user) return res.status(404).json({ error: "User not found" });
+
+      const tenant = await storage.updateTenant(user.tenantId || "default", req.body);
+      
+      await storage.createAuditLog({
+        userId: user._id.toString(),
+        tenantId: user.tenantId || "default",
+        action: "UPDATE_EXTERNAL_MODE",
+        module: "Cloud",
+        details: `External mode updated: ${JSON.stringify(req.body)}`,
+        ipAddress: req.ip,
+      });
+
+      res.json({ success: true, tenant });
+    } catch (error) {
+      res.status(500).json({ error: "Failed to update external mode" });
     }
   });
 

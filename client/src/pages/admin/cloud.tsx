@@ -2,13 +2,32 @@ import { AdminSidebar } from "@/components/admin-sidebar";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Globe, Server, Shield, Zap, Plus } from "lucide-react";
+import { Globe, Server, Shield, Zap, Plus, ExternalLink, Code, Database, Settings } from "lucide-react";
+import { useQuery, useMutation } from "@tanstack/react-query";
+import { apiRequest, queryClient } from "@/lib/queryClient";
+import { useToast } from "@/hooks/use-toast";
+import { useState } from "react";
 
 export default function CloudManagement() {
+  const { toast } = useToast();
+  const { data: cloudStatus } = useQuery({
+    queryKey: ["/api/cloud/tenant-status"],
+  });
+
+  const updateExternalMode = useMutation({
+    mutationFn: async (data: any) => {
+      const res = await apiRequest("PATCH", "/api/cloud/external-mode", data);
+      return res.json();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/cloud/tenant-status"] });
+      toast({ title: "تم تحديث الإعدادات بنجاح" });
+    },
+  });
+
   const subdomains = [
-    { id: 1, name: "store1.qirox.app", type: "Storefront", status: "active", ssl: "valid", traffic: "1.2k" },
+    { id: 1, name: (cloudStatus as any)?.subdomain || "store1.qirox.online", type: "Storefront", status: "active", ssl: "valid", traffic: "1.2k" },
     { id: 2, name: "api.qirox.app", type: "Backend API", status: "active", ssl: "valid", traffic: "45k" },
-    { id: 3, name: "staging.qirox.app", type: "Staging", status: "maintenance", ssl: "expiring", traffic: "0.1k" },
   ];
 
   return (
@@ -18,15 +37,21 @@ export default function CloudManagement() {
         <div className="flex justify-between items-center mb-8 flex-row-reverse">
           <div>
             <h1 className="text-3xl font-black text-primary mb-2">QIROX Cloud</h1>
-            <p className="text-muted-foreground">إدارة النطاقات الفرعية، شهادات SSL، وتوزيع الأحمال</p>
+            <p className="text-muted-foreground">إدارة النطاقات الفرعية، شهادات SSL، والتحكم الخارجي (External Mode)</p>
           </div>
-          <Button className="gap-2">
-            <Plus className="w-4 h-4" />
-            إضافة نطاق جديد
-          </Button>
+          <div className="flex gap-2">
+            <Button variant="outline" className="gap-2">
+              <ExternalLink className="w-4 h-4" />
+              عرض الموقع
+            </Button>
+            <Button className="gap-2">
+              <Plus className="w-4 h-4" />
+              إضافة نطاق جديد
+            </Button>
+          </div>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
           <Card className="hover-elevate">
             <CardHeader className="flex flex-row items-center justify-between pb-2 space-y-0 flex-row-reverse">
               <CardTitle className="text-sm font-medium">إجمالي النطاقات</CardTitle>
@@ -47,6 +72,16 @@ export default function CloudManagement() {
               <p className="text-xs text-muted-foreground mt-1">جميع العقد تعمل بكفاءة</p>
             </CardContent>
           </Card>
+          <Card className="hover-elevate border-primary/20 bg-primary/5">
+            <CardHeader className="flex flex-row items-center justify-between pb-2 space-y-0 flex-row-reverse">
+              <CardTitle className="text-sm font-medium">الوضع الخارجي</CardTitle>
+              <Shield className="h-4 w-4 text-primary" />
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold">{(cloudStatus as any)?.isExternal ? "نشط" : "غير نشط"}</div>
+              <p className="text-xs text-muted-foreground mt-1">التحكم في الاستضافة الخارجية</p>
+            </CardContent>
+          </Card>
           <Card className="hover-elevate">
             <CardHeader className="flex flex-row items-center justify-between pb-2 space-y-0 flex-row-reverse">
               <CardTitle className="text-sm font-medium">الحماية (DDoS)</CardTitle>
@@ -59,53 +94,117 @@ export default function CloudManagement() {
           </Card>
         </div>
 
-        <Card>
-          <CardHeader>
-            <CardTitle className="text-right">النطاقات النشطة</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="relative w-full overflow-auto">
-              <table className="w-full text-sm text-right">
-                <thead className="text-xs text-muted-foreground uppercase bg-muted/50">
-                  <tr>
-                    <th className="p-3">النطاق</th>
-                    <th className="p-3">النوع</th>
-                    <th className="p-3">الحالة</th>
-                    <th className="p-3">SSL</th>
-                    <th className="p-3">الترافيك</th>
-                    <th className="p-3">إجراءات</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {subdomains.map((sub) => (
-                    <tr key={sub.id} className="border-b hover:bg-muted/30 transition-colors">
-                      <td className="p-3 font-medium text-primary">{sub.name}</td>
-                      <td className="p-3">{sub.type}</td>
-                      <td className="p-3">
-                        <Badge variant={sub.status === "active" ? "default" : "secondary"}>
-                          {sub.status === "active" ? "نشط" : "صيانة"}
-                        </Badge>
-                      </td>
-                      <td className="p-3">
-                        <Badge variant={sub.ssl === "valid" ? "outline" : "destructive"} className="gap-1">
-                          <Shield className="w-3 h-3" />
-                          {sub.ssl === "valid" ? "محمي" : "منتهي"}
-                        </Badge>
-                      </td>
-                      <td className="p-3 flex items-center gap-1 justify-end">
-                        <Zap className="w-3 h-3 text-amber-500" />
-                        {sub.traffic}
-                      </td>
-                      <td className="p-3">
-                        <Button size="sm" variant="ghost">إعدادات</Button>
-                      </td>
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
+          <Card className="border-primary/20 overflow-hidden">
+            <CardHeader className="bg-primary/5 border-b">
+              <CardTitle className="text-lg flex items-center gap-2 justify-end">
+                <span>External Mode Configuration</span>
+                <Settings className="w-5 h-5 text-primary" />
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="p-6">
+              <div className="space-y-6">
+                <div className="flex items-center justify-between p-4 rounded-lg bg-muted/50 flex-row-reverse">
+                  <div className="text-right">
+                    <h3 className="font-bold">تفعيل الاستقلالية الكاملة</h3>
+                    <p className="text-sm text-muted-foreground">تصدير الكود والتحكم في الاستضافة الخاصة</p>
+                  </div>
+                  <Button 
+                    variant={(cloudStatus as any)?.isExternal ? "destructive" : "default"}
+                    onClick={() => updateExternalMode.mutate({ isExternal: !(cloudStatus as any)?.isExternal })}
+                  >
+                    {(cloudStatus as any)?.isExternal ? "إيقاف الوضع الخارجي" : "تفعيل الآن"}
+                  </Button>
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-right">
+                  <div className="space-y-2">
+                    <label className="text-sm font-medium flex items-center gap-2 justify-end">
+                      رابط المستودع (GitHub/GitLab)
+                      <Code className="w-4 h-4" />
+                    </label>
+                    <input 
+                      type="text" 
+                      className="w-full p-2 rounded-md border bg-background text-right" 
+                      placeholder="https://github.com/..."
+                      defaultValue={(cloudStatus as any)?.externalRepoUrl}
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <label className="text-sm font-medium flex items-center gap-2 justify-end">
+                      النطاق الخاص (Custom Domain)
+                      <Globe className="w-4 h-4" />
+                    </label>
+                    <input 
+                      type="text" 
+                      className="w-full p-2 rounded-md border bg-background text-right" 
+                      placeholder="www.yourdomain.com"
+                      defaultValue={(cloudStatus as any)?.externalDomain}
+                    />
+                  </div>
+                </div>
+
+                <div className="p-4 rounded-lg border border-amber-200 bg-amber-50 text-amber-800 text-right">
+                  <h4 className="font-bold flex items-center gap-2 justify-end mb-1">
+                    ملاحظة هامة
+                    <Shield className="w-4 h-4" />
+                  </h4>
+                  <p className="text-sm">
+                    عند تفعيل الوضع الخارجي، تظل QIROX هي العقل المدبر للتحليلات والـ AI، ولكنك تملك كامل الصلاحية لنقل الكود لأي خادم آخر.
+                  </p>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardHeader>
+              <CardTitle className="text-right">النطاقات النشطة</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="relative w-full overflow-auto">
+                <table className="w-full text-sm text-right">
+                  <thead className="text-xs text-muted-foreground uppercase bg-muted/50">
+                    <tr>
+                      <th className="p-3">النطاق</th>
+                      <th className="p-3">النوع</th>
+                      <th className="p-3">الحالة</th>
+                      <th className="p-3">SSL</th>
+                      <th className="p-3">الترافيك</th>
+                      <th className="p-3">إجراءات</th>
                     </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          </CardContent>
-        </Card>
+                  </thead>
+                  <tbody>
+                    {subdomains.map((sub) => (
+                      <tr key={sub.id} className="border-b hover:bg-muted/30 transition-colors">
+                        <td className="p-3 font-medium text-primary">{sub.name}</td>
+                        <td className="p-3">{sub.type}</td>
+                        <td className="p-3">
+                          <Badge variant={sub.status === "active" ? "default" : "secondary"}>
+                            {sub.status === "active" ? "نشط" : "صيانة"}
+                          </Badge>
+                        </td>
+                        <td className="p-3">
+                          <Badge variant={sub.ssl === "valid" ? "outline" : "destructive"} className="gap-1">
+                            <Shield className="w-3 h-3" />
+                            {sub.ssl === "valid" ? "محمي" : "منتهي"}
+                          </Badge>
+                        </td>
+                        <td className="p-3 flex items-center gap-1 justify-end">
+                          <Zap className="w-3 h-3 text-amber-500" />
+                          {sub.traffic}
+                        </td>
+                        <td className="p-3">
+                          <Button size="sm" variant="ghost">إعدادات</Button>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
       </div>
     </div>
   );
