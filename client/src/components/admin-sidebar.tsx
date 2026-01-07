@@ -75,13 +75,6 @@ export function AdminSidebar() {
 
   return (
     <div className="w-64 bg-card border-l border-border h-screen flex flex-col p-4 gap-4 sticky top-0">
-      <div className="mb-6 flex items-center gap-3 p-3 bg-primary/5 rounded-2xl border border-primary/10 hover-elevate group transition-all duration-500">
-        <LogoQ className="w-10 h-10 group-hover:rotate-12 transition-transform duration-500" />
-        <div>
-          <h2 className="text-sm font-black tracking-tight text-foreground">QIROX</h2>
-          <p className="text-[9px] text-primary font-black uppercase tracking-widest opacity-70">Core System</p>
-        </div>
-      </div>
 
       <nav className="flex-1 space-y-1 overflow-y-auto pr-2 custom-scrollbar">
         {menuItems.map((item) => {
