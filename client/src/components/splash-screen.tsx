@@ -1,16 +1,34 @@
 import { motion } from "framer-motion";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import saudiHeroImage from "@assets/generated_images/saudi_man_with_flag_splash_screen_image.png";
 
 export function SplashScreen({ onComplete }: { onComplete: () => void }) {
+  const [text, setText] = useState("");
+  const fullText = "QIROX";
+  
   useEffect(() => {
+    let currentText = "";
+    let currentIndex = 0;
+    
+    const typingInterval = setInterval(() => {
+      if (currentIndex < fullText.length) {
+        currentText += fullText[currentIndex];
+        setText(currentText);
+        currentIndex++;
+      } else {
+        clearInterval(typingInterval);
+      }
+    }, 150);
+
     const timer = setTimeout(() => onComplete(), 4500);
-    return () => clearTimeout(timer);
+    return () => {
+      clearInterval(typingInterval);
+      clearTimeout(timer);
+    };
   }, [onComplete]);
 
   return (
     <div className="fixed inset-0 z-[100] bg-black flex flex-col items-center justify-center overflow-hidden">
-      {/* Background Image with Cinematic Wash */}
       <motion.div
         initial={{ opacity: 0, scale: 1.1 }}
         animate={{ opacity: 1, scale: 1 }}
@@ -24,18 +42,21 @@ export function SplashScreen({ onComplete }: { onComplete: () => void }) {
         <div className="absolute inset-0 bg-gradient-to-t from-black via-black/60 to-transparent" />
       </motion.div>
       
-      {/* Integrated Content Section */}
       <div className="relative z-10 flex flex-col items-center justify-end h-full pb-20 w-full px-6">
         <motion.div
           initial={{ y: 40, opacity: 0 }}
           animate={{ y: 0, opacity: 1 }}
-          transition={{ delay: 0.5, duration: 1 }}
+          transition={{ delay: 0.2, duration: 1 }}
           className="flex flex-col items-center space-y-6"
         >
-          {/* Brand Name & Identity */}
           <div className="text-center space-y-2">
-            <h1 className="text-7xl md:text-8xl font-black text-white tracking-tighter drop-shadow-[0_10px_30px_rgba(0,0,0,0.5)]">
-              QIROX
+            <h1 className="text-7xl md:text-8xl font-black text-white tracking-tighter drop-shadow-[0_10px_30px_rgba(0,0,0,0.5)] min-h-[1em]">
+              {text}
+              <motion.span
+                animate={{ opacity: [1, 0] }}
+                transition={{ duration: 0.8, repeat: Infinity }}
+                className="inline-block w-2 h-16 md:h-20 bg-primary ml-2 align-middle"
+              />
             </h1>
             <div className="flex items-center justify-center gap-3">
               <div className="h-[1px] w-12 bg-primary/50" />
@@ -46,14 +67,12 @@ export function SplashScreen({ onComplete }: { onComplete: () => void }) {
             </div>
           </div>
 
-          {/* Slogan / Vision */}
           <div className="bg-black/20 backdrop-blur-md px-6 py-3 rounded-full border border-white/10">
             <p className="text-white/80 text-sm md:text-base font-bold tracking-tight">
               بكل فخر.. نصنع المستقبل
             </p>
           </div>
 
-          {/* Saudi Vision 2030 Badge */}
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
@@ -63,7 +82,6 @@ export function SplashScreen({ onComplete }: { onComplete: () => void }) {
             <span className="text-[10px] text-primary font-black uppercase tracking-widest">Saudi Vision 2030</span>
           </motion.div>
 
-          {/* Progress Bar */}
           <div className="w-48 h-[1px] bg-white/10 relative overflow-hidden rounded-full mt-4">
             <motion.div
               initial={{ x: "-100%" }}
@@ -79,7 +97,6 @@ export function SplashScreen({ onComplete }: { onComplete: () => void }) {
         </motion.div>
       </div>
 
-      {/* Final Fade Out Effect */}
       <motion.div
         initial={{ opacity: 0 }}
         animate={{ opacity: [0, 0, 1] }}
