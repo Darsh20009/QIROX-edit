@@ -3,6 +3,7 @@ import { generateFromPrompt } from "./templates";
 import { generateJSONFromPrompt, interpretDSL } from "./architecture";
 import { processSmartRequest } from "./processor";
 import { tokenize, runInference } from "./tokenizer";
+import { loadModel, saveModel } from "./storage";
 
 // QIROX AI Engine - Local Inference
 // This module will eventually load local weights (ONNX/TensorFlow)
