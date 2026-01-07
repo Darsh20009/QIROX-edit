@@ -21,123 +21,108 @@ const planCategories = [
     name: "المتاجر الإلكترونية",
     nameEn: "E-commerce",
     icon: Store,
-    description: "نظام متكامل للمتاجر الإلكترونية مع إدارة المنتجات والطلبات",
+    description: "حلول تجارة إلكترونية متكاملة للمؤسسات والشركات",
     plans: [
       {
-        duration: "شهري",
-        durationEn: "Monthly",
-        price: "100",
+        duration: "خطة مدى الحياة",
+        durationEn: "Lifetime Plan",
+        price: "4999",
         originalPrice: null,
         savings: null,
+        popular: false,
+        isCustom: false,
+        features: [
+          "تحديثات وتطويرات مستمرة",
+          "التكلفة كاملة علينا",
+          "ملكية كاملة للكود",
+          "دعم فني VIP",
+          "استضافة سحابية فائقة"
+        ]
       },
       {
-        duration: "6 أشهر",
-        durationEn: "6 Months",
-        price: "500",
-        originalPrice: "600",
-        savings: "وفر 100 ريال",
+        duration: "الخطة السنوية",
+        durationEn: "Annual Plan",
+        price: "699",
+        originalPrice: null,
+        savings: null,
         popular: true,
-      },
-      {
-        duration: "سنوي",
-        durationEn: "Yearly",
-        price: "899",
-        originalPrice: "1200",
-        savings: "وفر 301 ريال",
-      },
+        isCustom: false,
+        features: [
+          "الضمان الذهبي",
+          "دومين باسم الشركة",
+          "تحديثات دورية",
+          "دعم فني متكامل",
+          "كل المميزات الأساسية"
+        ]
+      }
     ],
-    features: [
-      "متجر إلكتروني كامل",
-      "إدارة المنتجات والمخزون",
-      "نظام الطلبات المتكامل",
-      "تقارير المبيعات",
-      "دعم متعدد اللغات",
-      "تصميم متجاوب",
-      "لوحة تحكم شاملة",
-      "دعم فني 24/7",
-    ],
+    features: [],
   },
   {
     id: "restaurants" as PlanCategory,
     name: "المطاعم والكافيهات",
-    nameEn: "Restaurants",
+    nameEn: "Restaurants & Cafes",
     icon: Coffee,
-    description: "نظام نقاط البيع وإدارة المطاعم الشامل",
+    description: "نظام إدارة المطاعم والعمليات التشغيلية",
     plans: [
       {
-        duration: "شهري",
-        durationEn: "Monthly",
-        price: "179",
+        duration: "خطة مدى الحياة",
+        durationEn: "Lifetime Plan",
+        price: "6999",
         originalPrice: null,
         savings: null,
+        popular: false,
+        isCustom: false,
+        features: [
+          "نظام نقاط بيع متكامل",
+          "إدارة المخزون والموردين",
+          "تطويرات مخصصة",
+          "دعم فني موقعي",
+          "أتمتة كاملة للعمليات"
+        ]
       },
       {
-        duration: "6 أشهر",
-        durationEn: "6 Months",
+        duration: "الخطة السنوية",
+        durationEn: "Annual Plan",
         price: "599",
-        originalPrice: "1074",
-        savings: "وفر 475 ريال",
+        originalPrice: "799",
+        savings: "التجديد بـ 799 ريال",
         popular: true,
-      },
-      {
-        duration: "سنوي",
-        durationEn: "Yearly",
-        price: "1099",
-        originalPrice: "2148",
-        savings: "وفر 1049 ريال",
-      },
+        isCustom: false,
+        features: [
+          "دعم فني 24/7",
+          "تقارير ذكاء أعمال",
+          "تكامل مع تطبيقات التوصيل",
+          "ضمان استمرارية الخدمة"
+        ]
+      }
     ],
-    features: [
-      "نظام نقاط البيع (POS)",
-      "إدارة القوائم والأسعار",
-      "إدارة الطاولات والحجوزات",
-      "نظام المطبخ",
-      "إدارة الموظفين والورديات",
-      "تقارير يومية وشهرية",
-      "طباعة الفواتير",
-      "دعم فني متخصص",
-    ],
+    features: [],
   },
   {
     id: "education" as PlanCategory,
-    name: "المنصات التعليمية",
-    nameEn: "Education",
+    name: "أنظمة التعليم",
+    nameEn: "Educational Systems",
     icon: GraduationCap,
-    description: "نظام إدارة التعلم الإلكتروني المتكامل",
+    description: "حلول تعليمية ذكية مخصصة للمدارس والجامعات والمنصات التدريبية",
     plans: [
       {
-        duration: "شهري",
-        durationEn: "Monthly",
-        price: "199",
+        duration: "طلب عرض سعر",
+        durationEn: "Request Quote",
+        price: "تواصل معنا",
         originalPrice: null,
         savings: null,
-      },
-      {
-        duration: "6 أشهر",
-        durationEn: "6 Months",
-        price: "999",
-        originalPrice: "1194",
-        savings: "وفر 195 ريال",
-        popular: true,
-      },
-      {
-        duration: "سنوي",
-        durationEn: "Yearly",
-        price: "1799",
-        originalPrice: "2388",
-        savings: "وفر 589 ريال",
-      },
+        popular: false,
+        isCustom: true,
+        features: [
+          "تخصيص كامل للنظام",
+          "إدارة المدارس والجامعات",
+          "منصات تدريبية متطورة",
+          "دعم فني خاص"
+        ]
+      }
     ],
-    features: [
-      "منصة تعليمية متكاملة",
-      "إدارة الدورات والمحتوى",
-      "نظام الاختبارات والشهادات",
-      "بث مباشر للدروس",
-      "منتدى نقاش الطلاب",
-      "تتبع تقدم الطلاب",
-      "شهادات رقمية",
-      "تطبيق جوال للطلاب",
-    ],
+    features: [],
   },
 ];
 
@@ -181,10 +166,10 @@ export default function Pricing() {
               شفافية مطلقة في الأسعار
             </div>
             <h1 className="text-5xl md:text-7xl font-black tracking-tight leading-tight" data-testid="text-pricing-title">
-              استثمر في <span className="text-primary text-glow">نمو عملك</span>
+              خطط <span className="text-primary text-glow">إبداعية بسيطة</span>
             </h1>
             <p className="text-xl text-muted-foreground font-medium leading-relaxed" data-testid="text-pricing-subtitle">
-              خطط مدروسة بعناية لتناسب كل مرحلة من مراحل تطور مشروعك. ابدأ اليوم بأسعار تبدأ من 100 ريال فقط.
+              خطوات سهلة، وضوح تام، ودعم لا ينقطع. اختر باقتك وابدأ رحلة النجاح.
             </p>
           </div>
         </div>
@@ -214,11 +199,11 @@ export default function Pricing() {
 
             {planCategories.map((category) => (
               <TabsContent key={category.id} value={category.id} className="animate-in fade-in slide-in-from-bottom-4 duration-500">
-                <div className="grid md:grid-cols-3 gap-8 mb-20">
+                <div className={`grid gap-8 mb-20 ${category.plans.length === 1 ? "max-w-xl mx-auto" : "md:grid-cols-2"}`}>
                   {category.plans.map((plan, index) => (
                     <Card
                       key={plan.duration}
-                      className={`relative border-none bg-background shadow-sm transition-all duration-500 rounded-[2.5rem] p-4 ${plan.popular ? "ring-4 ring-primary shadow-2xl scale-[1.05] z-10" : "hover:shadow-xl hover:-translate-y-2"}`}
+                      className={`relative border-none bg-background shadow-sm transition-all duration-500 rounded-[2.5rem] p-4 ${plan.popular ? "ring-4 ring-primary shadow-2xl scale-[1.02] z-10" : "hover:shadow-xl hover:-translate-y-2"}`}
                       data-testid={`card-plan-${category.id}-${index}`}
                     >
                       {plan.popular && (
@@ -237,17 +222,18 @@ export default function Pricing() {
                         </div>
 
                         <div className="mb-12">
-                          {plan.originalPrice && (
-                            <span className="text-lg text-muted-foreground/60 line-through block mb-2 font-medium">
-                              {plan.originalPrice} ريال
-                            </span>
-                          )}
-                          <div className="flex items-baseline justify-center gap-2">
-                            <span className="text-7xl font-black tracking-tighter" data-testid={`text-plan-price-${category.id}-${index}`}>
+                          {plan.price === "تواصل معنا" ? (
+                            <span className="text-4xl font-black tracking-tight" data-testid={`text-plan-price-${category.id}-${index}`}>
                               {plan.price}
                             </span>
-                            <span className="text-xl text-muted-foreground font-black">ريال</span>
-                          </div>
+                          ) : (
+                            <div className="flex items-baseline justify-center gap-2">
+                              <span className="text-7xl font-black tracking-tighter" data-testid={`text-plan-price-${category.id}-${index}`}>
+                                {plan.price}
+                              </span>
+                              <span className="text-xl text-muted-foreground font-black">ريال</span>
+                            </div>
+                          )}
                         </div>
 
                         {plan.savings && (
@@ -258,38 +244,29 @@ export default function Pricing() {
                           </div>
                         )}
 
-                        <Link href="/register" className="mt-auto block">
+                        <div className="space-y-4 mb-12 text-right">
+                          {plan.features?.map((feature, fIndex) => (
+                            <div key={fIndex} className="flex items-center gap-3">
+                              <CheckCircle2 className="w-5 h-5 text-primary shrink-0" />
+                              <span className="font-bold text-foreground/80">{feature}</span>
+                            </div>
+                          ))}
+                        </div>
+
+                        <Link href={plan.price === "تواصل معنا" ? "/contact" : "/register"} className="mt-auto block">
                           <Button
                             size="lg"
                             variant={plan.popular ? "default" : "outline"}
                             className={`w-full h-16 text-xl font-black rounded-2xl transition-all shadow-lg ${plan.popular ? "shadow-primary/20" : "border-2"}`}
                             data-testid={`button-subscribe-${category.id}-${index}`}
                           >
-                            ابدأ الآن
+                            {plan.price === "تواصل معنا" ? "اطلب عرض سعر" : "اطلب الآن"}
                             <ArrowLeft className="mr-2 w-6 h-6" />
                           </Button>
                         </Link>
                       </CardContent>
                     </Card>
                   ))}
-                </div>
-
-                <div className="bg-secondary/30 rounded-[3rem] p-12 md:p-20">
-                  <h3 className="text-3xl font-black mb-16 text-center">كل ما ستحصل عليه</h3>
-                  <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-12">
-                    {category.features.map((feature, index) => (
-                      <div
-                        key={feature}
-                        className="flex items-center gap-6 group"
-                        data-testid={`feature-${category.id}-${index}`}
-                      >
-                        <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center text-primary group-hover:bg-primary group-hover:text-white transition-colors">
-                          <CheckCircle2 className="w-6 h-6" />
-                        </div>
-                        <span className="text-lg font-bold text-foreground/80">{feature}</span>
-                      </div>
-                    ))}
-                  </div>
                 </div>
               </TabsContent>
             ))}
