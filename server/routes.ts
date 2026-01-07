@@ -461,7 +461,7 @@ export async function registerRoutes(
         ssl: "valid",
         dns: "configured",
         publishedVersion: "1.0.0",
-        isExternal: tenant.isExternal,
+        siteMode: tenant.siteMode,
         externalDomain: tenant.externalDomain,
         externalRepoUrl: tenant.externalRepoUrl,
         hostingProvider: tenant.hostingProvider

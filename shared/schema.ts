@@ -9,7 +9,7 @@ export const tenants = pgTable("tenants", {
   slug: text("slug").notNull().unique(), // for subdomain
   plan: text("plan").notNull().default("basic"),
   settings: text("settings"), // JSON config
-  isExternal: boolean("is_external").default(false).notNull(),
+  siteMode: text("site_mode").notNull().default("managed"), // managed, external, headless
   externalDomain: text("external_domain"),
   externalRepoUrl: text("external_repo_url"),
   hostingProvider: text("hosting_provider"),

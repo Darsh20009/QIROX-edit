@@ -106,7 +106,7 @@ export class MemStorage implements IStorage {
       createdAt: new Date(), 
       settings: insert.settings || null, 
       plan: insert.plan || "basic",
-      isExternal: insert.isExternal ?? false,
+      siteMode: (insert as any).siteMode || "managed",
       externalDomain: insert.externalDomain ?? null,
       externalRepoUrl: insert.externalRepoUrl ?? null,
       hostingProvider: insert.hostingProvider ?? null

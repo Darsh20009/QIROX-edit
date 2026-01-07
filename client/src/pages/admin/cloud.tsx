@@ -74,12 +74,15 @@ export default function CloudManagement() {
           </Card>
           <Card className="hover-elevate border-primary/20 bg-primary/5">
             <CardHeader className="flex flex-row items-center justify-between pb-2 space-y-0 flex-row-reverse">
-              <CardTitle className="text-sm font-medium">الوضع الخارجي</CardTitle>
+              <CardTitle className="text-sm font-medium">وضع الموقع</CardTitle>
               <Shield className="h-4 w-4 text-primary" />
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold">{(cloudStatus as any)?.isExternal ? "نشط" : "غير نشط"}</div>
-              <p className="text-xs text-muted-foreground mt-1">التحكم في الاستضافة الخارجية</p>
+              <div className="text-2xl font-bold">
+                {(cloudStatus as any)?.siteMode === "managed" ? "Managed" : 
+                 (cloudStatus as any)?.siteMode === "external" ? "External" : "Headless"}
+              </div>
+              <p className="text-xs text-muted-foreground mt-1">تكوين النشر الحالي</p>
             </CardContent>
           </Card>
           <Card className="hover-elevate">
@@ -98,59 +101,95 @@ export default function CloudManagement() {
           <Card className="border-primary/20 overflow-hidden">
             <CardHeader className="bg-primary/5 border-b">
               <CardTitle className="text-lg flex items-center gap-2 justify-end">
-                <span>External Mode Configuration</span>
+                <span>Site Mode Configuration</span>
                 <Settings className="w-5 h-5 text-primary" />
               </CardTitle>
             </CardHeader>
             <CardContent className="p-6">
               <div className="space-y-6">
-                <div className="flex items-center justify-between p-4 rounded-lg bg-muted/50 flex-row-reverse">
-                  <div className="text-right">
-                    <h3 className="font-bold">تفعيل الاستقلالية الكاملة</h3>
-                    <p className="text-sm text-muted-foreground">تصدير الكود والتحكم في الاستضافة الخاصة</p>
-                  </div>
+                <div className="grid grid-cols-3 gap-4 mb-6">
                   <Button 
-                    variant={(cloudStatus as any)?.isExternal ? "destructive" : "default"}
-                    onClick={() => updateExternalMode.mutate({ isExternal: !(cloudStatus as any)?.isExternal })}
+                    variant={(cloudStatus as any)?.siteMode === "managed" ? "default" : "outline"}
+                    className="flex-col h-auto py-4 gap-2"
+                    onClick={() => updateExternalMode.mutate({ siteMode: "managed" })}
                   >
-                    {(cloudStatus as any)?.isExternal ? "إيقاف الوضع الخارجي" : "تفعيل الآن"}
+                    <Zap className="w-5 h-5" />
+                    <div className="font-bold">Managed</div>
+                    <div className="text-[10px] opacity-70">استضافة QIROX</div>
+                  </Button>
+                  <Button 
+                    variant={(cloudStatus as any)?.siteMode === "external" ? "default" : "outline"}
+                    className="flex-col h-auto py-4 gap-2"
+                    onClick={() => updateExternalMode.mutate({ siteMode: "external" })}
+                  >
+                    <Globe className="w-5 h-5" />
+                    <div className="font-bold">External</div>
+                    <div className="text-[10px] opacity-70">استضافة خاصة</div>
+                  </Button>
+                  <Button 
+                    variant={(cloudStatus as any)?.siteMode === "headless" ? "default" : "outline"}
+                    className="flex-col h-auto py-4 gap-2"
+                    onClick={() => updateExternalMode.mutate({ siteMode: "headless" })}
+                  >
+                    <Code className="w-5 h-5" />
+                    <div className="font-bold">Headless</div>
+                    <div className="text-[10px] opacity-70">API فقط</div>
                   </Button>
                 </div>
 
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-right">
-                  <div className="space-y-2">
-                    <label className="text-sm font-medium flex items-center gap-2 justify-end">
-                      رابط المستودع (GitHub/GitLab)
-                      <Code className="w-4 h-4" />
-                    </label>
-                    <input 
-                      type="text" 
-                      className="w-full p-2 rounded-md border bg-background text-right" 
-                      placeholder="https://github.com/..."
-                      defaultValue={(cloudStatus as any)?.externalRepoUrl}
-                    />
+                {(cloudStatus as any)?.siteMode === "external" && (
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-right animate-in fade-in slide-in-from-top-2">
+                    <div className="space-y-2">
+                      <label className="text-sm font-medium flex items-center gap-2 justify-end">
+                        رابط المستودع (GitHub/GitLab)
+                        <Code className="w-4 h-4" />
+                      </label>
+                      <input 
+                        type="text" 
+                        className="w-full p-2 rounded-md border bg-background text-right" 
+                        placeholder="https://github.com/..."
+                        defaultValue={(cloudStatus as any)?.externalRepoUrl}
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <label className="text-sm font-medium flex items-center gap-2 justify-end">
+                        النطاق الخاص (Custom Domain)
+                        <Globe className="w-4 h-4" />
+                      </label>
+                      <input 
+                        type="text" 
+                        className="w-full p-2 rounded-md border bg-background text-right" 
+                        placeholder="www.yourdomain.com"
+                        defaultValue={(cloudStatus as any)?.externalDomain}
+                      />
+                    </div>
                   </div>
-                  <div className="space-y-2">
-                    <label className="text-sm font-medium flex items-center gap-2 justify-end">
-                      النطاق الخاص (Custom Domain)
-                      <Globe className="w-4 h-4" />
-                    </label>
-                    <input 
-                      type="text" 
-                      className="w-full p-2 rounded-md border bg-background text-right" 
-                      placeholder="www.yourdomain.com"
-                      defaultValue={(cloudStatus as any)?.externalDomain}
-                    />
+                )}
+
+                {(cloudStatus as any)?.siteMode === "headless" && (
+                  <div className="p-4 rounded-lg bg-muted/50 text-right animate-in fade-in slide-in-from-top-2">
+                    <h3 className="font-bold mb-2 flex items-center gap-2 justify-end">
+                      Headless API Access
+                      <Database className="w-4 h-4" />
+                    </h3>
+                    <code className="block p-2 bg-background rounded border text-left text-xs">
+                      GET https://api.qirox.online/v1/{(cloudStatus as any)?.slug}
+                    </code>
+                    <p className="text-xs text-muted-foreground mt-2">
+                      استخدم مفتاح الـ API الخاص بك للوصول إلى البيانات بشكل مباشر
+                    </p>
                   </div>
-                </div>
+                )}
 
                 <div className="p-4 rounded-lg border border-amber-200 bg-amber-50 text-amber-800 text-right">
                   <h4 className="font-bold flex items-center gap-2 justify-end mb-1">
-                    ملاحظة هامة
+                    إشعار الأنماط
                     <Shield className="w-4 h-4" />
                   </h4>
                   <p className="text-sm">
-                    عند تفعيل الوضع الخارجي، تظل QIROX هي العقل المدبر للتحليلات والـ AI، ولكنك تملك كامل الصلاحية لنقل الكود لأي خادم آخر.
+                    {(cloudStatus as any)?.siteMode === "managed" && "في هذا الوضع، تتكفل QIROX بكامل عمليات النشر والتحديث تلقائياً."}
+                    {(cloudStatus as any)?.siteMode === "external" && "أنت تملك الكود والدومين وتتحكم في الاستضافة، مع بقاء ذكاء QIROX معك."}
+                    {(cloudStatus as any)?.siteMode === "headless" && "سيعمل النظام كقاعدة بيانات وذكاء اصطناعي خلفي فقط لتطبيقك الخاص."}
                   </p>
                 </div>
               </div>
