@@ -1,5 +1,5 @@
 import { cn } from "@/lib/utils";
-import qiroxLogo from "@assets/QIROX_LOGO_1767780768121.png";
+import qiroxLogo from "@assets/qirox_without_background_1767002019509.png";
 
 export function LogoQ({ className }: { className?: string }) {
   return (
