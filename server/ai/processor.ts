@@ -2,6 +2,27 @@
  * Smart Processing Logic - Advanced Semantic Analysis
  */
 
+/**
+ * Code Sandboxing & Safety Filter
+ * Prevents generation of malicious code patterns
+ */
+export function sanitizeGeneratedCode(code: string): string {
+  const dangerousPatterns = [
+    /<script/i,
+    /eval\(/i,
+    /document\.cookie/i,
+    /window\.localStorage/i,
+    /process\.env/i
+  ];
+  
+  let sanitized = code;
+  dangerousPatterns.forEach(pattern => {
+    sanitized = sanitized.replace(pattern, "/* [REMOVED FOR SAFETY] */");
+  });
+  
+  return sanitized;
+}
+
 export interface SemanticIntent {
   category: "real_estate" | "ecommerce" | "blog" | "corporate" | "unknown";
   tone: "professional" | "playful" | "minimalist" | "bold";

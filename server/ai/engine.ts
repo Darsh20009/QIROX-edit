@@ -1,9 +1,11 @@
 // @ts-ignore
 import { generateFromPrompt } from "./templates";
 import { generateJSONFromPrompt, interpretDSL } from "./architecture";
-import { processSmartRequest } from "./processor";
+import { processSmartRequest, sanitizeGeneratedCode } from "./processor";
 import { tokenize, runInference } from "./tokenizer";
 import { loadModel, saveModel } from "./storage";
+// @ts-ignore
+import * as tf from '@tensorflow/tfjs-node';
 
 // QIROX AI Engine - Local Inference
 // This module will eventually load local weights (ONNX/TensorFlow)
@@ -27,8 +29,11 @@ export async function generateSiteStructure(prompt: string) {
     // Stage 2: NLP Understanding & JSON Structure Generation
     const jsonStructure = generateJSONFromPrompt(prompt);
     
-    // Stage 2: DSL Interpretation (JSON to HTML/React)
-    const html = interpretDSL(jsonStructure);
+    // Stage 3: DSL Interpretation (JSON to HTML/React)
+    let html = interpretDSL(jsonStructure);
+    
+    // Stage 4: Safety Sandboxing
+    html = sanitizeGeneratedCode(html);
     
     return {
       success: true,

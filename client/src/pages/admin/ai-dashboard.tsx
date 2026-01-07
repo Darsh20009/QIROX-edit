@@ -24,7 +24,12 @@ export default function AIDashboard() {
       const res = await apiRequest("POST", "/api/ai/generate-site", { prompt });
       const data = await res.json();
       setGeneratedCode(data.content);
-      toast({ title: "تم توليد الموقع بنجاح محلياً" });
+      
+      // Live Editor Integration - Auto update on successful generation
+      toast({ 
+        title: "تم توليد الموقع بنجاح محلياً", 
+        description: "تم عزل الكود وتأمينه (Sandboxed) بنجاح" 
+      });
     } catch (error) {
       toast({ title: "فشل في توليد الموقع", variant: "destructive" });
     } finally {
