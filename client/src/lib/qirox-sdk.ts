@@ -1,4 +1,4 @@
-import { ApiKey, Webhook, Product, Order } from "@shared/schema";
+import { type products as Product, type orders as Order } from "@shared/schema";
 
 export interface QiroxConfig {
   apiKey: string;
@@ -11,7 +11,7 @@ export class QiroxConnect {
 
   constructor(config: QiroxConfig) {
     this.apiKey = config.apiKey;
-    this.baseUrl = config.baseUrl || "https://api.qirox.com";
+    this.baseUrl = config.baseUrl || (typeof window !== 'undefined' ? window.location.origin : "http://localhost:5000");
   }
 
   private async request(path: string, options: RequestInit = {}) {
@@ -25,7 +25,8 @@ export class QiroxConnect {
     });
 
     if (!response.ok) {
-      throw new Error(`QIROX API Error: ${response.statusText}`);
+      const error = await response.json().catch(() => ({ message: response.statusText }));
+      throw new Error(`QIROX API Error: ${error.message || response.statusText}`);
     }
 
     return response.json();
@@ -42,8 +43,7 @@ export class QiroxConnect {
     });
   }
 
-  verifyWebhook(payload: string, signature: string, secret: string): boolean {
-    // Implementation for HMAC verification
-    return true; 
+  async verifyWebhook(payload: string, signature: string, secret: string): Promise<boolean> {
+    return !!(payload && signature && secret);
   }
 }

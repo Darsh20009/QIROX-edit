@@ -195,6 +195,9 @@ export const insertWebhookSchema = createInsertSchema(webhooks).omit({
 export type Webhook = typeof webhooks.$inferSelect;
 export type InsertWebhook = z.infer<typeof insertWebhookSchema>;
 
+export type Product = typeof products.$inferSelect;
+export type Order = typeof orders.$inferSelect;
+
 export const insertContactMessageSchema = createInsertSchema(contactMessages).omit({
   id: true,
   createdAt: true,

@@ -3,7 +3,9 @@ import {
   type Tenant, type InsertTenant,
   type Project, type InsertProject,
   type AuditLog, type InsertAuditLog,
-  type ContactMessage, type InsertContactMessage
+  type ContactMessage, type InsertContactMessage,
+  type ApiKey, type Webhook, type InsertApiKey, type InsertWebhook,
+  type Product, type Order
 } from "@shared/schema";
 import { randomUUID } from "crypto";
 import { isConnected } from "./db";
@@ -29,9 +31,14 @@ export interface IStorage {
 
   createAuditLog(log: InsertAuditLog): Promise<AuditLog>;
   getAuditLogs(tenantId?: string): Promise<AuditLog[]>;
-
   createContactMessage(message: InsertContactMessage): Promise<ContactMessage>;
   getContactMessages(): Promise<ContactMessage[]>;
+
+  // API Key & External Mode
+  getApiKey(key: string): Promise<ApiKey | undefined>;
+  createApiKey(insert: InsertApiKey & { key: string }): Promise<ApiKey>;
+  getProducts(tenantId: string): Promise<Product[]>;
+  createOrder(order: any): Promise<Order>;
 
   getQuotes(): Promise<any[]>;
   createQuote(quote: any): Promise<any>;
@@ -51,6 +58,9 @@ export class MemStorage implements IStorage {
   private auditLogs: Map<string, AuditLog>;
   private contactMessages: Map<string, ContactMessage>;
   private dailyUpdates: Map<string, any>;
+  private apiKeys: Map<string, ApiKey>;
+  private products: Map<string, Product>;
+  private orders: Map<string, Order>;
 
   constructor() {
     this.users = new Map();
@@ -59,6 +69,9 @@ export class MemStorage implements IStorage {
     this.auditLogs = new Map();
     this.contactMessages = new Map();
     this.dailyUpdates = new Map();
+    this.apiKeys = new Map();
+    this.products = new Map();
+    this.orders = new Map();
   }
 
   async getUser(id: string): Promise<User | undefined> { return this.users.get(id); }
@@ -199,6 +212,36 @@ export class MemStorage implements IStorage {
     return Array.from(this.contactMessages.values()).sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime());
   }
 
+  // API Key & External Mode
+  async getApiKey(key: string): Promise<ApiKey | undefined> {
+    return Array.from(this.apiKeys.values()).find(k => k.key === key);
+  }
+
+  async createApiKey(insert: InsertApiKey & { key: string }): Promise<ApiKey> {
+    const id = randomUUID();
+    const apiKey: ApiKey = { 
+      ...insert, 
+      id, 
+      lastUsedAt: null, 
+      createdAt: new Date(),
+      scopes: insert.scopes ?? null 
+    };
+    this.apiKeys.set(id, apiKey);
+    return apiKey;
+  }
+
+  async getProducts(tenantId: string): Promise<Product[]> {
+    // Basic filter for now, in a real DB this would be a query
+    return Array.from(this.products.values()).filter(p => p.tenantId === tenantId);
+  }
+
+  async createOrder(order: any): Promise<Order> {
+    const id = randomUUID();
+    const newOrder = { ...order, id, createdAt: new Date() };
+    this.orders.set(id, newOrder);
+    return newOrder;
+  }
+
   async getQuotes(): Promise<any[]> { return []; }
   async createQuote(): Promise<any> { return {}; }
   async getInvoices(): Promise<any[]> { return []; }
@@ -227,6 +270,11 @@ export class MongoStorage implements IStorage {
   async createContactMessage(m: InsertContactMessage): Promise<ContactMessage> { return this.memStorage.createContactMessage(m); }
   async getContactMessages(): Promise<ContactMessage[]> { return this.memStorage.getContactMessages(); }
   
+  async getApiKey(key: string): Promise<ApiKey | undefined> { return this.memStorage.getApiKey(key); }
+  async createApiKey(insert: InsertApiKey & { key: string }): Promise<ApiKey> { return this.memStorage.createApiKey(insert); }
+  async getProducts(tenantId: string): Promise<Product[]> { return this.memStorage.getProducts(tenantId); }
+  async createOrder(order: any): Promise<Order> { return this.memStorage.createOrder(order); }
+
   async getDailyUpdates(userId: string): Promise<any[]> { return this.memStorage.getDailyUpdates(userId); }
   async createDailyUpdate(update: any): Promise<any> { return this.memStorage.createDailyUpdate(update); }
   

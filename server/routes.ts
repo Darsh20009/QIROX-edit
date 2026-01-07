@@ -1,8 +1,9 @@
+import { Request, Response, NextFunction } from "express";
 import type { Express } from "express";
 import { createServer, type Server } from "http";
 import mongoose from "mongoose";
 import { storage } from "./storage";
-import { insertContactMessageSchema } from "@shared/schema";
+import { insertContactMessageSchema, insertApiKeySchema } from "@shared/schema";
 import { ZodError, z } from "zod";
 import { fromZodError } from "zod-validation-error";
 import { 
@@ -138,10 +139,44 @@ export async function registerRoutes(
     }
   });
 
-  // Health check endpoint for deployment verification
-  app.get("/api/health", (_req, res) => {
-    res.json({ status: "ok", timestamp: new Date().toISOString() });
+  // API Key Middleware
+  const authenticateApiKey = async (req: Request, res: Response, next: NextFunction) => {
+    const apiKey = req.header("X-API-Key");
+    if (!apiKey) return next(); // Allow other auth methods to handle it
+
+    const keyData = await storage.getApiKey(apiKey);
+    if (!keyData) return res.status(401).json({ message: "Invalid API Key" });
+    
+    // Attach tenant context
+    (req as any).tenantId = keyData.tenantId;
+    next();
+  };
+
+  // External API Endpoints
+  app.get("/api/v1/products", authenticateApiKey, async (req, res) => {
+    const tenantId = (req as any).tenantId;
+    if (!tenantId) return res.status(401).json({ message: "Tenant identification failed" });
+    const products = await storage.getProducts(tenantId);
+    res.json(products);
   });
+
+  app.post("/api/v1/orders", authenticateApiKey, async (req, res) => {
+    const tenantId = (req as any).tenantId;
+    if (!tenantId) return res.status(401).json({ message: "Tenant identification failed" });
+    const order = await storage.createOrder({ ...req.body, tenantId });
+    res.json(order);
+  });
+
+  // Connection Wizard / Key Management
+  app.post("/api/keys", async (req, res) => {
+    const parsed = insertApiKeySchema.safeParse(req.body);
+    if (!parsed.success) return res.status(400).json(parsed.error);
+    
+    const key = `qx_${Buffer.from(Math.random().toString()).toString('base64').substring(0, 32)}`;
+    const newKey = await storage.createApiKey({ ...parsed.data, key });
+    res.status(201).json(newKey);
+  });
+
 
   app.post("/api/auth/register", async (req, res) => {
     try {
