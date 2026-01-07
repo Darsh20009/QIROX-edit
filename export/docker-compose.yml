@@ -1,0 +1,9 @@
+services:
+  app:
+    build: .
+    ports:
+      - "3000:3000"
+    environment:
+      - QIROX_API_KEY=${QIROX_API_KEY}
+      - QIROX_BASE_URL=${QIROX_BASE_URL}
+    restart: always

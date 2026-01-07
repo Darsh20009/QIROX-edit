@@ -177,6 +177,17 @@ export async function registerRoutes(
     res.status(201).json(newKey);
   });
 
+  app.post("/api/v1/webhooks", authenticateApiKey, async (req, res) => {
+    const tenantId = (req as any).tenantId;
+    if (!tenantId) return res.status(401).json({ message: "Tenant identification failed" });
+    const webhook = await storage.createWebhook({ ...req.body, tenantId, secret: `whsec_${Math.random().toString(36).substring(7)}` });
+    res.status(201).json(webhook);
+  });
+
+  app.post("/api/v1/test-connection", authenticateApiKey, async (req, res) => {
+    res.json({ success: true, message: "Connection successful!", tenantId: (req as any).tenantId });
+  });
+
 
   app.post("/api/auth/register", async (req, res) => {
     try {
