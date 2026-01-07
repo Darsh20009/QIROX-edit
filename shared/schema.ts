@@ -37,6 +37,38 @@ export const users = pgTable("users", {
   stageDeadline: timestamp("stage_deadline"),
   whatsapp: text("whatsapp"),
   businessType: text("business_type"),
+  loyaltyPoints: integer("loyalty_points").default(0).notNull(),
+  loyaltyTier: text("loyalty_tier").default("bronze").notNull(),
+  totalSpent: integer("total_spent").default(0).notNull(),
+});
+
+export const products = pgTable("products", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  tenantId: varchar("tenant_id").notNull().default("default"),
+  name: text("name").notNull(),
+  description: text("description"),
+  price: text("price").notNull(),
+  cost: text("cost"),
+  categoryId: varchar("category_id"),
+  images: text("images").array(),
+  isFeatured: boolean("is_featured").default(false).notNull(),
+  isActive: boolean("is_active").default(true).notNull(),
+  variants: text("variants"), // JSON string for complexity
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+});
+
+export const orders = pgTable("orders", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  userId: varchar("user_id"),
+  tenantId: varchar("tenant_id").notNull().default("default"),
+  orderNumber: text("order_number").notNull().unique(),
+  customerName: text("customer_name"),
+  items: text("items").notNull(), // JSON string
+  total: text("total").notNull(),
+  status: text("status").notNull().default("new"),
+  paymentMethod: text("payment_method"),
+  paymentStatus: text("payment_status").default("pending").notNull(),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
 });
 
 export const dailyUpdates = pgTable("daily_updates", {

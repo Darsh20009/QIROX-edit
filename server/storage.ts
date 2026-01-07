@@ -88,6 +88,9 @@ export class MemStorage implements IStorage {
       stageDeadline: (insertUser as any).stageDeadline || null,
       whatsapp: (insertUser as any).whatsapp || null,
       businessType: (insertUser as any).businessType || null,
+      loyaltyPoints: (insertUser as any).loyaltyPoints || 0,
+      loyaltyTier: (insertUser as any).loyaltyTier || "bronze",
+      totalSpent: (insertUser as any).totalSpent || 0,
     };
     this.users.set(id, user);
     return user;
