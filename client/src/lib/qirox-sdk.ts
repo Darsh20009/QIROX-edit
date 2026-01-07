@@ -1,4 +1,7 @@
-import { type products as Product, type orders as Order } from "@shared/schema";
+import type { products, orders } from "@shared/schema";
+
+export type Product = typeof products.$inferSelect;
+export type Order = typeof orders.$inferSelect;
 
 export interface QiroxConfig {
   apiKey: string;
