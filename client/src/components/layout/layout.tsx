@@ -97,7 +97,7 @@ export function Layout({ children }: LayoutProps) {
               const isActive = location === item.href;
               return (
                 <Link key={item.name} href={item.href}>
-                  <a className={`group flex items-center justify-between px-6 py-4 text-sm font-black rounded-3xl transition-all duration-300 ${
+                  <div className={`group flex items-center justify-between px-6 py-4 text-sm font-black rounded-3xl transition-all duration-300 cursor-pointer ${
                     isActive 
                       ? "bg-primary text-primary-foreground shadow-[0_10px_20px_rgba(0,0,0,0.1)] scale-[1.02]" 
                       : "text-muted-foreground hover:bg-primary/5 hover:text-primary"
@@ -113,7 +113,7 @@ export function Layout({ children }: LayoutProps) {
                         {item.name}
                       </div>
                     {isActive && <motion.div layoutId="active-nav" className="w-1.5 h-1.5 rounded-full bg-primary-foreground shadow-[0_0_10px_white]" />}
-                  </a>
+                  </div>
                 </Link>
               );
             })}
@@ -184,14 +184,14 @@ export function Layout({ children }: LayoutProps) {
                 </Button>
               </div>
 
-              <div className="flex-1 space-y-2 overflow-y-auto pr-2">
+                <div className="flex-1 space-y-2 overflow-y-auto pr-2">
                 <p className="text-[10px] font-black text-primary/40 px-4 mb-4 uppercase tracking-[0.4em]">القائمة الرئيسية</p>
                 {navigation.map((item) => {
                   const isActive = location === item.href;
                   return (
                     <Link key={item.name} href={item.href}>
-                      <a 
-                        className={`flex items-center px-4 py-4 text-base font-black rounded-2xl transition-all ${
+                      <div 
+                        className={`flex items-center px-4 py-4 text-base font-black rounded-2xl transition-all cursor-pointer ${
                           isActive 
                             ? "bg-primary text-primary-foreground shadow-lg shadow-primary/30 scale-[1.02]" 
                             : "text-muted-foreground hover:bg-white/5"
@@ -202,7 +202,7 @@ export function Layout({ children }: LayoutProps) {
                           <item.icon className="h-5 w-5" />
                         </div>
                         {item.name}
-                      </a>
+                      </div>
                     </Link>
                   );
                 })}
