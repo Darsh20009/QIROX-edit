@@ -75,6 +75,12 @@ export function AdminSidebar() {
 
   return (
     <div className="w-64 bg-card border-l border-border h-screen flex flex-col p-4 gap-4 sticky top-0">
+      <div className="mb-6 flex flex-col items-center gap-4 p-4 bg-primary/5 rounded-2xl border border-primary/10 hover-elevate group transition-all duration-500">
+        <LogoQ className="w-32 h-auto group-hover:scale-105 transition-transform duration-500" />
+        <div className="text-center">
+          <p className="text-[8px] text-primary font-black uppercase tracking-[0.4em] opacity-80">Build systems. Stay human.</p>
+        </div>
+      </div>
 
       <nav className="flex-1 space-y-1 overflow-y-auto pr-2 custom-scrollbar">
         {menuItems.map((item) => {
