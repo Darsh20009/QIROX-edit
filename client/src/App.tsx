@@ -35,6 +35,7 @@ import KanbanBoard from "@/pages/kanban-board";
 import KanbanPage from "@/pages/kanban";
 import AdminDashboardPage from "@/pages/admin/dashboard";
 import AIDashboard from "@/pages/admin/ai-dashboard";
+import TextProcessingTool from "@/pages/admin/text-tool";
 import AdminUsersPage from "@/pages/admin/users";
 import AdminProductsPage from "@/pages/admin/products";
 import AdminOrdersPage from "@/pages/admin/orders";
@@ -99,6 +100,7 @@ function Router() {
       <Route path="/build/kanban" component={KanbanPage} />
       <Route path="/admin/dashboard" component={AdminDashboardPage} />
       <Route path="/admin/ai" component={AIDashboard} />
+      <Route path="/admin/text-tool" component={TextProcessingTool} />
       <Route path="/admin/users" component={AdminUsersPage} />
       <Route path="/admin/products" component={AdminProductsPage} />
       <Route path="/admin/orders" component={AdminOrdersPage} />
