@@ -1,0 +1,199 @@
+🧠 QIROX — Master Execution Blueprint (نسخة نهائية)
+الرؤية النهائية
+
+QIROX هو Control Plane لإدارة، تشغيل، نشر، وتحليل أي Business System في أي مكان، بدون حبس، مع ذكاء تشغيلي مركزي.
+
+القسم 1: External Mode حقيقي (العميل غير محبوس)
+الهدف
+
+العميل:
+
+يملك الكود
+
+يملك الدومين
+
+يختار الاستضافة
+
+يقدر يخرج في أي وقت
+ومع ذلك يظل يستفيد من QIROX كـ:
+
+عقل
+
+تحليلات
+
+AI
+
+إدارة
+
+1.1 Site Modes (تعريف رسمي)
+
+كل Site في QIROX له Mode إلزامي:
+
+🟢 Managed
+
+QIROX يستضيف
+
+Deploy بضغطة زر
+
+🔵 External (BYOH – Bring Your Own Host)
+
+العميل يستضيف
+
+QIROX يعطيه Package جاهز
+
+🟣 Headless
+
+QIROX Backend فقط
+
+Frontend حر
+
+1.2 External Mode – التفاصيل التنفيذية
+Deliverables
+
+Export Package
+
+SDK
+
+API Keys
+
+Webhooks
+
+Event Stream
+
+Tasks (تفصيل ممل)
+
+⬜ Generator يخرج:
+
+/dist (build)
+
+Dockerfile
+
+docker-compose.yml (اختياري)
+
+.env.example
+
+⬜ QIROX Connect SDK:
+
+auth
+
+data fetch
+
+events subscribe
+
+⬜ API Gateway:
+
+scopes
+
+rate limits
+
+⬜ Webhook engine:
+
+retries
+
+signatures
+
+⬜ Connection Wizard داخل الكونسل:
+
+يولد keys
+
+يعطي code snippets
+
+يختبر الاتصال
+
+Acceptance Tests
+
+العميل يشغّل الموقع على VPS خاص
+
+الموقع شغال بدون QIROX UI
+
+QIROX Dashboard يعرض البيانات live
+
+القسم 2: Deployment Engine مستقر (Enterprise-grade)
+الهدف
+
+نشر:
+
+بدون Downtime
+
+مع Rollback
+
+مع Logs
+
+مع Traceability
+
+2.1 Deployment Model
+Collections
+
+deployments
+
+build_logs
+
+runtime_health
+
+States
+
+queued
+
+building
+
+deploying
+
+live
+
+failed
+
+rolled_back
+
+2.2 Managed Deploy (Render)
+Tasks
+
+⬜ Deploy trigger API
+
+⬜ Build logs capture
+
+⬜ Health check endpoint
+
+⬜ Promote strategy:
+
+new → live
+
+⬜ Rollback:
+
+last stable deployment
+
+Acceptance Tests
+
+فشل build لا يكسر الموقع القديم
+
+rollback يرجع خلال دقائق
+
+كل deploy مرتبط بـ commit + user
+
+2.3 External Deploy Tracking (ميزة زيادة)
+
+حتى لو العميل مستضيف خارجي:
+
+⬜ Deployment Webhook endpoint
+
+⬜ Client يبلّغ QIROX:
+
+build start
+
+build success
+
+runtime health
+
+⬜ QIROX يعرض:
+
+status
+
+uptime
+
+errors
+
+💡 ميزة فريدة:
+QIROX يظل “يراقب” حتى المواقع اللي مش عنده.
+
+القسم 3: Developer SDK مستخدم فعليًا (مش شكلي)
+الهدف
+
