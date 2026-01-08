@@ -24,7 +24,9 @@ export class QiroxConnect {
     this.auth = new AuthModule(this.client);
     this.data = new DataModule(this.client);
     this.events = new EventsModule(this.client);
+    this.ui = new UIModule(this.client);
   }
+  public ui: UIModule;
 }
 
 class AuthModule {
@@ -43,8 +45,29 @@ class DataModule {
   }
 }
 
+class UIModule {
+  constructor(private client: AxiosInstance) {}
+
+  /**
+   * Returns a configuration object for a health status widget
+   */
+  async getHealthWidgetConfig() {
+    const res = await this.client.get('/api/runtime-health');
+    return {
+      type: 'status-indicator',
+      data: res.data,
+      theme: {
+        healthy: 'text-green-500',
+        warning: 'text-yellow-500',
+        critical: 'text-red-500'
+      }
+    };
+  }
+}
+
 class EventsModule {
   constructor(private client: AxiosInstance) {}
+  
   async reportDeploy(data: { event: string; version: string; commitHash?: string; health?: any }) {
     const res = await this.client.post('/api/v1/external/deploy-event', data);
     return res.data;
@@ -54,4 +77,10 @@ class EventsModule {
     const res = await this.client.post('/api/v1/external/health', health);
     return res.data;
   }
+}
+
+export interface UIWidgetConfig {
+  type: string;
+  data: any;
+  theme: Record<string, string>;
 }
