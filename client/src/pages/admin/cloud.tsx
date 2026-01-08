@@ -30,6 +30,8 @@ export default function CloudManagement() {
     queryKey: ["/api/keys"] 
   });
 
+  const [wizardStep, setWizardStep] = useState(1);
+
   const copyToClipboard = (text: string, label: string) => {
     navigator.clipboard.writeText(text);
     setCopied(label);
