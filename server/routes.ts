@@ -227,8 +227,65 @@ export async function registerRoutes(
     res.status(201).json(webhook);
   });
 
-  app.post("/api/v1/test-connection", authenticateApiKey, async (req, res) => {
-    res.json({ success: true, message: "Connection successful!", tenantId: (req as any).tenantId });
+  app.post("/api/v1/external/deploy-event", authenticateApiKey, async (req, res) => {
+    const tenantId = (req as any).tenantId;
+    if (!tenantId) return res.status(401).json({ message: "Tenant identification failed" });
+    
+    const { event, version, commitHash, health } = req.body;
+    
+    // 1. Log the deployment event
+    let status = "queued";
+    if (event === "build_start") status = "building";
+    if (event === "build_success") status = "live";
+    if (event === "build_failed") status = "failed";
+
+    const deployment = await storage.createDeployment({
+      tenantId,
+      version: version || "ext-1.0.0",
+      status,
+      commitHash: commitHash || "external",
+      deployedBy: "External CI/CD"
+    });
+
+    await storage.createBuildLog({
+      deploymentId: deployment.id,
+      logLine: `External Event Received: ${event}`,
+      level: event === "build_failed" ? "error" : "info"
+    });
+
+    // 2. Update health if provided
+    if (health) {
+      await storage.updateRuntimeHealth({
+        tenantId,
+        status: health.status || "healthy",
+        cpuUsage: health.cpuUsage,
+        memoryUsage: health.memoryUsage
+      });
+    }
+
+    res.json({ success: true, deploymentId: deployment.id });
+  });
+
+  app.post("/api/v1/external/health", authenticateApiKey, async (req, res) => {
+    const tenantId = (req as any).tenantId;
+    if (!tenantId) return res.status(401).json({ message: "Tenant identification failed" });
+    
+    await storage.updateRuntimeHealth({
+      tenantId,
+      status: req.body.status || "healthy",
+      cpuUsage: req.body.cpuUsage,
+      memoryUsage: req.body.memoryUsage
+    });
+
+    res.json({ success: true });
+  });
+
+  // API Key Management (Internal)
+  app.get("/api/keys", authMiddleware, async (req: AuthRequest, res) => {
+    const user = await User.findById(req.user!.userId);
+    if (!user) return res.status(404).json({ error: "User not found" });
+    const keys = await storage.getAuditLogs(user.tenantId || "default"); // Using audit logs to simulate key list for now
+    res.json([{ id: "1", key: "qx_live_..." + Math.random().toString(36).substring(7), name: "Default SDK Key" }]);
   });
 
   // Deployment Engine
