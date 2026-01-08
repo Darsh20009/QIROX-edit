@@ -209,26 +209,6 @@ export const insertAuditLogSchema = createInsertSchema(auditLogs).omit({
 export type AuditLog = typeof auditLogs.$inferSelect;
 export type InsertAuditLog = z.infer<typeof insertAuditLogSchema>;
 
-export const apiKeys = pgTable("api_keys", {
-  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
-  tenantId: varchar("tenant_id").notNull(),
-  key: text("key").notNull().unique(),
-  name: text("name").notNull(),
-  scopes: text("scopes").array(),
-  lastUsedAt: timestamp("last_used_at"),
-  createdAt: timestamp("created_at").defaultNow().notNull(),
-});
-
-export const webhooks = pgTable("webhooks", {
-  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
-  tenantId: varchar("tenant_id").notNull(),
-  url: text("url").notNull(),
-  events: text("events").array().notNull(),
-  secret: text("secret").notNull(),
-  isActive: boolean("is_active").default(true).notNull(),
-  createdAt: timestamp("created_at").defaultNow().notNull(),
-});
-
 export const insertApiKeySchema = createInsertSchema(apiKeys).omit({
   id: true,
   createdAt: true,
@@ -245,34 +225,6 @@ export type InsertWebhook = z.infer<typeof insertWebhookSchema>;
 
 export type Product = typeof products.$inferSelect;
 export type Order = typeof orders.$inferSelect;
-
-export const deployments = pgTable("deployments", {
-  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
-  tenantId: varchar("tenant_id").notNull(),
-  version: varchar("version").notNull(),
-  status: varchar("status").notNull(), // queued, building, deploying, live, failed, rolled_back
-  commitHash: varchar("commit_hash"),
-  deployedBy: varchar("deployed_by"),
-  createdAt: timestamp("created_at").defaultNow().notNull(),
-  updatedAt: timestamp("updated_at").defaultNow().notNull(),
-});
-
-export const buildLogs = pgTable("build_logs", {
-  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
-  deploymentId: varchar("deployment_id").notNull(),
-  logLine: text("log_line").notNull(),
-  level: varchar("level").default("info"), // info, error, warn
-  timestamp: timestamp("timestamp").defaultNow().notNull(),
-});
-
-export const runtimeHealth = pgTable("runtime_health", {
-  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
-  tenantId: varchar("tenant_id").notNull(),
-  status: varchar("status").notNull(), // healthy, degraded, down
-  cpuUsage: integer("cpu_usage"),
-  memoryUsage: integer("memory_usage"),
-  lastCheck: timestamp("last_check").defaultNow().notNull(),
-});
 
 export const insertDeploymentSchema = createInsertSchema(deployments).omit({
   id: true,
@@ -302,3 +254,4 @@ export const insertContactMessageSchema = createInsertSchema(contactMessages).om
 });
 export type ContactMessage = typeof contactMessages.$inferSelect;
 export type InsertContactMessage = z.infer<typeof insertContactMessageSchema>;
+
