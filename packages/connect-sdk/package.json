@@ -1,0 +1,16 @@
+{
+  "name": "@qirox/connect-sdk",
+  "version": "1.0.0",
+  "description": "QIROX Enterprise Connect SDK",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "scripts": {
+    "build": "tsc"
+  },
+  "dependencies": {
+    "axios": "^1.6.0"
+  },
+  "devDependencies": {
+    "typescript": "^5.0.0"
+  }
+}
