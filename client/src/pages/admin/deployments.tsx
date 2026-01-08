@@ -22,6 +22,8 @@ export default function DeploymentEngine() {
     refetchInterval: 5000,
   });
 
+  const liveDeployment = deployments?.find(d => d.status === "live");
+
   const { data: logs } = useQuery<BuildLog[]>({
     queryKey: ["/api/deployments", selectedId, "logs"],
     enabled: !!selectedId,
@@ -99,6 +101,18 @@ export default function DeploymentEngine() {
       </div>
 
       <div className="grid gap-6 md:grid-cols-3">
+        <Card className="hover-elevate border-primary/50 bg-primary/5">
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2 gap-1">
+            <CardTitle className="text-sm font-medium">Active Version</CardTitle>
+            <Rocket className="h-4 w-4 text-primary" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold">{liveDeployment?.version || "None"}</div>
+            <p className="text-xs text-muted-foreground font-mono">
+              {liveDeployment?.commitHash?.substring(0, 7) || "No hash"}
+            </p>
+          </CardContent>
+        </Card>
         <Card className="hover-elevate">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2 gap-1">
             <CardTitle className="text-sm font-medium">System Health</CardTitle>
