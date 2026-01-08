@@ -149,7 +149,7 @@ export async function registerRoutes(
     
     // Attach tenant context
     (req as any).tenantId = keyData.tenantId;
-    (req as any).scopes = keyData.scopes ? keyData.scopes.split(',') : ['all'];
+    (req as any).scopes = keyData.scopes || ['all'];
     next();
   };
 
@@ -229,6 +229,63 @@ export async function registerRoutes(
 
   app.post("/api/v1/test-connection", authenticateApiKey, async (req, res) => {
     res.json({ success: true, message: "Connection successful!", tenantId: (req as any).tenantId });
+  });
+
+  // Deployment Engine
+  app.get("/api/deployments", authMiddleware, async (req: AuthRequest, res) => {
+    const user = await User.findById(req.user!.userId);
+    if (!user) return res.status(404).json({ error: "User not found" });
+    const list = await storage.getDeployments(user.tenantId || "default");
+    res.json(list);
+  });
+
+  app.post("/api/deployments", authMiddleware, async (req: AuthRequest, res) => {
+    const user = await User.findById(req.user!.userId);
+    if (!user) return res.status(404).json({ error: "User not found" });
+    
+    const deployment = await storage.createDeployment({
+      tenantId: user.tenantId || "default",
+      version: req.body.version || "1.0.0",
+      status: "queued",
+      commitHash: req.body.commitHash || null,
+      deployedBy: user.email,
+    });
+
+    // Simulate Build Process
+    setTimeout(async () => {
+      await storage.updateDeployment(deployment.id, { status: "building" });
+      await storage.createBuildLog({ deploymentId: deployment.id, logLine: "Starting build...", level: "info" });
+      
+      setTimeout(async () => {
+        await storage.createBuildLog({ deploymentId: deployment.id, logLine: "Compiling assets...", level: "info" });
+        await storage.updateDeployment(deployment.id, { status: "deploying" });
+        
+        setTimeout(async () => {
+          await storage.updateDeployment(deployment.id, { status: "live" });
+          await storage.createBuildLog({ deploymentId: deployment.id, logLine: "Deployment Live!", level: "info" });
+          await storage.updateRuntimeHealth({
+            tenantId: user.tenantId || "default",
+            status: "healthy",
+            cpuUsage: 12,
+            memoryUsage: 45
+          });
+        }, 2000);
+      }, 2000);
+    }, 1000);
+
+    res.status(201).json(deployment);
+  });
+
+  app.get("/api/deployments/:id/logs", authMiddleware, async (req, res) => {
+    const logs = await storage.getBuildLogs(req.params.id);
+    res.json(logs);
+  });
+
+  app.get("/api/runtime-health", authMiddleware, async (req: AuthRequest, res) => {
+    const user = await User.findById(req.user!.userId);
+    if (!user) return res.status(404).json({ error: "User not found" });
+    const health = await storage.getRuntimeHealth(user.tenantId || "default");
+    res.json(health || { status: "unknown" });
   });
 
 

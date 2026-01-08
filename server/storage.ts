@@ -5,7 +5,10 @@ import {
   type AuditLog, type InsertAuditLog,
   type ContactMessage, type InsertContactMessage,
   type ApiKey, type Webhook, type InsertApiKey, type InsertWebhook,
-  type Product, type Order
+  type Product, type Order,
+  type Deployment, type InsertDeployment,
+  type BuildLog, type InsertBuildLog,
+  type RuntimeHealth, type InsertRuntimeHealth
 } from "@shared/schema";
 import { randomUUID } from "crypto";
 import { isConnected } from "./db";
@@ -42,6 +45,14 @@ export interface IStorage {
   createOrder(order: any): Promise<Order>;
   createWebhook(webhook: InsertWebhook): Promise<Webhook>;
 
+  getDeployments(tenantId: string): Promise<Deployment[]>;
+  createDeployment(deployment: InsertDeployment): Promise<Deployment>;
+  updateDeployment(id: string, updates: Partial<Deployment>): Promise<Deployment>;
+  createBuildLog(log: InsertBuildLog): Promise<BuildLog>;
+  getBuildLogs(deploymentId: string): Promise<BuildLog[]>;
+  updateRuntimeHealth(health: InsertRuntimeHealth): Promise<RuntimeHealth>;
+  getRuntimeHealth(tenantId: string): Promise<RuntimeHealth | undefined>;
+
   getQuotes(): Promise<any[]>;
   createQuote(quote: any): Promise<any>;
 
@@ -63,6 +74,9 @@ export class MemStorage implements IStorage {
   private webhooks: Map<string, Webhook>;
   private products: Map<string, Product>;
   private orders: Map<string, Order>;
+  private deployments: Map<string, Deployment>;
+  private buildLogs: Map<string, BuildLog>;
+  private runtimeHealth: Map<string, RuntimeHealth>;
 
   constructor() {
     this.users = new Map();
@@ -75,6 +89,9 @@ export class MemStorage implements IStorage {
     this.webhooks = new Map();
     this.products = new Map();
     this.orders = new Map();
+    this.deployments = new Map();
+    this.buildLogs = new Map();
+    this.runtimeHealth = new Map();
   }
 
   async getUser(id: string): Promise<User | undefined> { return this.users.get(id); }
@@ -250,6 +267,41 @@ export class MemStorage implements IStorage {
     return newWebhook;
   }
 
+  async getDeployments(tenantId: string): Promise<Deployment[]> {
+    return Array.from(this.deployments.values()).filter(d => d.tenantId === tenantId);
+  }
+  async createDeployment(insert: InsertDeployment): Promise<Deployment> {
+    const id = randomUUID();
+    const deployment: Deployment = { ...insert, id, createdAt: new Date(), updatedAt: new Date(), commitHash: insert.commitHash ?? null, deployedBy: insert.deployedBy ?? null };
+    this.deployments.set(id, deployment);
+    return deployment;
+  }
+  async updateDeployment(id: string, updates: Partial<Deployment>): Promise<Deployment> {
+    const d = this.deployments.get(id);
+    if (!d) throw new Error("Deployment not found");
+    const updated = { ...d, ...updates, updatedAt: new Date() };
+    this.deployments.set(id, updated);
+    return updated;
+  }
+  async createBuildLog(insert: InsertBuildLog): Promise<BuildLog> {
+    const id = randomUUID();
+    const log: BuildLog = { ...insert, id, timestamp: new Date(), level: insert.level ?? "info" };
+    this.buildLogs.set(id, log);
+    return log;
+  }
+  async getBuildLogs(deploymentId: string): Promise<BuildLog[]> {
+    return Array.from(this.buildLogs.values()).filter(l => l.deploymentId === deploymentId);
+  }
+  async updateRuntimeHealth(insert: InsertRuntimeHealth): Promise<RuntimeHealth> {
+    const id = randomUUID();
+    const health: RuntimeHealth = { ...insert, id, lastCheck: new Date(), cpuUsage: insert.cpuUsage ?? null, memoryUsage: insert.memoryUsage ?? null };
+    this.runtimeHealth.set(insert.tenantId, health);
+    return health;
+  }
+  async getRuntimeHealth(tenantId: string): Promise<RuntimeHealth | undefined> {
+    return this.runtimeHealth.get(tenantId);
+  }
+
   async getQuotes(): Promise<any[]> { return []; }
   async createQuote(): Promise<any> { return {}; }
   async getInvoices(): Promise<any[]> { return []; }
@@ -283,6 +335,14 @@ export class MongoStorage implements IStorage {
   async getProducts(tenantId: string): Promise<Product[]> { return this.memStorage.getProducts(tenantId); }
   async createOrder(order: any): Promise<Order> { return this.memStorage.createOrder(order); }
   async createWebhook(webhook: InsertWebhook): Promise<Webhook> { return this.memStorage.createWebhook(webhook); }
+
+  async getDeployments(tenantId: string): Promise<Deployment[]> { return this.memStorage.getDeployments(tenantId); }
+  async createDeployment(deployment: InsertDeployment): Promise<Deployment> { return this.memStorage.createDeployment(deployment); }
+  async updateDeployment(id: string, updates: Partial<Deployment>): Promise<Deployment> { return this.memStorage.updateDeployment(id, updates); }
+  async createBuildLog(log: InsertBuildLog): Promise<BuildLog> { return this.memStorage.createBuildLog(log); }
+  async getBuildLogs(deploymentId: string): Promise<BuildLog[]> { return this.memStorage.getBuildLogs(deploymentId); }
+  async updateRuntimeHealth(health: InsertRuntimeHealth): Promise<RuntimeHealth> { return this.memStorage.updateRuntimeHealth(health); }
+  async getRuntimeHealth(tenantId: string): Promise<RuntimeHealth | undefined> { return this.memStorage.getRuntimeHealth(tenantId); }
 
   async getDailyUpdates(userId: string): Promise<any[]> { return this.memStorage.getDailyUpdates(userId); }
   async createDailyUpdate(update: any): Promise<any> { return this.memStorage.createDailyUpdate(update); }

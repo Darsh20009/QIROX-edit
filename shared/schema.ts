@@ -198,6 +198,56 @@ export type InsertWebhook = z.infer<typeof insertWebhookSchema>;
 export type Product = typeof products.$inferSelect;
 export type Order = typeof orders.$inferSelect;
 
+export const deployments = pgTable("deployments", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  tenantId: varchar("tenant_id").notNull(),
+  version: varchar("version").notNull(),
+  status: varchar("status").notNull(), // queued, building, deploying, live, failed, rolled_back
+  commitHash: varchar("commit_hash"),
+  deployedBy: varchar("deployed_by"),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  updatedAt: timestamp("updated_at").defaultNow().notNull(),
+});
+
+export const buildLogs = pgTable("build_logs", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  deploymentId: varchar("deployment_id").notNull(),
+  logLine: text("log_line").notNull(),
+  level: varchar("level").default("info"), // info, error, warn
+  timestamp: timestamp("timestamp").defaultNow().notNull(),
+});
+
+export const runtimeHealth = pgTable("runtime_health", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  tenantId: varchar("tenant_id").notNull(),
+  status: varchar("status").notNull(), // healthy, degraded, down
+  cpuUsage: integer("cpu_usage"),
+  memoryUsage: integer("memory_usage"),
+  lastCheck: timestamp("last_check").defaultNow().notNull(),
+});
+
+export const insertDeploymentSchema = createInsertSchema(deployments).omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
+});
+export type Deployment = typeof deployments.$inferSelect;
+export type InsertDeployment = z.infer<typeof insertDeploymentSchema>;
+
+export const insertBuildLogSchema = createInsertSchema(buildLogs).omit({
+  id: true,
+  timestamp: true,
+});
+export type BuildLog = typeof buildLogs.$inferSelect;
+export type InsertBuildLog = z.infer<typeof insertBuildLogSchema>;
+
+export const insertRuntimeHealthSchema = createInsertSchema(runtimeHealth).omit({
+  id: true,
+  lastCheck: true,
+});
+export type RuntimeHealth = typeof runtimeHealth.$inferSelect;
+export type InsertRuntimeHealth = z.infer<typeof insertRuntimeHealthSchema>;
+
 export const insertContactMessageSchema = createInsertSchema(contactMessages).omit({
   id: true,
   createdAt: true,
