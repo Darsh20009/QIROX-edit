@@ -251,26 +251,47 @@ export async function registerRoutes(
       deployedBy: user.email,
     });
 
-    // Simulate Build Process
+    // Simulate Build Process with Error Handling
     setTimeout(async () => {
-      await storage.updateDeployment(deployment.id, { status: "building" });
-      await storage.createBuildLog({ deploymentId: deployment.id, logLine: "Starting build...", level: "info" });
-      
-      setTimeout(async () => {
-        await storage.createBuildLog({ deploymentId: deployment.id, logLine: "Compiling assets...", level: "info" });
-        await storage.updateDeployment(deployment.id, { status: "deploying" });
+      try {
+        await storage.updateDeployment(deployment.id, { status: "building" });
+        await storage.createBuildLog({ deploymentId: deployment.id, logLine: "Starting build process...", level: "info" });
         
+        // Randomly simulate a failure for testing (10% chance)
+        if (Math.random() < 0.1) {
+          throw new Error("Build failed: Syntax error in production assets");
+        }
+
         setTimeout(async () => {
-          await storage.updateDeployment(deployment.id, { status: "live" });
-          await storage.createBuildLog({ deploymentId: deployment.id, logLine: "Deployment Live!", level: "info" });
-          await storage.updateRuntimeHealth({
-            tenantId: user.tenantId || "default",
-            status: "healthy",
-            cpuUsage: 12,
-            memoryUsage: 45
-          });
+          try {
+            await storage.createBuildLog({ deploymentId: deployment.id, logLine: "Compiling and optimizing assets...", level: "info" });
+            await storage.updateDeployment(deployment.id, { status: "deploying" });
+            
+            setTimeout(async () => {
+              // Atomically switch traffic (No Downtime simulation)
+              const oldLive = await storage.getDeployments(user.tenantId || "default");
+              for (const d of oldLive) {
+                if (d.status === "live") await storage.updateDeployment(d.id, { status: "previous" });
+              }
+
+              await storage.updateDeployment(deployment.id, { status: "live" });
+              await storage.createBuildLog({ deploymentId: deployment.id, logLine: "Deployment successful! Traffic switched.", level: "info" });
+              await storage.updateRuntimeHealth({
+                tenantId: user.tenantId || "default",
+                status: "healthy",
+                cpuUsage: Math.floor(Math.random() * 20) + 5,
+                memoryUsage: Math.floor(Math.random() * 30) + 30
+              });
+            }, 2000);
+          } catch (e: any) {
+            await storage.updateDeployment(deployment.id, { status: "failed" });
+            await storage.createBuildLog({ deploymentId: deployment.id, logLine: e.message, level: "error" });
+          }
         }, 2000);
-      }, 2000);
+      } catch (e: any) {
+        await storage.updateDeployment(deployment.id, { status: "failed" });
+        await storage.createBuildLog({ deploymentId: deployment.id, logLine: e.message, level: "error" });
+      }
     }, 1000);
 
     res.status(201).json(deployment);
@@ -295,7 +316,15 @@ export async function registerRoutes(
     const rollback = await storage.getRollbackVersion(user.tenantId || "default");
     if (!rollback) return res.status(400).json({ error: "No rollback version available" });
     
+    // Mark current live as rolled_back
+    const currentLive = await storage.getDeployments(user.tenantId || "default");
+    for (const d of currentLive) {
+      if (d.status === "live") await storage.updateDeployment(d.id, { status: "rolled_back" });
+    }
+
     await storage.updateDeployment(rollback.id, { status: "live" });
+    await storage.createBuildLog({ deploymentId: rollback.id, logLine: `System rolled back to version ${rollback.version}`, level: "warn" });
+    
     res.json({ success: true, version: rollback.version });
   });
 

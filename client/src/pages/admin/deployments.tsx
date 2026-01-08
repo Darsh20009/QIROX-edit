@@ -53,7 +53,9 @@ export default function DeploymentEngine() {
       building: "secondary",
       deploying: "secondary",
       failed: "destructive",
+      rolled_back: "destructive",
       queued: "outline",
+      previous: "outline",
     };
     return <Badge variant={variants[status] || "outline"}>{status}</Badge>;
   };
