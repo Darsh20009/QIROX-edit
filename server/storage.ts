@@ -52,6 +52,7 @@ export interface IStorage {
   getBuildLogs(deploymentId: string): Promise<BuildLog[]>;
   updateRuntimeHealth(health: InsertRuntimeHealth): Promise<RuntimeHealth>;
   getRuntimeHealth(tenantId: string): Promise<RuntimeHealth | undefined>;
+  getRollbackVersion(tenantId: string): Promise<Deployment | undefined>;
 
   getQuotes(): Promise<any[]>;
   createQuote(quote: any): Promise<any>;
@@ -301,6 +302,11 @@ export class MemStorage implements IStorage {
   async getRuntimeHealth(tenantId: string): Promise<RuntimeHealth | undefined> {
     return this.runtimeHealth.get(tenantId);
   }
+  async getRollbackVersion(tenantId: string): Promise<Deployment | undefined> {
+    return Array.from(this.deployments.values())
+      .filter(d => d.tenantId === tenantId && d.status === "live")
+      .sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime())[1];
+  }
 
   async getQuotes(): Promise<any[]> { return []; }
   async createQuote(): Promise<any> { return {}; }
@@ -343,6 +349,7 @@ export class MongoStorage implements IStorage {
   async getBuildLogs(deploymentId: string): Promise<BuildLog[]> { return this.memStorage.getBuildLogs(deploymentId); }
   async updateRuntimeHealth(health: InsertRuntimeHealth): Promise<RuntimeHealth> { return this.memStorage.updateRuntimeHealth(health); }
   async getRuntimeHealth(tenantId: string): Promise<RuntimeHealth | undefined> { return this.memStorage.getRuntimeHealth(tenantId); }
+  async getRollbackVersion(tenantId: string): Promise<Deployment | undefined> { return this.memStorage.getRollbackVersion(tenantId); }
 
   async getDailyUpdates(userId: string): Promise<any[]> { return this.memStorage.getDailyUpdates(userId); }
   async createDailyUpdate(update: any): Promise<any> { return this.memStorage.createDailyUpdate(update); }

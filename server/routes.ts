@@ -288,6 +288,17 @@ export async function registerRoutes(
     res.json(health || { status: "unknown" });
   });
 
+  app.post("/api/deployments/rollback", authMiddleware, async (req: AuthRequest, res) => {
+    const user = await User.findById(req.user!.userId);
+    if (!user) return res.status(404).json({ error: "User not found" });
+    
+    const rollback = await storage.getRollbackVersion(user.tenantId || "default");
+    if (!rollback) return res.status(400).json({ error: "No rollback version available" });
+    
+    await storage.updateDeployment(rollback.id, { status: "live" });
+    res.json({ success: true, version: rollback.version });
+  });
+
 
   app.post("/api/auth/register", async (req, res) => {
     try {

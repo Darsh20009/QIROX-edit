@@ -58,18 +58,42 @@ export default function DeploymentEngine() {
     return <Badge variant={variants[status] || "outline"}>{status}</Badge>;
   };
 
+  const rollbackMutation = useMutation({
+    mutationFn: async () => {
+      const res = await fetch("/api/deployments/rollback", { method: "POST" });
+      if (!res.ok) throw new Error(await res.text());
+      return res.json();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/deployments"] });
+      toast({ title: "Rollback Successful", description: "System has reverted to previous version." });
+    },
+    onError: (err: Error) => {
+      toast({ title: "Rollback Failed", variant: "destructive", description: err.message });
+    }
+  });
+
   return (
     <div className="space-y-6 p-6">
       <div className="flex justify-between items-center">
         <h1 className="text-3xl font-bold tracking-tight">Deployment Engine</h1>
-        <Button 
-          onClick={() => deployMutation.mutate()} 
-          disabled={deployMutation.isPending}
-          className="gap-2"
-        >
-          <Rocket className="h-4 w-4" />
-          New Deployment
-        </Button>
+        <div className="flex gap-2">
+          <Button 
+            variant="outline"
+            onClick={() => rollbackMutation.mutate()}
+            disabled={rollbackMutation.isPending}
+          >
+            Rollback
+          </Button>
+          <Button 
+            onClick={() => deployMutation.mutate()} 
+            disabled={deployMutation.isPending}
+            className="gap-2"
+          >
+            <Rocket className="h-4 w-4" />
+            New Deployment
+          </Button>
+        </div>
       </div>
 
       <div className="grid gap-6 md:grid-cols-3">
