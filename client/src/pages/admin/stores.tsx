@@ -64,7 +64,15 @@ export default function AdminStores() {
     }
   });
 
-  const activeCount = stores.length;
+  const [searchTerm, setSearchTerm] = useState("");
+  const [filterMode, setFilterMode] = useState("all");
+
+  const filteredStores = stores.filter(s => {
+    const matchesSearch = s.name.toLowerCase().includes(searchTerm.toLowerCase()) || 
+                         s.slug.toLowerCase().includes(searchTerm.toLowerCase());
+    const matchesFilter = filterMode === "all" || s.siteMode === filterMode;
+    return matchesSearch && matchesFilter;
+  });
 
   return (
     <div className="flex h-screen bg-background">
@@ -147,18 +155,34 @@ export default function AdminStores() {
 
           <Card>
             <CardHeader>
-              <div className="flex gap-2">
+              <div className="flex flex-col md:flex-row gap-4">
                 <div className="flex-1 relative">
                   <Search className="absolute right-3 top-3 w-4 h-4 text-muted-foreground" />
-                  <Input placeholder="ابحث عن موقع..." className="pr-10" data-testid="input-search-stores" />
+                  <Input 
+                    placeholder="ابحث عن موقع بالاسم أو الرابط..." 
+                    className="pr-10" 
+                    value={searchTerm}
+                    onChange={(e) => setSearchTerm(e.target.value)}
+                    data-testid="input-search-stores" 
+                  />
                 </div>
+                <select 
+                  className="bg-background border rounded-lg px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-primary/20 transition-all"
+                  value={filterMode}
+                  onChange={(e) => setFilterMode(e.target.value)}
+                >
+                  <option value="all">جميع الأنماط</option>
+                  <option value="managed">Managed</option>
+                  <option value="external">External</option>
+                  <option value="headless">Headless</option>
+                </select>
               </div>
             </CardHeader>
             <CardContent>
               {isLoading ? (
                 <p className="text-center text-muted-foreground">جاري التحميل...</p>
-              ) : stores.length === 0 ? (
-                <p className="text-center text-muted-foreground">لا توجد مواقع</p>
+              ) : filteredStores.length === 0 ? (
+                <p className="text-center text-muted-foreground">لا توجد مواقع تطابق البحث</p>
               ) : (
                 <div className="overflow-x-auto">
                   <table className="w-full">
@@ -171,8 +195,8 @@ export default function AdminStores() {
                       </tr>
                     </thead>
                     <tbody>
-                      {stores.map((store) => (
-                        <tr key={store.id} className="border-b hover:bg-muted/50">
+                      {filteredStores.map((store) => (
+                        <tr key={store.id} className="border-b hover:bg-muted/50 transition-colors">
                           <td className="p-3 font-medium">{store.name}</td>
                           <td className="p-3">{store.slug}</td>
                           <td className="p-3">

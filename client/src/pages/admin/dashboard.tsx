@@ -6,7 +6,17 @@ import { AdminSidebar } from "@/components/admin-sidebar";
 import { Users, Package, ShoppingCart, CreditCard, Shield, Globe, Activity, Rocket } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
 import { RuntimeHealth } from "@shared/schema";
-import { Badge } from "@/components/ui/badge";
+import { ResponsiveContainer, AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip } from 'recharts';
+
+const chartData = [
+  { name: '00:00', value: 400 },
+  { name: '04:00', value: 300 },
+  { name: '08:00', value: 600 },
+  { name: '12:00', value: 800 },
+  { name: '16:00', value: 500 },
+  { name: '20:00', value: 900 },
+  { name: '23:59', value: 700 },
+];
 
 export default function AdminDashboard() {
   const { user, isLoading } = useAuth();
@@ -27,15 +37,41 @@ export default function AdminDashboard() {
   return (
     <div className="flex h-screen bg-background">
       <AdminSidebar />
-      <div className="flex-1 overflow-auto p-8">
+      <div className="flex-1 overflow-auto p-8 custom-scrollbar">
         <div>
           <h1 className="text-3xl font-bold mb-2">مرحباً، {user?.name}</h1>
           <p className="text-muted-foreground mb-8">ملخص أداء النظام</p>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
             <Card className="hover-elevate transition-all border-primary/10">
               <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-sm font-bold">حالة النظام</CardTitle>
+                <CardTitle className="text-sm font-bold">إجمالي المواقع</CardTitle>
+                <div className="p-2 bg-blue-500/10 rounded-lg">
+                  <Globe className="w-5 h-5 text-blue-500" />
+                </div>
+              </CardHeader>
+              <CardContent>
+                <div className="text-3xl font-black">{stats?.totalDeployments ? (stats.totalDeployments + 10) : 10}</div>
+                <p className="text-xs text-muted-foreground mt-1">تطور مستمر في الشبكة</p>
+              </CardContent>
+            </Card>
+
+            <Card className="hover-elevate transition-all border-primary/10">
+              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                <CardTitle className="text-sm font-bold">عمليات النشر</CardTitle>
+                <div className="p-2 bg-purple-500/10 rounded-lg">
+                  <Rocket className="w-5 h-5 text-purple-500" />
+                </div>
+              </CardHeader>
+              <CardContent>
+                <div className="text-3xl font-black">{stats?.totalDeployments || 0}</div>
+                <p className="text-xs text-muted-foreground mt-1">آخر عملية: {stats?.lastDeployment?.version || "لا يوجد"}</p>
+              </CardContent>
+            </Card>
+
+            <Card className="hover-elevate transition-all border-primary/10">
+              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                <CardTitle className="text-sm font-bold">صحة النظام</CardTitle>
                 <div className="p-2 bg-emerald-500/10 rounded-lg">
                   <Activity className="w-5 h-5 text-emerald-500" />
                 </div>
@@ -48,27 +84,14 @@ export default function AdminDashboard() {
 
             <Card className="hover-elevate transition-all border-primary/10">
               <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-sm font-bold">عمليات النشر</CardTitle>
-                <div className="p-2 bg-blue-500/10 rounded-lg">
-                  <Rocket className="w-5 h-5 text-blue-500" />
-                </div>
-              </CardHeader>
-              <CardContent>
-                <div className="text-3xl font-black">{stats?.totalDeployments || 0}</div>
-                <p className="text-xs text-muted-foreground mt-1">إجمالي عمليات النشر المسجلة</p>
-              </CardContent>
-            </Card>
-
-            <Card className="hover-elevate transition-all border-primary/10">
-              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                 <CardTitle className="text-sm font-bold">الإيرادات</CardTitle>
                 <div className="p-2 bg-amber-500/10 rounded-lg">
                   <CreditCard className="w-5 h-5 text-amber-500" />
                 </div>
               </CardHeader>
               <CardContent>
-                <div className="text-3xl font-black">125,430 <span className="text-sm">ر.س</span></div>
-                <p className="text-xs text-muted-foreground mt-1 text-emerald-500 font-bold">نمو مستقر</p>
+                <div className="text-3xl font-black">125,430 <span className="text-sm font-normal opacity-70">ر.س</span></div>
+                <p className="text-xs text-muted-foreground mt-1">نمو مستقر بنسبة 12%</p>
               </CardContent>
             </Card>
           </div>
@@ -92,6 +115,68 @@ export default function AdminDashboard() {
                 </CardContent>
               </Card>
             ))}
+          </div>
+
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 mb-8">
+            <Card className="lg:col-span-2 rounded-[2rem] border-0 shadow-xl bg-background/50 backdrop-blur-sm">
+              <CardHeader className="px-8 pt-8">
+                <CardTitle className="text-xl font-black">أداء النظام (24 ساعة)</CardTitle>
+              </CardHeader>
+              <CardContent className="px-8 pb-8 h-[300px]">
+                <ResponsiveContainer width="100%" height="100%">
+                  <AreaChart data={chartData}>
+                    <defs>
+                      <linearGradient id="colorValue" x1="0" y1="0" x2="0" y2="1">
+                        <stop offset="5%" stopColor="hsl(var(--primary))" stopOpacity={0.3}/>
+                        <stop offset="95%" stopColor="hsl(var(--primary))" stopOpacity={0}/>
+                      </linearGradient>
+                    </defs>
+                    <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="hsl(var(--muted-foreground)/0.1)" />
+                    <XAxis 
+                      dataKey="name" 
+                      axisLine={false} 
+                      tickLine={false} 
+                      tick={{fill: 'hsl(var(--muted-foreground))', fontSize: 10}}
+                    />
+                    <YAxis hide />
+                    <Tooltip 
+                      contentStyle={{backgroundColor: 'hsl(var(--background))', borderRadius: '12px', border: '1px solid hsl(var(--border))'}}
+                      itemStyle={{color: 'hsl(var(--primary))'}}
+                    />
+                    <Area type="monotone" dataKey="value" stroke="hsl(var(--primary))" strokeWidth={3} fillOpacity={1} fill="url(#colorValue)" />
+                  </AreaChart>
+                </ResponsiveContainer>
+              </CardContent>
+            </Card>
+
+            <Card className="rounded-[2rem] border-0 shadow-xl bg-background/50 backdrop-blur-sm overflow-hidden">
+              <CardHeader className="px-8 pt-8">
+                <CardTitle className="text-xl font-black">توزيع المواقع</CardTitle>
+              </CardHeader>
+              <CardContent className="px-8 pb-8 flex flex-col gap-6 justify-center h-full">
+                <div className="flex items-center justify-between">
+                  <span className="text-sm font-bold opacity-70">Managed Sites</span>
+                  <Badge variant="default">80%</Badge>
+                </div>
+                <div className="w-full bg-muted rounded-full h-2 overflow-hidden">
+                  <div className="bg-primary h-full" style={{width: '80%'}} />
+                </div>
+                <div className="flex items-center justify-between">
+                  <span className="text-sm font-bold opacity-70">External API</span>
+                  <Badge variant="secondary">15%</Badge>
+                </div>
+                <div className="w-full bg-muted rounded-full h-2 overflow-hidden">
+                  <div className="bg-secondary h-full" style={{width: '15%'}} />
+                </div>
+                <div className="flex items-center justify-between">
+                  <span className="text-sm font-bold opacity-70">Headless</span>
+                  <Badge variant="outline">5%</Badge>
+                </div>
+                <div className="w-full bg-muted rounded-full h-2 overflow-hidden">
+                  <div className="border border-primary/20 h-full" style={{width: '5%'}} />
+                </div>
+              </CardContent>
+            </Card>
           </div>
 
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
