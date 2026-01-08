@@ -392,23 +392,37 @@ export async function registerRoutes(
     res.json(health || { status: "unknown" });
   });
 
-  app.post("/api/deployments/rollback", authMiddleware, async (req: AuthRequest, res) => {
+  // Site Management Routes
+  app.get("/api/sites", authMiddleware, async (req: AuthRequest, res) => {
+    const tenants = await storage.getTenants();
+    res.json(tenants);
+  });
+
+  app.patch("/api/sites/:id", authMiddleware, async (req: AuthRequest, res) => {
+    try {
+      const updated = await storage.updateTenant(req.params.id, req.body);
+      res.json(updated);
+    } catch (error) {
+      res.status(404).json({ error: "Site not found" });
+    }
+  });
+
+  // Deployment & Health Stats for Dashboard
+  app.get("/api/stats/overview", authMiddleware, async (req: AuthRequest, res) => {
     const user = await User.findById(req.user!.userId);
     if (!user) return res.status(404).json({ error: "User not found" });
     
-    const rollback = await storage.getRollbackVersion(user.tenantId || "default");
-    if (!rollback) return res.status(400).json({ error: "No rollback version available" });
-    
-    // Mark current live as rolled_back
-    const currentLive = await storage.getDeployments(user.tenantId || "default");
-    for (const d of currentLive) {
-      if (d.status === "live") await storage.updateDeployment(d.id, { status: "rolled_back" });
-    }
+    const tenantId = user.tenantId || "default";
+    const [deployments, health] = await Promise.all([
+      storage.getDeployments(tenantId),
+      storage.getRuntimeHealth(tenantId)
+    ]);
 
-    await storage.updateDeployment(rollback.id, { status: "live" });
-    await storage.createBuildLog({ deploymentId: rollback.id, logLine: `System rolled back to version ${rollback.version}`, level: "warn" });
-    
-    res.json({ success: true, version: rollback.version });
+    res.json({
+      totalDeployments: deployments.length,
+      lastDeployment: deployments[0] || null,
+      health: health || { status: "unknown" }
+    });
   });
 
 
