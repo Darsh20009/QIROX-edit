@@ -17,7 +17,7 @@ export async function extractTenant(req: TenantRequest, res: Response, next: Nex
     const host = req.hostname;
     let tenantSlug = null;
 
-    // 1. Subdomain logic (e.g. acme.qirox.online or acme.qirox.com)
+    // 1. Subdomain logic (e.g. acme.qirox.online)
     const parts = host.split(".");
     if (parts.length >= 3 && parts[0] !== "www") {
       tenantSlug = parts[0];

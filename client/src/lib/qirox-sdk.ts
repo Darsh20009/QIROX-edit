@@ -14,7 +14,7 @@ export class QiroxConnect {
 
   constructor(config: QiroxConfig) {
     this.apiKey = config.apiKey;
-    this.baseUrl = config.baseUrl || (typeof window !== 'undefined' ? window.location.origin : "http://localhost:5000");
+    this.baseUrl = config.baseUrl || (typeof window !== 'undefined' ? window.location.origin : "https://qirox.online");
   }
 
   private async request(path: string, options: RequestInit = {}) {
