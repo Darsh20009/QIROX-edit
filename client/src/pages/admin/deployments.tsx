@@ -146,8 +146,13 @@ export default function DeploymentEngine() {
                     onClick={() => setSelectedId(d.id)}
                   >
                     <div className="space-y-1">
-                      <p className="font-medium">Version {d.version}</p>
-                      <p className="text-xs text-muted-foreground">{new Date(d.createdAt).toLocaleString()}</p>
+                      <div className="flex items-center gap-2">
+                        <p className="font-medium">Version {d.version}</p>
+                        <span className="text-[10px] font-mono opacity-50">#{d.commitHash?.substring(0, 7) || 'HEAD'}</span>
+                      </div>
+                      <p className="text-xs text-muted-foreground">
+                        {new Date(d.createdAt).toLocaleString()} • {d.deployedBy}
+                      </p>
                     </div>
                     {getStatusBadge(d.status)}
                   </div>

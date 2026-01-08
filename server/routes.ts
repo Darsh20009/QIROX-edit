@@ -247,7 +247,7 @@ export async function registerRoutes(
       tenantId: user.tenantId || "default",
       version: req.body.version || "1.0.0",
       status: "queued",
-      commitHash: req.body.commitHash || null,
+      commitHash: req.body.commitHash || Math.random().toString(16).substring(2, 10),
       deployedBy: user.email,
     });
 
