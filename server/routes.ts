@@ -392,6 +392,15 @@ export async function registerRoutes(
     res.json(health || { status: "unknown" });
   });
 
+  app.post("/api/sites", authMiddleware, async (req: AuthRequest, res) => {
+    try {
+      const newTenant = await storage.createTenant(req.body);
+      res.status(201).json(newTenant);
+    } catch (error) {
+      res.status(400).json({ error: "Failed to create site" });
+    }
+  });
+
   // Site Management Routes
   app.get("/api/sites", authMiddleware, async (req: AuthRequest, res) => {
     const tenants = await storage.getTenants();

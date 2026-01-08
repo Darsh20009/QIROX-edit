@@ -10,38 +10,61 @@ import { useState } from "react";
 import { useToast } from "@/hooks/use-toast";
 
 interface Store {
-  _id: string;
+  id: string;
   name: string;
-  owner?: string;
-  status?: string;
+  slug: string;
+  siteMode: string;
+  externalDomain?: string;
+  plan: string;
 }
 
 export default function AdminStores() {
   const { toast } = useToast();
   const [newStoreName, setNewStoreName] = useState("");
-  const [newStoreOwner, setNewStoreOwner] = useState("");
+  const [newStoreSlug, setNewStoreSlug] = useState("");
 
   const { data: stores = [], isLoading } = useQuery<Store[]>({
-    queryKey: ["/api/admin/stores"],
+    queryKey: ["/api/sites"],
   });
 
   const createMutation = useMutation({
     mutationFn: async () => {
-      return apiRequestJson<Store>("POST", "/api/admin/stores", {
-        name: newStoreName,
-        owner: newStoreOwner,
-        status: "active",
+      const res = await fetch("/api/sites", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          name: newStoreName,
+          slug: newStoreSlug,
+          siteMode: "managed",
+          plan: "basic"
+        }),
       });
+      return res.json();
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["/api/admin/stores"] });
+      queryClient.invalidateQueries({ queryKey: ["/api/sites"] });
       setNewStoreName("");
-      setNewStoreOwner("");
-      toast({ description: "تم إضافة المتجر بنجاح" });
+      setNewStoreSlug("");
+      toast({ description: "تم إضافة الموقع بنجاح" });
     },
   });
 
-  const activeCount = stores.filter(s => s.status === "active").length;
+  const updateModeMutation = useMutation({
+    mutationFn: async ({ id, mode }: { id: string, mode: string }) => {
+      const res = await fetch(`/api/sites/${id}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ siteMode: mode }),
+      });
+      return res.json();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/sites"] });
+      toast({ description: "تم تحديث نمط التشغيل" });
+    }
+  });
+
+  const activeCount = stores.length;
 
   return (
     <div className="flex h-screen bg-background">
@@ -94,21 +117,21 @@ export default function AdminStores() {
 
           <Card className="mb-8">
             <CardHeader>
-              <CardTitle className="text-lg">إضافة متجر جديد</CardTitle>
+              <CardTitle className="text-lg">إضافة موقع جديد</CardTitle>
             </CardHeader>
             <CardContent>
               <div className="flex gap-2">
                 <Input
-                  placeholder="اسم المتجر"
+                  placeholder="اسم الموقع"
                   value={newStoreName}
                   onChange={(e) => setNewStoreName(e.target.value)}
                   data-testid="input-store-name"
                 />
                 <Input
-                  placeholder="صاحب المتجر"
-                  value={newStoreOwner}
-                  onChange={(e) => setNewStoreOwner(e.target.value)}
-                  data-testid="input-store-owner"
+                  placeholder="الرابط (Slug)"
+                  value={newStoreSlug}
+                  onChange={(e) => setNewStoreSlug(e.target.value)}
+                  data-testid="input-store-slug"
                 />
                 <Button
                   onClick={() => createMutation.mutate()}
@@ -127,7 +150,7 @@ export default function AdminStores() {
               <div className="flex gap-2">
                 <div className="flex-1 relative">
                   <Search className="absolute right-3 top-3 w-4 h-4 text-muted-foreground" />
-                  <Input placeholder="ابحث عن متجر..." className="pr-10" data-testid="input-search-stores" />
+                  <Input placeholder="ابحث عن موقع..." className="pr-10" data-testid="input-search-stores" />
                 </div>
               </div>
             </CardHeader>
@@ -135,27 +158,33 @@ export default function AdminStores() {
               {isLoading ? (
                 <p className="text-center text-muted-foreground">جاري التحميل...</p>
               ) : stores.length === 0 ? (
-                <p className="text-center text-muted-foreground">لا توجد متاجر</p>
+                <p className="text-center text-muted-foreground">لا توجد مواقع</p>
               ) : (
                 <div className="overflow-x-auto">
                   <table className="w-full">
                     <thead>
                       <tr className="border-b">
-                        <th className="text-right p-3 font-medium">اسم المتجر</th>
-                        <th className="text-right p-3 font-medium">صاحب المتجر</th>
-                        <th className="text-right p-3 font-medium">الحالة</th>
+                        <th className="text-right p-3 font-medium">اسم الموقع</th>
+                        <th className="text-right p-3 font-medium">الرابط</th>
+                        <th className="text-right p-3 font-medium">النمط (Mode)</th>
                         <th className="text-right p-3 font-medium">الإجراءات</th>
                       </tr>
                     </thead>
                     <tbody>
                       {stores.map((store) => (
-                        <tr key={store._id} className="border-b hover:bg-muted/50">
+                        <tr key={store.id} className="border-b hover:bg-muted/50">
                           <td className="p-3 font-medium">{store.name}</td>
-                          <td className="p-3">{store.owner || "غير محدد"}</td>
+                          <td className="p-3">{store.slug}</td>
                           <td className="p-3">
-                            <Badge variant={store.status === "active" ? "default" : "secondary"}>
-                              {store.status === "active" ? "نشط" : "معطل"}
-                            </Badge>
+                            <select 
+                              className="bg-transparent border rounded p-1 text-xs"
+                              value={store.siteMode}
+                              onChange={(e) => updateModeMutation.mutate({ id: store.id, mode: e.target.value })}
+                            >
+                              <option value="managed">Managed</option>
+                              <option value="external">External</option>
+                              <option value="headless">Headless</option>
+                            </select>
                           </td>
                           <td className="p-3 flex gap-2">
                             <Button size="icon" variant="ghost">
