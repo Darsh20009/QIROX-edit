@@ -18,12 +18,16 @@ export default function DeploymentEngine() {
     refetchInterval: 5000,
   });
 
+  const { data: activeDeployment } = useQuery<Deployment>({
+    queryKey: ["/api/deployments/current"],
+    refetchInterval: 5000,
+  });
+
   const { data: deployments, isLoading: loadingDeployments } = useQuery<Deployment[]>({
     queryKey: ["/api/deployments"],
   });
 
-  const activeDeployment = deployments?.find(d => d.status === "live");
-  const previousDeployments = deployments?.filter(d => d.status !== "live")
+  const previousDeployments = deployments?.filter(d => d.id !== (activeDeployment as any)?.id)
     .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
 
   const { data: logs } = useQuery<BuildLog[]>({
@@ -116,9 +120,9 @@ export default function DeploymentEngine() {
             <Rocket className="h-4 w-4 text-primary" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{activeDeployment?.version || "None"}</div>
+            <div className="text-2xl font-bold">{(activeDeployment as any)?.version || "None"}</div>
             <p className="text-xs text-muted-foreground font-mono">
-              {activeDeployment?.commitHash?.substring(0, 7) || "No hash"}
+              {(activeDeployment as any)?.commitHash?.substring(0, 7) || "No hash"}
             </p>
           </CardContent>
         </Card>

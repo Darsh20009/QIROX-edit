@@ -385,6 +385,14 @@ export async function registerRoutes(
     res.json(logs);
   });
 
+  app.get("/api/deployments/current", authMiddleware, async (req: AuthRequest, res) => {
+    const user = await User.findById(req.user!.userId);
+    if (!user) return res.status(404).json({ error: "User not found" });
+    const deployments = await storage.getDeployments(user.tenantId || "default");
+    const live = deployments.find(d => d.status === "live");
+    res.json(live || null);
+  });
+
   app.get("/api/runtime-health", authMiddleware, async (req: AuthRequest, res) => {
     const user = await User.findById(req.user!.userId);
     if (!user) return res.status(404).json({ error: "User not found" });
