@@ -14,7 +14,7 @@ export class QiroxConnect {
 
   constructor(config: SDKConfig) {
     this.client = axios.create({
-      baseURL: config.baseUrl || 'https://api.qirox.online',
+      baseURL: config.baseUrl || 'https://qirox.online',
       headers: {
         'X-API-Key': config.apiKey,
         'Content-Type': 'application/json'
