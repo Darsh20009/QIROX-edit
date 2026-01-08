@@ -53,7 +53,9 @@ export default function CloudManagement() {
     { id: 2, name: "api.qirox.app", type: "Backend API", status: "active", ssl: "valid", traffic: "45k" },
   ];
 
-  const { data: exportData } = useQuery({ 
+  const externalDeployments = deployments?.filter(d => d.deployedBy === 'External CI/CD') || [];
+
+  const { data: exportData } = useQuery<any>({ 
     queryKey: ["/api/v1/tenant/export"],
     enabled: (cloudStatus as any)?.siteMode === "external"
   });
