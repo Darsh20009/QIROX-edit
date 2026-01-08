@@ -13,16 +13,18 @@ export default function DeploymentEngine() {
   const { toast } = useToast();
   const [selectedId, setSelectedId] = useState<string | null>(null);
 
+  const { data: stats } = useQuery<{ totalDeployments: number, health: RuntimeHealth }>({
+    queryKey: ["/api/stats/overview"],
+    refetchInterval: 5000,
+  });
+
   const { data: deployments, isLoading: loadingDeployments } = useQuery<Deployment[]>({
     queryKey: ["/api/deployments"],
   });
 
-  const { data: health } = useQuery<RuntimeHealth>({
-    queryKey: ["/api/runtime-health"],
-    refetchInterval: 5000,
-  });
-
-  const liveDeployment = deployments?.find(d => d.status === "live");
+  const activeDeployment = deployments?.find(d => d.status === "live");
+  const previousDeployments = deployments?.filter(d => d.status !== "live")
+    .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
 
   const { data: logs } = useQuery<BuildLog[]>({
     queryKey: ["/api/deployments", selectedId, "logs"],
@@ -64,12 +66,19 @@ export default function DeploymentEngine() {
 
   const rollbackMutation = useMutation({
     mutationFn: async () => {
-      const res = await fetch("/api/deployments/rollback", { method: "POST" });
-      if (!res.ok) throw new Error(await res.text());
+      const res = await fetch("/api/deployments/rollback", { 
+        method: "POST",
+        headers: { "Content-Type": "application/json" }
+      });
+      if (!res.ok) {
+        const errData = await res.json();
+        throw new Error(errData.error || "Rollback failed");
+      }
       return res.json();
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["/api/deployments"] });
+      queryClient.invalidateQueries({ queryKey: ["/api/stats/overview"] });
       toast({ title: "Rollback Successful", description: "System has reverted to previous version." });
     },
     onError: (err: Error) => {
@@ -107,9 +116,9 @@ export default function DeploymentEngine() {
             <Rocket className="h-4 w-4 text-primary" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{liveDeployment?.version || "None"}</div>
+            <div className="text-2xl font-bold">{activeDeployment?.version || "None"}</div>
             <p className="text-xs text-muted-foreground font-mono">
-              {liveDeployment?.commitHash?.substring(0, 7) || "No hash"}
+              {activeDeployment?.commitHash?.substring(0, 7) || "No hash"}
             </p>
           </CardContent>
         </Card>
@@ -119,7 +128,7 @@ export default function DeploymentEngine() {
             <Activity className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold capitalize">{health?.status || "Unknown"}</div>
+            <div className="text-2xl font-bold capitalize">{stats?.health?.status || "Unknown"}</div>
             <p className="text-xs text-muted-foreground">Real-time status monitor</p>
           </CardContent>
         </Card>
@@ -129,7 +138,7 @@ export default function DeploymentEngine() {
             <RefreshCcw className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{health?.cpuUsage || 0}%</div>
+            <div className="text-2xl font-bold">{stats?.health?.cpuUsage || 0}%</div>
             <p className="text-xs text-muted-foreground">Average core load</p>
           </CardContent>
         </Card>
@@ -139,7 +148,7 @@ export default function DeploymentEngine() {
             <Terminal className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{health?.memoryUsage || 0}%</div>
+            <div className="text-2xl font-bold">{stats?.health?.memoryUsage || 0}%</div>
             <p className="text-xs text-muted-foreground">Total memory allocated</p>
           </CardContent>
         </Card>
@@ -153,7 +162,7 @@ export default function DeploymentEngine() {
           <CardContent>
             <ScrollArea className="h-[400px]">
               <div className="space-y-4">
-                {deployments?.map((d) => (
+                {previousDeployments?.map((d) => (
                   <div 
                     key={d.id}
                     className={`flex items-center justify-between p-3 rounded-lg border cursor-pointer transition-colors ${selectedId === d.id ? 'bg-accent' : 'hover:bg-accent/50'}`}

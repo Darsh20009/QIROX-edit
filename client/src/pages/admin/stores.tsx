@@ -176,8 +176,13 @@ export default function AdminStores() {
                           <td className="p-3 font-medium">{store.name}</td>
                           <td className="p-3">{store.slug}</td>
                           <td className="p-3">
+                            <Badge variant={store.siteMode === "managed" ? "default" : store.siteMode === "external" ? "secondary" : "outline"}>
+                              {store.siteMode}
+                            </Badge>
+                          </td>
+                          <td className="p-3">
                             <select 
-                              className="bg-transparent border rounded p-1 text-xs"
+                              className="bg-background border rounded p-1 text-xs"
                               value={store.siteMode}
                               onChange={(e) => updateModeMutation.mutate({ id: store.id, mode: e.target.value })}
                             >

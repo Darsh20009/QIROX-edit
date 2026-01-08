@@ -3,12 +3,18 @@ import { useLocation } from "wouter";
 import { useEffect } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { AdminSidebar } from "@/components/admin-sidebar";
-import { Users, Package, ShoppingCart, CreditCard, Shield, Globe, Activity } from "lucide-react";
+import { Users, Package, ShoppingCart, CreditCard, Shield, Globe, Activity, Rocket } from "lucide-react";
+import { useQuery } from "@tanstack/react-query";
+import { RuntimeHealth } from "@shared/schema";
 import { Badge } from "@/components/ui/badge";
 
 export default function AdminDashboard() {
   const { user, isLoading } = useAuth();
   const [, setLocation] = useLocation();
+
+  const { data: stats } = useQuery<{ totalDeployments: number, health: RuntimeHealth }>({
+    queryKey: ["/api/stats/overview"],
+  });
 
   useEffect(() => {
     if (!isLoading && (!user || (user.role !== "admin" && user.role !== "system_admin"))) {
@@ -29,29 +35,27 @@ export default function AdminDashboard() {
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
             <Card className="hover-elevate transition-all border-primary/10">
               <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-sm font-bold">المستخدمين</CardTitle>
-                <div className="p-2 bg-blue-500/10 rounded-lg">
-                  <Users className="w-5 h-5 text-blue-500" />
+                <CardTitle className="text-sm font-bold">حالة النظام</CardTitle>
+                <div className="p-2 bg-emerald-500/10 rounded-lg">
+                  <Activity className="w-5 h-5 text-emerald-500" />
                 </div>
               </CardHeader>
               <CardContent>
-                <div className="text-3xl font-black">1,234</div>
-                <p className="text-xs text-muted-foreground mt-1 flex items-center gap-1">
-                  <span className="text-emerald-500 font-bold">+12%</span> من الشهر الماضي
-                </p>
+                <div className="text-3xl font-black capitalize">{stats?.health?.status || "Checking..."}</div>
+                <p className="text-xs text-muted-foreground mt-1">CPU: {stats?.health?.cpuUsage || 0}% | RAM: {stats?.health?.memoryUsage || 0}%</p>
               </CardContent>
             </Card>
 
             <Card className="hover-elevate transition-all border-primary/10">
               <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-sm font-bold">المشاريع النشطة</CardTitle>
-                <div className="p-2 bg-emerald-500/10 rounded-lg">
-                  <Package className="w-5 h-5 text-emerald-500" />
+                <CardTitle className="text-sm font-bold">عمليات النشر</CardTitle>
+                <div className="p-2 bg-blue-500/10 rounded-lg">
+                  <Rocket className="w-5 h-5 text-blue-500" />
                 </div>
               </CardHeader>
               <CardContent>
-                <div className="text-3xl font-black">56</div>
-                <p className="text-xs text-muted-foreground mt-1">12 مشروعاً جديداً هذا الأسبوع</p>
+                <div className="text-3xl font-black">{stats?.totalDeployments || 0}</div>
+                <p className="text-xs text-muted-foreground mt-1">إجمالي عمليات النشر المسجلة</p>
               </CardContent>
             </Card>
 
