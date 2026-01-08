@@ -281,11 +281,20 @@ export async function registerRoutes(
   });
 
   // API Key Management (Internal)
-  app.get("/api/keys", authMiddleware, async (req: AuthRequest, res) => {
-    const user = await User.findById(req.user!.userId);
-    if (!user) return res.status(404).json({ error: "User not found" });
-    const keys = await storage.getAuditLogs(user.tenantId || "default"); // Using audit logs to simulate key list for now
-    res.json([{ id: "1", key: "qx_live_..." + Math.random().toString(36).substring(7), name: "Default SDK Key" }]);
+  app.get("/api/v1/tenant/export", authenticateApiKey, async (req, res) => {
+    const tenantId = (req as any).tenantId;
+    if (!tenantId) return res.status(401).json({ message: "Tenant identification failed" });
+
+    const dockerfile = `FROM node:18-alpine\nWORKDIR /app\nCOPY package*.json ./\nRUN npm install\nCOPY . .\nEXPOSE 5000\nCMD ["npm", "start"]`;
+    const dockerCompose = `version: '3.8'\nservices:\n  app:\n    build: .\n    ports:\n      - "5000:5000"\n    environment:\n      - QIROX_API_KEY=\${QIROX_API_KEY}\n      - QIROX_TENANT_ID=${tenantId}\n      - QIROX_BASE_URL=https://qirox.online`;
+    const envExample = `QIROX_API_KEY=your_api_key_here\nQIROX_TENANT_ID=${tenantId}\nQIROX_BASE_URL=https://qirox.online`;
+
+    res.json({
+      dockerfile,
+      dockerCompose,
+      envExample,
+      instructions: "Download these files and place them in your project root to run QIROX in External Mode."
+    });
   });
 
   // Deployment Engine

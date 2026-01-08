@@ -53,7 +53,12 @@ export default function CloudManagement() {
     { id: 2, name: "api.qirox.app", type: "Backend API", status: "active", ssl: "valid", traffic: "45k" },
   ];
 
-  const externalDeployments = deployments?.filter(d => d.deployedBy === 'External CI/CD') || [];
+  const { data: exportData } = useQuery({ 
+    queryKey: ["/api/v1/tenant/export"],
+    enabled: (cloudStatus as any)?.siteMode === "external"
+  });
+
+  const [wizardStep, setWizardStep] = useState(1);
 
   return (
     <div className="flex h-screen bg-background text-right">
@@ -203,49 +208,67 @@ export default function CloudManagement() {
             </CardContent>
           </Card>
 
-          <Card>
+          <Card className="lg:col-span-2">
             <CardHeader>
               <CardTitle className="text-right flex items-center gap-2 justify-end">
-                <span>نطاقات العميل النشطة</span>
-                <Globe className="w-5 h-5 text-primary" />
+                <span>إعدادات الاتصال الخارجي (Wizard)</span>
+                <Zap className="w-5 h-5 text-primary" />
               </CardTitle>
             </CardHeader>
-            <CardContent>
-              <div className="relative w-full overflow-auto">
-                <table className="w-full text-sm text-right">
-                  <thead className="text-xs text-muted-foreground uppercase bg-muted/50">
-                    <tr>
-                      <th className="p-3">النطاق</th>
-                      <th className="p-3">النوع</th>
-                      <th className="p-3">الحالة</th>
-                      <th className="p-3">SSL</th>
-                      <th className="p-3">إجراءات</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {subdomains.map((sub) => (
-                      <tr key={sub.id} className="border-b hover:bg-muted/30 transition-colors">
-                        <td className="p-3 font-medium text-primary">{sub.name}</td>
-                        <td className="p-3">{sub.type}</td>
-                        <td className="p-3">
-                          <Badge variant={sub.status === "active" ? "default" : "secondary"}>
-                            {sub.status === "active" ? "نشط" : "صيانة"}
-                          </Badge>
-                        </td>
-                        <td className="p-3">
-                          <Badge variant={sub.ssl === "valid" ? "outline" : "destructive"} className="gap-1">
-                            <Shield className="w-3 h-3" />
-                            {sub.ssl === "valid" ? "محمي" : "منتهي"}
-                          </Badge>
-                        </td>
-                        <td className="p-3">
-                          <Button size="sm" variant="ghost">إعدادات</Button>
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
+            <CardContent className="space-y-6">
+              <div className="flex justify-between items-center mb-4 flex-row-reverse">
+                {[1, 2, 3].map((step) => (
+                  <div key={step} className="flex items-center gap-2">
+                    <div className={`w-8 h-8 rounded-full flex items-center justify-center border-2 ${wizardStep >= step ? 'bg-primary text-primary-foreground border-primary' : 'border-muted text-muted-foreground'}`}>
+                      {step}
+                    </div>
+                    {step < 3 && <div className={`w-12 h-0.5 ${wizardStep > step ? 'bg-primary' : 'bg-muted'}`} />}
+                  </div>
+                ))}
               </div>
+
+              {wizardStep === 1 && (
+                <div className="space-y-4 animate-in fade-in slide-in-from-right-4">
+                  <h3 className="font-bold text-lg">الخطوة 1: توليد المفاتيح</h3>
+                  <p className="text-sm text-muted-foreground">استخدم هذا المفتاح لربط تطبيقك بـ QIROX Control Plane.</p>
+                  <div className="p-4 bg-muted rounded-lg flex items-center justify-between flex-row-reverse">
+                    <code className="text-sm">{apiKeys?.[0]?.key || 'QX-API-KEY-REQUIRED'}</code>
+                    <Button variant="outline" size="sm" onClick={() => copyToClipboard(apiKeys?.[0]?.key || '', 'API Key')}>
+                      <Copy className="h-4 w-4" />
+                    </Button>
+                  </div>
+                  <Button onClick={() => setWizardStep(2)} className="w-full">التالي: تحميل ملفات الـ Docker</Button>
+                </div>
+              )}
+
+              {wizardStep === 2 && (
+                <div className="space-y-4 animate-in fade-in slide-in-from-right-4">
+                  <h3 className="font-bold text-lg">الخطوة 2: حزمة التصدير (Export)</h3>
+                  <p className="text-sm text-muted-foreground">قم بنسخ هذه الملفات إلى مشروعك لتشغيله في أي مكان.</p>
+                  <div className="grid grid-cols-2 gap-4">
+                    <Button variant="outline" size="sm" onClick={() => copyToClipboard(exportData?.dockerfile || '', 'Dockerfile')}>Dockerfile</Button>
+                    <Button variant="outline" size="sm" onClick={() => copyToClipboard(exportData?.dockerCompose || '', 'docker-compose.yml')}>Docker Compose</Button>
+                    <Button variant="outline" size="sm" onClick={() => copyToClipboard(exportData?.envExample || '', '.env.example')}>.env.example</Button>
+                    <Button variant="outline" size="sm" onClick={() => setWizardStep(3)}>التالي: اختبار الاتصال</Button>
+                  </div>
+                  <Button variant="ghost" onClick={() => setWizardStep(1)} className="w-full">رجوع</Button>
+                </div>
+              )}
+
+              {wizardStep === 3 && (
+                <div className="space-y-4 animate-in fade-in slide-in-from-right-4">
+                  <h3 className="font-bold text-lg">الخطوة 3: اختبار الاتصال</h3>
+                  <p className="text-sm text-muted-foreground">تأكد من أن خادمك الخارجي قادر على التحدث مع QIROX.</p>
+                  <div className="flex items-center gap-4 p-4 rounded-lg bg-green-50 border border-green-200 text-green-800 flex-row-reverse">
+                    <Check className="h-6 w-6" />
+                    <div className="text-right">
+                      <div className="font-bold">الاتصال نشط!</div>
+                      <div className="text-xs">تلقينا آخر Ping منذ دقيقتين</div>
+                    </div>
+                  </div>
+                  <Button onClick={() => setWizardStep(1)} className="w-full">إنهاء المعالج</Button>
+                </div>
+              )}
             </CardContent>
           </Card>
         </div>
