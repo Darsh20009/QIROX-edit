@@ -254,4 +254,3 @@ export const insertContactMessageSchema = createInsertSchema(contactMessages).om
 });
 export type ContactMessage = typeof contactMessages.$inferSelect;
 export type InsertContactMessage = z.infer<typeof insertContactMessageSchema>;
-
