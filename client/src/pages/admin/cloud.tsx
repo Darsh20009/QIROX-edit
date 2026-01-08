@@ -60,7 +60,21 @@ export default function CloudManagement() {
     enabled: (cloudStatus as any)?.siteMode === "external"
   });
 
-  const [wizardStep, setWizardStep] = useState(1);
+  const { data: alerts } = useQuery<any[]>({
+    queryKey: ["/api/v1/external/alerts"],
+    refetchInterval: 10000
+  });
+
+  const downloadFile = (content: string, filename: string) => {
+    const blob = new Blob([content], { type: 'text/plain' });
+    const url = window.URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = filename;
+    a.click();
+    window.URL.revokeObjectURL(url);
+    toast({ title: "تم التحميل!", description: `تم تحميل ملف ${filename} بنجاح.` });
+  };
 
   return (
     <div className="flex h-screen bg-background text-right">
@@ -72,6 +86,12 @@ export default function CloudManagement() {
             <p className="text-muted-foreground">إدارة النطاقات، المراقبة الخارجية، والتحكم في النشر (External Deploy)</p>
           </div>
           <div className="flex gap-2">
+            {alerts && alerts.length > 0 && (
+              <Badge variant="destructive" className="animate-pulse gap-2 py-2 px-4">
+                <Shield className="w-4 h-4" />
+                تحذير: {alerts[0].message}
+              </Badge>
+            )}
             <Button variant="outline" className="gap-2">
               <ExternalLink className="w-4 h-4" />
               عرض الموقع
@@ -246,11 +266,11 @@ export default function CloudManagement() {
               {wizardStep === 2 && (
                 <div className="space-y-4 animate-in fade-in slide-in-from-right-4">
                   <h3 className="font-bold text-lg">الخطوة 2: حزمة التصدير (Export)</h3>
-                  <p className="text-sm text-muted-foreground">قم بنسخ هذه الملفات إلى مشروعك لتشغيله في أي مكان.</p>
+                  <p className="text-sm text-muted-foreground">قم بتحميل هذه الملفات إلى مشروعك لتشغيله في أي مكان.</p>
                   <div className="grid grid-cols-2 gap-4">
-                    <Button variant="outline" size="sm" onClick={() => copyToClipboard(exportData?.dockerfile || '', 'Dockerfile')}>Dockerfile</Button>
-                    <Button variant="outline" size="sm" onClick={() => copyToClipboard(exportData?.dockerCompose || '', 'docker-compose.yml')}>Docker Compose</Button>
-                    <Button variant="outline" size="sm" onClick={() => copyToClipboard(exportData?.envExample || '', '.env.example')}>.env.example</Button>
+                    <Button variant="outline" size="sm" onClick={() => downloadFile(exportData?.dockerfile || '', 'Dockerfile')}>تحميل Dockerfile</Button>
+                    <Button variant="outline" size="sm" onClick={() => downloadFile(exportData?.dockerCompose || '', 'docker-compose.yml')}>تحميل Docker Compose</Button>
+                    <Button variant="outline" size="sm" onClick={() => downloadFile(exportData?.envExample || '', '.env.example')}>تحميل .env.example</Button>
                     <Button variant="outline" size="sm" onClick={() => setWizardStep(3)}>التالي: اختبار الاتصال</Button>
                   </div>
                   <Button variant="ghost" onClick={() => setWizardStep(1)} className="w-full">رجوع</Button>

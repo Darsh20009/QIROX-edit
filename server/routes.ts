@@ -297,6 +297,23 @@ export async function registerRoutes(
     });
   });
 
+  app.get("/api/v1/external/alerts", authenticateApiKey, async (req, res) => {
+    const tenantId = (req as any).tenantId;
+    const health = await storage.getRuntimeHealth(tenantId);
+    
+    const alerts = [];
+    if (health && health.status !== 'healthy') {
+      alerts.push({
+        id: Date.now(),
+        type: 'critical',
+        message: `External site status: ${health.status}`,
+        timestamp: health.lastCheck
+      });
+    }
+    
+    res.json(alerts);
+  });
+
   // Deployment Engine
   app.get("/api/deployments", authMiddleware, async (req: AuthRequest, res) => {
     const user = await User.findById(req.user!.userId);
