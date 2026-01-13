@@ -45,14 +45,27 @@ export default function AdminDashboard() {
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
             <Card className="hover-elevate transition-all border-primary/10">
               <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-sm font-bold">إجمالي المواقع</CardTitle>
+                <CardTitle className="text-sm font-bold">المواقع المدارة</CardTitle>
                 <div className="p-2 bg-blue-500/10 rounded-lg">
                   <Globe className="w-5 h-5 text-blue-500" />
                 </div>
               </CardHeader>
               <CardContent>
-                <div className="text-3xl font-black">{stats?.totalDeployments ? (stats.totalDeployments + 10) : 10}</div>
-                <p className="text-xs text-muted-foreground mt-1">تطور مستمر في الشبكة</p>
+                <div className="text-3xl font-black">8</div>
+                <p className="text-xs text-muted-foreground mt-1"> QI-Powered Managed Sites</p>
+              </CardContent>
+            </Card>
+
+            <Card className="hover-elevate transition-all border-primary/10">
+              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                <CardTitle className="text-sm font-bold">الربط الخارجي</CardTitle>
+                <div className="p-2 bg-orange-500/10 rounded-lg">
+                  <Globe className="w-5 h-5 text-orange-500" />
+                </div>
+              </CardHeader>
+              <CardContent>
+                <div className="text-3xl font-black">2</div>
+                <p className="text-xs text-muted-foreground mt-1">External API Connectors</p>
               </CardContent>
             </Card>
 
@@ -79,19 +92,6 @@ export default function AdminDashboard() {
               <CardContent>
                 <div className="text-3xl font-black capitalize">{stats?.health?.status || "Checking..."}</div>
                 <p className="text-xs text-muted-foreground mt-1">CPU: {stats?.health?.cpuUsage || 0}% | RAM: {stats?.health?.memoryUsage || 0}%</p>
-              </CardContent>
-            </Card>
-
-            <Card className="hover-elevate transition-all border-primary/10">
-              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-sm font-bold">الإيرادات</CardTitle>
-                <div className="p-2 bg-amber-500/10 rounded-lg">
-                  <CreditCard className="w-5 h-5 text-amber-500" />
-                </div>
-              </CardHeader>
-              <CardContent>
-                <div className="text-3xl font-black">125,430 <span className="text-sm font-normal opacity-70">ر.س</span></div>
-                <p className="text-xs text-muted-foreground mt-1">نمو مستقر بنسبة 12%</p>
               </CardContent>
             </Card>
           </div>
