@@ -26,10 +26,9 @@ export function Header() {
   const { user, isLoading } = useAuth();
 
   const navItems = [
-    { label: "المطورين", href: "/developers" },
-    { label: "كيف يعمل", href: "/how-it-works" },
+    { label: "مركز المطورين", href: "/developers" },
+    { label: "الخدمات", href: "/#services" },
     { label: "الأسعار", href: "/pricing" },
-    { label: "من نحن", href: "/about" },
     { label: "اتصل بنا", href: "/contact" },
   ];
 
@@ -77,24 +76,13 @@ export function Header() {
           <div className="flex items-center gap-4">
             <div className="hidden md:flex items-center gap-4">
               <ThemeToggle />
-              {!isLoading && (
-                <>
-                  {user ? (
-                    <Link href="/dashboard">
-                      <Button className="font-bold rounded-xl shadow-lg shadow-primary/20 hover:shadow-primary/30 transition-all hover:-translate-y-0.5" data-testid="button-dashboard">
-                        <User className="ml-2 h-4 w-4" />
-                        لوحة التحكم
-                      </Button>
-                    </Link>
-                  ) : (
-                    <div className="flex items-center gap-3">
-                      {/* Subtly moved access options to a unified portal link later, for now keeping them minimal */}
-                      <Link href="/login">
-                        <Button variant="ghost" className="font-bold text-muted-foreground hover:text-primary">بوابة الشركاء</Button>
-                      </Link>
-                    </div>
-                  )}
-                </>
+              {!isLoading && user && (
+                <Link href="/dashboard">
+                  <Button className="font-bold rounded-xl shadow-lg shadow-primary/20 hover:shadow-primary/30 transition-all hover:-translate-y-0.5" data-testid="button-dashboard">
+                    <User className="ml-2 h-4 w-4" />
+                    لوحة التحكم
+                  </Button>
+                </Link>
               )}
             </div>
             
@@ -139,10 +127,7 @@ export function Header() {
               ))}
               <div className="pt-6 grid gap-3">
                 <Link href="/login">
-                  <Button variant="outline" className="w-full font-bold h-12 rounded-xl" onClick={() => setMobileMenuOpen(false)}>دخول</Button>
-                </Link>
-                <Link href="/register">
-                  <Button className="w-full font-bold h-12 rounded-xl" onClick={() => setMobileMenuOpen(false)}>ابدأ الآن</Button>
+                  <Button variant="outline" className="w-full font-bold h-12 rounded-xl" onClick={() => setMobileMenuOpen(false)}>بوابة الشركاء</Button>
                 </Link>
               </div>
             </div>

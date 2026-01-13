@@ -71,6 +71,10 @@ export default function Login() {
 
           <Card className="border-0 bg-white/5 backdrop-blur-2xl shadow-2xl rounded-[2.5rem] overflow-hidden border border-white/10">
             <CardContent className="p-8 sm:p-12">
+              <div className="mb-8 p-4 rounded-2xl bg-primary/5 border border-primary/10 text-center">
+                <p className="text-xs font-bold text-primary uppercase tracking-widest mb-1">Partner Access Portal</p>
+                <p className="text-sm text-gray-400 font-medium italic">Your credentials work across all Qirox ecosystems</p>
+              </div>
               <form onSubmit={handleSubmit} className="space-y-5">
                 <div className="space-y-2">
                   <Label htmlFor="email" className="text-sm font-medium">البريد الإلكتروني</Label>

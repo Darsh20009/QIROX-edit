@@ -47,9 +47,11 @@ export default function Home() {
               <Button size="lg" className="h-20 px-12 rounded-3xl font-black text-2xl shadow-[0_0_50px_-12px_rgba(var(--primary),0.5)] hover:scale-105 transition-all">
                 استكشف الخدمات
               </Button>
-              <Button size="lg" variant="outline" className="h-20 px-12 rounded-3xl font-black text-2xl border-white/10 hover:bg-white/5 text-white hover-elevate">
-                تواصل مع الإدارة
-              </Button>
+              <Link href="/login">
+                <Button size="lg" variant="outline" className="h-20 px-12 rounded-3xl font-black text-2xl border-white/10 hover:bg-white/5 text-white hover-elevate">
+                  بوابة الشركاء
+                </Button>
+              </Link>
             </div>
           </div>
 
@@ -80,7 +82,7 @@ export default function Home() {
       </section>
 
       {/* Services Segments - "التخصصات" */}
-      <section className="py-40 bg-black relative overflow-hidden">
+      <section id="services" className="py-40 bg-black relative overflow-hidden">
         <div className="container mx-auto px-6">
           <div className="text-center mb-32 space-y-6">
             <h2 className="text-6xl font-black text-white tracking-tighter">تخصصات <span className="text-primary">QIROX</span></h2>
