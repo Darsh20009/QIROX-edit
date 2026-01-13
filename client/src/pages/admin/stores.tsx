@@ -74,6 +74,8 @@ export default function AdminStores() {
     return matchesSearch && matchesFilter;
   });
 
+  const activeCount = filteredStores.length;
+
   return (
     <div className="flex h-screen bg-background">
       <AdminSidebar />
@@ -160,7 +162,7 @@ export default function AdminStores() {
                   <Search className="absolute right-3 top-3 w-4 h-4 text-muted-foreground" />
                   <Input 
                     placeholder="ابحث عن موقع بالاسم أو الرابط..." 
-                    className="pr-10" 
+                    className="pr-10 rounded-xl border-primary/10 bg-muted/30 focus:bg-background focus:ring-primary/20 transition-all shadow-inner" 
                     value={searchTerm}
                     onChange={(e) => setSearchTerm(e.target.value)}
                     data-testid="input-search-stores" 

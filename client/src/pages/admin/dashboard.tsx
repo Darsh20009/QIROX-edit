@@ -6,6 +6,7 @@ import { AdminSidebar } from "@/components/admin-sidebar";
 import { Users, Package, ShoppingCart, CreditCard, Shield, Globe, Activity, Rocket } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
 import { RuntimeHealth } from "@shared/schema";
+import { Badge } from "@/components/ui/badge";
 import { ResponsiveContainer, AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip } from 'recharts';
 
 const chartData = [
@@ -22,7 +23,7 @@ export default function AdminDashboard() {
   const { user, isLoading } = useAuth();
   const [, setLocation] = useLocation();
 
-  const { data: stats } = useQuery<{ totalDeployments: number, health: RuntimeHealth }>({
+  const { data: stats } = useQuery<{ totalDeployments: number, lastDeployment: any, health: RuntimeHealth }>({
     queryKey: ["/api/stats/overview"],
   });
 
@@ -78,7 +79,9 @@ export default function AdminDashboard() {
               </CardHeader>
               <CardContent>
                 <div className="text-3xl font-black">{stats?.totalDeployments || 0}</div>
-                <p className="text-xs text-muted-foreground mt-1">آخر عملية: {stats?.lastDeployment?.version || "لا يوجد"}</p>
+                <p className="text-xs text-muted-foreground mt-1">
+                  آخر عملية: {stats?.lastDeployment?.version || "لا يوجد"}
+                </p>
               </CardContent>
             </Card>
 
