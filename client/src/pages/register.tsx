@@ -151,13 +151,13 @@ export default function Register() {
 
           <div className="text-center mb-8 sm:mb-10">
             <Badge variant="outline" className="mb-4 border-primary/30 text-primary animate-bounce">
-              ابدأ رحلة النجاح الآن
+              بوابة الانضمام الموحدة لمجموعة QIROX
             </Badge>
-            <h1 className="text-3xl sm:text-4xl font-black mb-3 tracking-tighter bg-clip-text text-transparent bg-gradient-to-r from-primary via-primary/80 to-primary/50">
-              انضم إلى عائلة QIROX
+            <h1 className="text-3xl sm:text-4xl font-black mb-3 tracking-tighter bg-clip-text text-transparent bg-gradient-to-r from-primary via-white to-primary/50">
+              ابدأ رحلتك في منظومة QIROX
             </h1>
-            <p className="text-muted-foreground text-sm sm:text-lg font-bold opacity-70">
-              خطوات بسيطة تفصلك عن تحويل فكرتك إلى واقع ملموس
+            <p className="text-gray-400 text-sm sm:text-lg font-bold opacity-70">
+              حساب واحد يمنحك الوصول لكافة تخصصاتنا الرقمية
             </p>
           </div>
 

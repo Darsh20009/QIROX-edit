@@ -1,229 +1,150 @@
+import { useState } from "react";
 import { Layout } from "@/components/layout/layout";
-import { SEO } from "@/components/layout/seo";
-import { motion } from "framer-motion";
-import { Code2, Terminal, Cpu, Blocks, Rocket, BookOpen, Key, Webhook, Box, MessageSquareCode, Settings2, Github } from "lucide-react";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-
-const developerTools = [
-  {
-    title: "واجهة البرمجة التطبيقية (API)",
-    desc: "وثائق متكاملة لربط متجرك أو نظامك بتطبيقات خارجية بسهولة.",
-    icon: Webhook,
-    color: "text-blue-500",
-    badge: "v2.0"
-  },
-  {
-    title: "أدوات التطوير (SDKs)",
-    desc: "مكتبات جاهزة بلغات متعددة (Node.js, Python, PHP) لبدء التطوير فوراً.",
-    icon: Box,
-    color: "text-purple-500",
-    badge: "متاح"
-  },
-  {
-    title: "مستكشف البيانات",
-    desc: "أداة تفاعلية لتجربة الطلبات البرمجية ومعاينة النتائج بشكل حي.",
-    icon: Terminal,
-    color: "text-emerald-500",
-    badge: "جديد"
-  }
-];
-
-const codeSnippets = {
-  javascript: `fetch('https://api.qirox.com/v1/orders', {
-  method: 'POST',
-  headers: {
-    'Authorization': 'Bearer YOUR_API_KEY',
-    'Content-Type': 'application/json'
-  },
-  body: JSON.stringify({
-    productId: 'qr_12345',
-    quantity: 1
-  })
-})
-.then(res => res.json())
-.then(data => console.log(data));`,
-  python: `import requests
-
-url = "https://api.qirox.com/v1/orders"
-headers = {
-    "Authorization": "Bearer YOUR_API_KEY",
-    "Content-Type": "application/json"
-}
-data = {
-    "productId": "qr_12345",
-    "quantity": 1
-}
-
-response = requests.post(url, json=data, headers=headers)
-print(response.json())`,
-  curl: `curl -X POST https://api.qirox.com/v1/orders \\
-  -H "Authorization: Bearer YOUR_API_KEY" \\
-  -H "Content-Type: application/json" \\
-  -d '{"productId": "qr_12345", "quantity": 1}'`
-};
+import { Input } from "@/components/ui/input";
+import { Key, Copy, RefreshCw, ShieldCheck, Code2, ArrowLeft } from "lucide-react";
+import { useToast } from "@/hooks/use-toast";
+import { motion } from "framer-motion";
+import { SEO } from "@/components/layout/seo";
 
 export default function Developers() {
+  const [apiKey, setApiKey] = useState("");
+  const { toast } = useToast();
+
+  const generateKey = () => {
+    const key = `QX-LIVE-${Math.random().toString(36).substring(2, 15).toUpperCase()}`;
+    setApiKey(key);
+    toast({
+      title: "تم توليد المفتاح",
+      description: "يمكنك الآن استخدامه لربط تطبيقاتك بمنظومة Qirox",
+    });
+  };
+
+  const copyToClipboard = () => {
+    navigator.clipboard.writeText(apiKey);
+    toast({
+      title: "تم النسخ",
+      description: "المفتاح جاهز للاستخدام",
+    });
+  };
+
   return (
     <Layout>
-      <SEO title="بوابة المطورين" description="أدوات ووثائق QIROX للمطورين والمبدعين" />
+      <SEO title="مركز المطورين | QIROX" description="بوابة الربط البرمجي الموحدة لمنظومة Qirox" />
       
-      {/* Hero Section */}
-      <section className="relative pt-32 pb-20 overflow-hidden bg-slate-950 text-white">
-        <div className="absolute inset-0 opacity-20 bg-[url('https://www.transparenttextures.com/patterns/carbon-fibre.png')]"></div>
-        <div className="container mx-auto px-6 relative z-10">
-          <div className="max-w-3xl space-y-8">
-            <Badge variant="outline" className="border-primary/50 text-primary py-2 px-4 rounded-full text-sm font-bold bg-primary/10">
-              <Code2 className="w-4 h-4 mr-2" />
-              بوابة المطورين والمبدعين
-            </Badge>
-            <h1 className="text-5xl md:text-7xl font-black leading-tight">
-              ابنِ حلولك الخاصة <br />
-              على بنية <span className="text-primary">QIROX</span>
+      <div className="min-h-screen py-32 bg-[#050505]">
+        <div className="container mx-auto px-6 max-w-5xl">
+          <div className="text-center mb-20 space-y-6">
+            <motion.div 
+              initial={{ scale: 0.8, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              className="w-24 h-24 rounded-[2rem] bg-primary/10 flex items-center justify-center text-primary mx-auto border border-primary/20 shadow-[0_0_50px_-12px_rgba(var(--primary),0.3)]"
+            >
+              <Code2 className="w-12 h-12" />
+            </motion.div>
+            <h1 className="text-6xl font-black text-white tracking-tighter">
+              مركز مطوري <span className="text-primary text-glow">QIROX</span>
             </h1>
-            <p className="text-xl text-slate-400 font-medium leading-relaxed">
-              نحن نوفر لك الأدوات، الوثائق، والـ API القوي الذي تحتاجه لتحويل أفكارك البرمجية إلى حقيقة في دقائق.
+            <p className="text-2xl text-gray-500 font-medium max-w-3xl mx-auto leading-relaxed">
+              قم بتوليد مفاتيح الربط البرمجية الموحدة لدمج خدمات Qirox المتخصصة (Build, Systems, Stores) في تطبيقاتك الخاصة.
             </p>
-            <div className="flex flex-wrap gap-4 pt-4">
-              <Button className="bg-primary text-white hover:bg-primary/90 h-14 px-8 rounded-xl font-bold gap-2">
-                <BookOpen className="w-5 h-5" />
-                قراءة الوثائق
-              </Button>
-              <Button variant="outline" className="border-slate-800 text-white hover:bg-slate-900 h-14 px-8 rounded-xl font-bold gap-2">
-                <Github className="w-5 h-5" />
-                المستودع البرمجي
-              </Button>
-            </div>
           </div>
-        </div>
-      </section>
 
-      {/* Developer Tools Grid */}
-      <section className="py-32 container mx-auto px-6">
-        <div className="grid md:grid-cols-3 gap-8">
-          {developerTools.map((tool, i) => (
-            <Card key={i} className="border-none shadow-xl rounded-[2.5rem] bg-secondary/20 hover-elevate overflow-hidden transition-all">
-              <CardContent className="p-12 space-y-6">
-                <div className="flex justify-between items-start">
-                  <div className={`w-16 h-16 rounded-2xl bg-white flex items-center justify-center ${tool.color} shadow-lg`}>
-                    <tool.icon className="w-8 h-8" />
+          <div className="grid lg:grid-cols-3 gap-12">
+            <motion.div 
+              initial={{ opacity: 0, x: -20 }}
+              animate={{ opacity: 1, x: 0 }}
+              className="lg:col-span-2"
+            >
+              <Card className="bg-[#0a0a0a] border-white/10 rounded-[3rem] overflow-hidden shadow-2xl border-t-primary/20">
+                <CardHeader className="p-12 border-b border-white/5 bg-white/2">
+                  <CardTitle className="text-3xl font-black text-white flex items-center gap-4">
+                    <Key className="text-primary w-8 h-8" />
+                    مولد مفاتيح الـ API الموحد
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="p-12 space-y-10">
+                  <div className="space-y-4">
+                    <label className="text-sm font-black text-gray-400 block mr-1 uppercase tracking-widest">Global Access Token (Live)</label>
+                    <div className="flex gap-4">
+                      <Input 
+                        value={apiKey} 
+                        readOnly 
+                        placeholder="اضغط على توليد للحصول على مفتاح..." 
+                        className="h-20 rounded-2xl bg-black border-white/10 text-2xl font-mono text-primary pr-8 shadow-inner"
+                      />
+                      <Button 
+                        onClick={copyToClipboard}
+                        disabled={!apiKey}
+                        size="icon"
+                        className="h-20 w-20 rounded-2xl bg-white/5 border border-white/10 text-white hover:bg-white/10 transition-all"
+                      >
+                        <Copy className="w-8 h-8" />
+                      </Button>
+                    </div>
                   </div>
-                  <Badge variant="secondary" className="rounded-full px-4">{tool.badge}</Badge>
-                </div>
-                <h3 className="text-2xl font-black">{tool.title}</h3>
-                <p className="text-muted-foreground font-medium leading-relaxed">{tool.desc}</p>
-                <Button variant="ghost" className="p-0 h-auto font-bold text-primary hover:bg-transparent flex items-center gap-2">
-                  استكشف الأداة <ArrowLeft className="w-4 h-4" />
-                </Button>
-              </CardContent>
-            </Card>
-          ))}
-        </div>
-      </section>
 
-      {/* Code Explorer */}
-      <section className="py-32 bg-slate-950 text-white overflow-hidden">
-        <div className="container mx-auto px-6">
-          <div className="grid lg:grid-cols-2 gap-20 items-center">
-            <div className="space-y-8">
-              <h2 className="text-4xl md:text-5xl font-black">ربط تقني <span className="text-primary">فائق السرعة</span></h2>
-              <p className="text-xl text-slate-400 leading-relaxed">
-                ابدأ رحلتك البرمجية مع أمثلة جاهزة بلغاتك المفضلة. التكامل مع QIROX تم تصميمه ليكون بديهياً للمطورين.
-              </p>
-              <div className="space-y-4">
-                {[
-                  { icon: Key, title: "مفاتيح API آمنة", desc: "إدارة صلاحيات وصول دقيقة لكل خدمة." },
-                  { icon: Settings2, title: "أتمتة كاملة", desc: "أكثر من 100 نقطة ربط لجميع العمليات." },
-                  { icon: MessageSquareCode, title: "دعم المطورين", desc: "مجتمع نشط ودعم تقني مباشر للمطورين." }
-                ].map((item, i) => (
-                  <div key={i} className="flex gap-4 items-center">
-                    <div className="w-12 h-12 rounded-xl bg-slate-900 flex items-center justify-center text-primary">
-                      <item.icon className="w-6 h-6" />
+                  <Button 
+                    onClick={generateKey}
+                    className="w-full h-24 rounded-[2.5rem] text-3xl font-black shadow-[0_20px_50px_-15px_rgba(var(--primary),0.4)] hover:scale-[1.02] transition-all"
+                  >
+                    <RefreshCw className="ml-4 h-8 w-8 animate-spin-slow" />
+                    توليد مفتاح وصول جديد
+                  </Button>
+
+                  <div className="p-8 rounded-3xl bg-blue-500/5 border border-blue-500/10 flex items-start gap-4">
+                    <div className="p-3 rounded-xl bg-blue-500/20 text-blue-400">
+                      <ShieldCheck className="w-6 h-6" />
                     </div>
                     <div>
-                      <h4 className="font-bold text-lg">{item.title}</h4>
-                      <p className="text-slate-500 text-sm">{item.desc}</p>
+                      <h4 className="text-white font-black text-lg mb-1">تعليمات الأمان</h4>
+                      <p className="text-gray-500 font-medium text-sm leading-relaxed">
+                        لا تشارك هذا المفتاح أبداً في المتصفح أو مع أي جهة غير موثوقة. يجب استخدامه فقط في بيئة الخادم (Server-side) لضمان أمان بياناتك.
+                      </p>
                     </div>
                   </div>
-                ))}
-              </div>
-            </div>
+                </CardContent>
+              </Card>
+            </motion.div>
 
-            <div className="relative">
-              <Tabs defaultValue="javascript" className="w-full">
-                <TabsList className="bg-slate-900 border-slate-800 h-14 p-1 rounded-xl mb-4">
-                  <TabsTrigger value="javascript" className="rounded-lg data-[state=active]:bg-primary">JavaScript</TabsTrigger>
-                  <TabsTrigger value="python" className="rounded-lg data-[state=active]:bg-primary">Python</TabsTrigger>
-                  <TabsTrigger value="curl" className="rounded-lg data-[state=active]:bg-primary">cURL</TabsTrigger>
-                </TabsList>
-                <div className="bg-slate-900 rounded-[2rem] border border-slate-800 overflow-hidden shadow-2xl">
-                  <div className="flex gap-2 p-4 bg-slate-800/50 border-b border-slate-800">
-                    <div className="w-3 h-3 rounded-full bg-red-500"></div>
-                    <div className="w-3 h-3 rounded-full bg-yellow-500"></div>
-                    <div className="w-3 h-3 rounded-full bg-green-500"></div>
-                  </div>
-                  <TabsContent value="javascript" className="mt-0">
-                    <pre className="p-8 text-sm font-mono overflow-x-auto text-emerald-400">
-                      <code>{codeSnippets.javascript}</code>
-                    </pre>
-                  </TabsContent>
-                  <TabsContent value="python" className="mt-0">
-                    <pre className="p-8 text-sm font-mono overflow-x-auto text-blue-400">
-                      <code>{codeSnippets.python}</code>
-                    </pre>
-                  </TabsContent>
-                  <TabsContent value="curl" className="mt-0">
-                    <pre className="p-8 text-sm font-mono overflow-x-auto text-orange-400">
-                      <code>{codeSnippets.curl}</code>
-                    </pre>
-                  </TabsContent>
+            <motion.div 
+              initial={{ opacity: 0, x: 20 }}
+              animate={{ opacity: 1, x: 0 }}
+              className="space-y-8"
+            >
+              <div className="p-10 rounded-[3rem] bg-white/5 border border-white/10 space-y-6">
+                <h3 className="text-2xl font-black text-white">لماذا QIROX API؟</h3>
+                <div className="space-y-6">
+                  {[
+                    { title: "وصول موحد", desc: "مفتاح واحد لجميع الشركات التابعة", icon: Key },
+                    { title: "أداء فائق", desc: "استجابة سريعة جداً (Sub-100ms)", icon: RefreshCw },
+                    { title: "أمان متقدم", desc: "تشفير AES-256 لكل طلب", icon: ShieldCheck }
+                  ].map((item, i) => (
+                    <div key={i} className="flex gap-4 items-center">
+                      <div className="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center text-primary shrink-0">
+                        <item.icon className="w-6 h-6" />
+                      </div>
+                      <div>
+                        <h4 className="font-black text-white">{item.title}</h4>
+                        <p className="text-gray-500 text-xs font-medium">{item.desc}</p>
+                      </div>
+                    </div>
+                  ))}
                 </div>
-              </Tabs>
-              <div className="absolute -z-10 -bottom-10 -right-10 w-64 h-64 bg-primary/20 rounded-full blur-[100px]"></div>
-            </div>
-          </div>
-        </div>
-      </section>
+              </div>
 
-      {/* CTA Section */}
-      <section className="py-32 container mx-auto px-6 text-center">
-        <div className="bg-primary rounded-[3rem] p-20 space-y-10 relative overflow-hidden shadow-2xl">
-          <div className="absolute top-0 left-0 w-full h-full opacity-10 bg-[url('https://www.transparenttextures.com/patterns/cubes.png')]"></div>
-          <h2 className="text-4xl md:text-6xl font-black text-white relative z-10 leading-tight">
-            هل أنت جاهز <br /> لإظهار مهاراتك؟
-          </h2>
-          <p className="text-xl text-white/80 max-w-2xl mx-auto relative z-10 font-medium">
-            سجل الآن كشريك مطور واحصل على إمكانية الوصول المبكر لأدواتنا القادمة والمشاريع المتميزة.
-          </p>
-          <div className="flex justify-center gap-6 relative z-10 pt-4">
-            <Button className="bg-white text-primary hover:bg-white/90 h-16 px-12 rounded-2xl font-black text-xl shadow-2xl">
-              ابدأ الآن مجاناً
-            </Button>
+              <div className="p-10 rounded-[3rem] bg-gradient-to-br from-primary/20 to-transparent border border-white/10 space-y-6">
+                <h3 className="text-2xl font-black text-white">تحتاج مساعدة؟</h3>
+                <p className="text-gray-400 font-medium text-sm leading-relaxed">فريق المطورين لدينا مستعد لمساعدتك في عملية الربط التقني على مدار الساعة.</p>
+                <Button variant="outline" className="w-full h-14 rounded-2xl border-white/10 text-white font-black hover:bg-white/5">
+                  تحدث مع خبير تقني
+                </Button>
+              </div>
+            </motion.div>
           </div>
         </div>
-      </section>
+      </div>
     </Layout>
-  );
-}
-
-function ArrowLeft(props: any) {
-  return (
-    <svg
-      {...props}
-      xmlns="http://www.w3.org/2000/svg"
-      width="24"
-      height="24"
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="2"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-    >
-      <path d="m12 19-7-7 7-7" />
-      <path d="M19 12H5" />
-    </svg>
   );
 }

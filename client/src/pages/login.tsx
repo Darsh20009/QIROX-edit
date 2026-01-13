@@ -61,11 +61,11 @@ export default function Login() {
             >
               <LogoQ className="w-20 h-20 mx-auto" />
             </motion.div>
-            <h1 className="text-4xl font-black text-foreground tracking-tighter mb-2" data-testid="text-login-title">
-              QIROX
+            <h1 className="text-4xl font-black text-white tracking-tighter mb-2" data-testid="text-login-title">
+              بوابة <span className="text-primary">QIROX</span> الموحدة
             </h1>
-            <p className="text-muted-foreground font-bold tracking-widest uppercase text-xs opacity-60">
-              Build systems. Stay human.
+            <p className="text-gray-400 font-bold tracking-widest uppercase text-xs opacity-60">
+              Unified Authentication for all Qirox Subsidiaries
             </p>
           </div>
 

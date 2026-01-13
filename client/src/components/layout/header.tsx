@@ -88,13 +88,9 @@ export function Header() {
                     </Link>
                   ) : (
                     <div className="flex items-center gap-3">
+                      {/* Subtly moved access options to a unified portal link later, for now keeping them minimal */}
                       <Link href="/login">
-                        <Button variant="ghost" className="font-bold">دخول</Button>
-                      </Link>
-                      <Link href="/register">
-                        <Button className="font-bold rounded-xl shadow-lg shadow-primary/20 hover:shadow-primary/30 transition-all hover:-translate-y-0.5 px-6" data-testid="button-register">
-                          ابدأ الآن
-                        </Button>
+                        <Button variant="ghost" className="font-bold text-muted-foreground hover:text-primary">بوابة الشركاء</Button>
                       </Link>
                     </div>
                   )}

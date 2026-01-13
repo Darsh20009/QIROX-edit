@@ -5,7 +5,7 @@ import { SiX } from "react-icons/si";
 
 const footerLinks = {
   product: [
-    { href: "/how-it-works", label: "كيف يعمل" },
+    { href: "/developers", label: "مركز المطورين" },
     { href: "/pricing", label: "الأسعار" },
     { href: "/build", label: "بناء منصة" },
     { href: "/stores", label: "المتاجر" },
