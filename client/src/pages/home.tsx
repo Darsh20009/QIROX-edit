@@ -6,6 +6,8 @@ import { motion, useScroll, useTransform } from "framer-motion";
 import { ArrowUpRight, ArrowRight, Menu, X, Plus, Minus } from "lucide-react";
 import organicArt from "@assets/generated_images/organic_fluid_dark_abstract_art.png";
 
+import qiroxMobile from "@assets/Screenshot_2026-01-02_013112_1768411480128.png";
+
 export default function Home() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const { scrollY } = useScroll();
@@ -87,16 +89,16 @@ export default function Home() {
               initial={{ opacity: 0, scale: 0.98 }}
               animate={{ opacity: 1, scale: 1 }}
               transition={{ delay: 0.8, duration: 1.5 }}
-              className="relative aspect-[4/5] md:aspect-square overflow-hidden rounded-sm group"
+              className="relative aspect-[4/5] md:aspect-square overflow-hidden rounded-sm group shadow-2xl"
             >
-              <div className="absolute inset-0 bg-white/5 group-hover:bg-transparent transition-colors duration-700 z-10" />
+              <div className="absolute inset-0 bg-black/20 group-hover:bg-transparent transition-colors duration-700 z-10" />
               <img 
-                src={organicArt} 
-                alt="Minimalist Art" 
-                className="w-full h-full object-cover grayscale brightness-75 group-hover:scale-105 transition-transform duration-[2s]" 
+                src={qiroxMobile} 
+                alt="QIROX Mobile" 
+                className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-[2s]" 
               />
               <div className="absolute bottom-8 left-8 z-20">
-                <span className="text-[10px] tracking-[0.5em] uppercase opacity-40">System Core / v.26</span>
+                <span className="text-[10px] tracking-[0.5em] uppercase opacity-40 text-white">Interface / Human Centric</span>
               </div>
             </motion.div>
           </div>
