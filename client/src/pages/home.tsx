@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { Link } from "wouter";
 import { Button } from "@/components/ui/button";
 import { SEO } from "@/components/layout/seo";
-import { motion, useScroll, useTransform } from "framer-motion";
+import { motion, useScroll, useTransform, AnimatePresence } from "framer-motion";
 import { ArrowUpRight, ArrowRight, Menu, X, Plus, Minus } from "lucide-react";
 import organicArt from "@assets/generated_images/organic_fluid_dark_abstract_art.png";
 
@@ -68,6 +68,68 @@ export default function Home() {
           </button>
         </div>
       </nav>
+
+      {/* Fullscreen Menu Overlay */}
+      <AnimatePresence>
+        {isMenuOpen && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 z-[100] bg-black flex items-center justify-center p-8"
+          >
+            <button 
+              onClick={() => setIsMenuOpen(false)}
+              className="absolute top-10 right-8 p-2 text-white hover:scale-110 transition-transform"
+            >
+              <X size={32} />
+            </button>
+            
+            <div className="grid md:grid-cols-2 gap-20 max-w-6xl w-full items-center">
+              <nav className={`space-y-8 ${lang === 'ar' ? 'text-right' : 'text-left'}`}>
+                {[
+                  { title: t.work, url: '/work' },
+                  { title: t.philosophy, url: '/philosophy' },
+                  { title: t.dialogue, url: '/contact' },
+                  { title: lang === 'ar' ? 'البوابة' : 'Portal', url: '/login' }
+                ].map((item, i) => (
+                  <motion.div
+                    key={item.url}
+                    initial={{ opacity: 0, x: lang === 'ar' ? 50 : -50 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    transition={{ delay: i * 0.1 + 0.2 }}
+                  >
+                    <Link href={item.url}>
+                      <span 
+                        onClick={() => setIsMenuOpen(false)}
+                        className="text-5xl md:text-8xl font-light italic hover:text-white/40 transition-colors cursor-pointer block"
+                      >
+                        {item.title}
+                      </span>
+                    </Link>
+                  </motion.div>
+                ))}
+              </nav>
+              
+              <div className={`hidden md:block border-l border-white/10 pl-20 space-y-12 opacity-60 ${lang === 'ar' ? 'border-r border-l-0 pr-20 text-right' : ''}`}>
+                <div className="space-y-4">
+                  <span className="text-[10px] tracking-[0.5em] uppercase block">Contact</span>
+                  <p className="text-xl font-light">studio@qirox.online</p>
+                  <p className="text-xl font-light">+20 112 019 21</p>
+                </div>
+                <div className="space-y-4">
+                  <span className="text-[10px] tracking-[0.5em] uppercase block">Follow</span>
+                  <div className="flex gap-8 text-sm tracking-widest">
+                    <span>IG</span>
+                    <span>TW</span>
+                    <span>LI</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
 
       {/* Artistic Hero Section */}
       <section className="relative min-h-screen flex flex-col justify-center px-8 md:px-24 z-10 pt-32">
