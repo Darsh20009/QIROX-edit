@@ -34,7 +34,7 @@ export default function Home() {
       <nav className="fixed top-0 w-full z-50 px-8 py-10 flex justify-between items-center mix-blend-difference">
         <Link href="/">
           <div className="flex items-center cursor-pointer">
-            <img src={qiroxLogo} alt="QIROX" className="h-8 md:h-10 w-auto invert brightness-0" />
+            <img src={qiroxLogo} alt="QIROX" className="h-16 md:h-28 w-auto invert brightness-0" />
           </div>
         </Link>
         
