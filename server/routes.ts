@@ -409,8 +409,45 @@ export async function registerRoutes(
     }
   });
 
-  // Site Management Routes
-  app.get("/api/sites", authMiddleware, async (req: AuthRequest, res) => {
+  // Audit Middleware for tracking actions
+  const auditAction = (action: string, module = "Core") => {
+    return async (req: AuthRequest, res: Response, next: NextFunction) => {
+      const originalJson = res.json;
+      res.json = function (body) {
+        if (res.statusCode >= 200 && res.statusCode < 300) {
+          storage.createAuditLog({
+            userId: req.user?.userId || "anonymous",
+            tenantId: (req as any).tenantId || "default",
+            action,
+            module,
+            details: `Action ${action} performed on ${req.path}`,
+            ipAddress: req.ip,
+          }).catch(err => console.error("Audit log error:", err));
+        }
+        return originalJson.call(this, body);
+      };
+      next();
+    };
+  };
+
+  // Improved Permission Controls Middleware
+  const requirePermission = (requiredRole: string) => {
+    return (req: AuthRequest, res: Response, next: NextFunction) => {
+      if (!req.user) return res.status(401).json({ error: "Unauthorized" });
+      
+      const rolesOrder = ["visitor", "client", "team", "admin"];
+      const userRoleIndex = rolesOrder.indexOf(req.user.role || "visitor");
+      const requiredRoleIndex = rolesOrder.indexOf(requiredRole);
+
+      if (userRoleIndex < requiredRoleIndex) {
+        return res.status(403).json({ error: "Insufficient permissions" });
+      }
+      next();
+    };
+  };
+
+  // Site Management Routes (Restricted)
+  app.get("/api/sites", authMiddleware, requirePermission("admin"), async (req: AuthRequest, res) => {
     const tenants = await storage.getTenants();
     res.json(tenants);
   });

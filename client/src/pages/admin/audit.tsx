@@ -15,7 +15,11 @@ export default function AdminAuditPage() {
     }
   }, [user, isLoading, setLocation]);
 
-  if (isLoading) return null;
+  const { data: logs, isLoading: logsLoading } = useQuery<AuditLog[]>({
+    queryKey: ["/api/admin/audit-logs"],
+  });
+
+  if (isLoading || logsLoading) return null;
 
   return (
     <div className="flex h-screen bg-background">
