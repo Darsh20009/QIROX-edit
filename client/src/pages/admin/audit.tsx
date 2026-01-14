@@ -1,9 +1,11 @@
 import { useAuth } from "@/lib/auth";
 import { useLocation } from "wouter";
 import { useEffect } from "react";
+import { useQuery } from "@tanstack/react-query";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { AdminSidebar } from "@/components/admin-sidebar";
 import { History, Activity, AlertCircle } from "lucide-react";
+import { AuditLog } from "@shared/schema";
 
 export default function AdminAuditPage() {
   const { user, isLoading } = useAuth();
@@ -63,23 +65,22 @@ export default function AdminAuditPage() {
           </CardHeader>
           <CardContent>
             <div className="space-y-4">
-              {[
-                { action: "تعديل إعدادات الموقع", user: "Admin", time: "قبل 10 دقائق", icon: Activity },
-                { action: "حذف مستخدم تجريبي", user: "Admin", time: "قبل ساعة", icon: AlertCircle },
-                { action: "تحديث خطة الاشتراك", user: "System", time: "قبل 3 ساعات", icon: Activity },
-                { action: "إضافة متجر جديد", user: "Manager", time: "أمس", icon: Activity },
-              ].map((log, i) => (
-                <div key={i} className="flex justify-between items-center p-3 border-b last:border-0 hover:bg-muted/30 transition-colors">
-                  <span className="text-sm text-muted-foreground">{log.time}</span>
+              {logs?.map((log, i) => (
+                <div key={log.id} className="flex justify-between items-center p-3 border-b last:border-0 hover:bg-muted/30 transition-colors">
+                  <span className="text-sm text-muted-foreground">{new Date(log.timestamp).toLocaleString('ar-EG')}</span>
                   <div className="flex items-center gap-3 text-right">
                     <div>
                       <p className="font-medium">{log.action}</p>
-                      <p className="text-xs text-muted-foreground">بواسطة: {log.user}</p>
+                      <p className="text-xs text-muted-foreground">بواسطة: {log.userId} | القسم: {log.module}</p>
+                      {log.details && <p className="text-[10px] text-muted-foreground mt-1 opacity-60">{log.details}</p>}
                     </div>
-                    <log.icon className="h-4 w-4 text-primary" />
+                    <Activity className="h-4 w-4 text-primary" />
                   </div>
                 </div>
               ))}
+              {(!logs || logs.length === 0) && (
+                <div className="text-center py-10 opacity-40">لا توجد سجلات حالياً</div>
+              )}
             </div>
           </CardContent>
         </Card>

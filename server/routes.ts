@@ -447,12 +447,17 @@ export async function registerRoutes(
   };
 
   // Site Management Routes (Restricted)
-  app.get("/api/sites", authMiddleware, requirePermission("admin"), async (req: AuthRequest, res) => {
+  app.get("/api/sites", authMiddleware, requirePermission("admin"), auditAction("VIEW_SITES"), async (req: AuthRequest, res) => {
     const tenants = await storage.getTenants();
     res.json(tenants);
   });
 
-  app.patch("/api/sites/:id", authMiddleware, async (req: AuthRequest, res) => {
+  app.get("/api/admin/audit-logs", authMiddleware, requirePermission("admin"), async (req: AuthRequest, res) => {
+    const logs = await storage.getAuditLogs();
+    res.json(logs);
+  });
+
+  app.patch("/api/sites/:id", authMiddleware, requirePermission("admin"), auditAction("UPDATE_SITE"), async (req: AuthRequest, res) => {
     try {
       const updated = await storage.updateTenant(req.params.id, req.body);
       res.json(updated);
