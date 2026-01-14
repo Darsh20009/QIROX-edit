@@ -1,107 +1,95 @@
+import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
-import { useEffect, useState } from "react";
-import saudiHeroImage from "@assets/generated_images/saudi_man_with_flag_splash_screen_image.png";
+import organicArt from "@assets/generated_images/organic_fluid_dark_abstract_art.png";
+import qiroxLogo from "@assets/qirox_without_background_1767780745614.png";
 
 export function SplashScreen({ onComplete }: { onComplete: () => void }) {
   const [text, setText] = useState("");
   const fullText = "QIROX";
-  
+
   useEffect(() => {
-    let currentText = "";
-    let currentIndex = 0;
-    
-    const typingInterval = setInterval(() => {
-      if (currentIndex < fullText.length) {
-        currentText += fullText[currentIndex];
-        setText(currentText);
-        currentIndex++;
+    let current = 0;
+    const interval = setInterval(() => {
+      if (current <= fullText.length) {
+        setText(fullText.slice(0, current));
+        current++;
       } else {
-        clearInterval(typingInterval);
+        clearInterval(interval);
+        setTimeout(onComplete, 1500);
       }
     }, 150);
-
-    const timer = setTimeout(() => onComplete(), 4500);
-    return () => {
-      clearInterval(typingInterval);
-      clearTimeout(timer);
-    };
+    return () => clearInterval(interval);
   }, [onComplete]);
 
   return (
-    <div className="fixed inset-0 z-[100] bg-black flex flex-col items-center justify-center overflow-hidden">
+    <div className="fixed inset-0 z-[100] bg-[#0A0A0A] flex flex-col items-center justify-center overflow-hidden">
+      {/* Background Abstract Art */}
       <motion.div
         initial={{ opacity: 0, scale: 1.1 }}
-        animate={{ opacity: 1, scale: 1 }}
-        transition={{ duration: 1.5, ease: "easeOut" }}
-        className="absolute inset-0 z-0"
+        animate={{ opacity: 0.15, scale: 1 }}
+        transition={{ duration: 2, ease: "easeOut" }}
+        className="absolute inset-0 z-0 grayscale"
       >
-        <div 
-          className="absolute inset-0 bg-cover bg-center bg-no-repeat"
-          style={{ backgroundImage: `url(${saudiHeroImage})` }}
+        <img 
+          src={organicArt} 
+          alt="Art" 
+          className="w-full h-full object-cover"
         />
-        <div className="absolute inset-0 bg-gradient-to-t from-black via-black/60 to-transparent" />
+        <div className="absolute inset-0 bg-gradient-to-b from-transparent via-[#0A0A0A] to-[#0A0A0A]" />
       </motion.div>
-      
-      <div className="relative z-10 flex flex-col items-center justify-end h-full pb-20 w-full px-6">
+
+      <div className="relative z-10 flex flex-col items-center space-y-12">
+        {/* Animated Logo */}
         <motion.div
-          initial={{ y: 40, opacity: 0 }}
-          animate={{ y: 0, opacity: 1 }}
-          transition={{ delay: 0.2, duration: 1 }}
-          className="flex flex-col items-center space-y-6"
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 1, ease: [0.22, 1, 0.36, 1] }}
+          className="flex flex-col items-center"
         >
-          <div className="text-center space-y-2">
-            <h1 className="text-7xl md:text-8xl font-black text-white tracking-tighter drop-shadow-[0_10px_30px_rgba(0,0,0,0.5)] min-h-[1em]">
-              {text}
-              <motion.span
-                animate={{ opacity: [1, 0] }}
-                transition={{ duration: 0.8, repeat: Infinity }}
-                className="inline-block w-2 h-16 md:h-20 bg-primary ml-2 align-middle"
-              />
-            </h1>
-            <div className="flex items-center justify-center gap-3">
-              <div className="h-[1px] w-12 bg-primary/50" />
-              <p className="text-primary font-black text-xs tracking-[0.6em] uppercase ml-[0.6em]">
-                Future Tech
-              </p>
-              <div className="h-[1px] w-12 bg-primary/50" />
-            </div>
-          </div>
-
-          <div className="bg-black/20 backdrop-blur-md px-6 py-3 rounded-full border border-white/10">
-            <p className="text-white/80 text-sm md:text-base font-bold tracking-tight">
-              بكل فخر.. نصنع المستقبل
-            </p>
-          </div>
-
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ delay: 1.2, duration: 1 }}
-            className="flex items-center gap-2 px-4 py-1.5 rounded-lg bg-primary/10 border border-primary/20"
-          >
-            <span className="text-[10px] text-primary font-black uppercase tracking-widest">Saudi Vision 2030</span>
-          </motion.div>
-
-          <div className="w-48 h-[1px] bg-white/10 relative overflow-hidden rounded-full mt-4">
+          <img 
+            src={qiroxLogo} 
+            alt="QIROX" 
+            className="h-24 md:h-32 w-auto invert brightness-0 mb-8"
+          />
+          
+          <div className="h-px w-40 bg-white/20 relative overflow-hidden">
             <motion.div
               initial={{ x: "-100%" }}
               animate={{ x: "100%" }}
               transition={{ 
-                duration: 2.5,
+                duration: 2,
                 repeat: Infinity,
-                ease: "linear"
+                ease: "easeInOut"
               }}
-              className="absolute inset-0 bg-gradient-to-r from-transparent via-primary to-transparent"
+              className="absolute inset-0 bg-gradient-to-r from-transparent via-white/40 to-transparent"
             />
+          </div>
+        </motion.div>
+
+        {/* Minimalist Subtext */}
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ delay: 0.5, duration: 1 }}
+          className="text-center space-y-4"
+        >
+          <p className="text-[10px] tracking-[1em] uppercase opacity-40 font-light">
+            Crafting Human Complexity
+          </p>
+          <div className="flex items-center justify-center gap-4">
+            <span className="text-[8px] tracking-[0.5em] uppercase opacity-20">v.26</span>
+            <div className="w-1 h-1 rounded-full bg-white/20" />
+            <span className="text-[8px] tracking-[0.5em] uppercase opacity-20">2030 Vision</span>
           </div>
         </motion.div>
       </div>
 
+      {/* Exit Transition Layer */}
       <motion.div
         initial={{ opacity: 0 }}
         animate={{ opacity: [0, 0, 1] }}
-        transition={{ duration: 4.5, times: [0, 0.8, 1], ease: "linear" }}
-        className="absolute inset-0 bg-black z-50 pointer-events-none"
+        transition={{ duration: 3, times: [0, 0.8, 1], ease: "linear" }}
+        className="absolute inset-0 bg-[#0A0A0A] z-[110] pointer-events-none"
       />
     </div>
   );
