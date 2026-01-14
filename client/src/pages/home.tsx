@@ -18,7 +18,6 @@ export default function Home() {
   return (
     <div className="min-h-screen bg-[#0A0A0A] text-[#E5E5E5] font-serif selection:bg-white selection:text-black">
       <SEO title="QIROX | Organic Intelligence" description="A human approach to complex systems." />
-      
       {/* Abstract Background Art */}
       <div className="fixed inset-0 z-0 pointer-events-none overflow-hidden">
         <motion.img 
@@ -29,7 +28,6 @@ export default function Home() {
         />
         <div className="absolute inset-0 bg-gradient-to-b from-transparent via-[#0A0A0A] to-[#0A0A0A]" />
       </div>
-
       {/* Minimalist Navigation */}
       <nav className="fixed top-0 w-full z-50 px-8 py-10 flex justify-between items-center mix-blend-difference">
         <Link href="/">
@@ -52,7 +50,6 @@ export default function Home() {
           </button>
         </div>
       </nav>
-
       {/* Artistic Hero Section */}
       <section className="relative min-h-screen flex flex-col justify-center px-8 md:px-24 z-10 pt-32">
         <div className="max-w-6xl">
@@ -108,7 +105,6 @@ export default function Home() {
           </div>
         </div>
       </section>
-
       {/* The Pillars - Minimalist Grid */}
       <section className="py-60 px-8 md:px-24 z-10 relative">
         <div className="grid md:grid-cols-3 gap-1px bg-white/10 border-t border-b border-white/10">
@@ -128,7 +124,6 @@ export default function Home() {
           ))}
         </div>
       </section>
-
       {/* Statement Section */}
       <section className="py-40 px-8 md:px-24 text-center">
         <motion.div
@@ -144,12 +139,11 @@ export default function Home() {
           <div className="h-20 w-px bg-white/20 mx-auto" />
         </motion.div>
       </section>
-
       {/* Footer - Pure Minimal */}
       <footer className="py-20 px-8 md:px-24 border-t border-white/5 flex flex-col md:flex-row justify-between items-end gap-12 opacity-40 hover:opacity-100 transition-opacity">
         <div className="space-y-4">
           <span className="text-2xl font-light tracking-widest uppercase">QIROX</span>
-          <p className="text-xs tracking-widest uppercase">London / Dubai / Riyadh</p>
+          <p className="text-xs tracking-widest uppercase">USA/ EGYPT / GLOF AREA</p>
         </div>
         
         <div className="flex gap-12 text-[10px] tracking-[0.3em] uppercase">
