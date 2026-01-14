@@ -65,9 +65,10 @@ export default function Home() {
           </div>
           <button 
             onClick={toggleLang}
-            className="text-[10px] tracking-[0.3em] uppercase border border-white/20 px-3 py-1 rounded-full hover:bg-white hover:text-black transition-all"
+            className="text-[10px] tracking-[0.3em] uppercase border border-white/20 px-3 py-1 rounded-full hover:bg-white hover:text-black transition-all flex items-center gap-2"
           >
-            {lang === "ar" ? "English" : "العربية"}
+            <span className="hidden sm:inline">{lang === "ar" ? "English" : "العربية"}</span>
+            <span className="sm:hidden text-lg">🌐</span>
           </button>
           <button 
             onClick={() => setIsMenuOpen(!isMenuOpen)}
