@@ -1,9 +1,9 @@
-import { useState, useEffect } from "react";
+import { Search as SearchIcon, Plus, Menu, X, ArrowUpRight, ArrowRight, Minus } from "lucide-react";
 import { Link } from "wouter";
 import { Button } from "@/components/ui/button";
 import { SEO } from "@/components/layout/seo";
 import { motion, useScroll, useTransform, AnimatePresence } from "framer-motion";
-import { ArrowUpRight, ArrowRight, Menu, X, Plus, Minus } from "lucide-react";
+import { useState, useEffect } from "react";
 import organicArt from "@assets/generated_images/organic_fluid_dark_abstract_art.png";
 
 import qiroxMobile from "@assets/Screenshot_2026-01-02_013112_1768411480128.png";
@@ -18,6 +18,9 @@ export default function Home() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const { scrollY } = useScroll();
   const y = useTransform(scrollY, [0, 500], [0, -50]);
+
+  const [searchQuery, setSearchQuery] = useState("");
+  const [isSearchOpen, setIsSearchOpen] = useState(false);
 
   useEffect(() => {
     document.documentElement.dir = lang === "ar" ? "rtl" : "ltr";
@@ -50,6 +53,12 @@ export default function Home() {
         </Link>
         
         <div className="flex items-center gap-12">
+          <button 
+            onClick={() => setIsSearchOpen(true)}
+            className="p-2 opacity-60 hover:opacity-100 transition-opacity"
+          >
+            <SearchIcon size={20} />
+          </button>
           <div className="hidden md:flex gap-10 text-xs tracking-[0.3em] uppercase opacity-60 hover:opacity-100 transition-opacity">
             <button onClick={() => setLang('ar')} className={lang === 'ar' ? 'text-white' : ''}>{translations.ar.philosophy}</button>
             <button onClick={() => setLang('en')} className={lang === 'en' ? 'text-white' : ''}>{translations.en.philosophy}</button>
@@ -68,6 +77,79 @@ export default function Home() {
           </button>
         </div>
       </nav>
+
+      {/* Search Overlay */}
+      <AnimatePresence>
+        {isSearchOpen && (
+          <motion.div
+            initial={{ opacity: 0, y: -20 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -20 }}
+            className="fixed inset-0 z-[110] bg-black/95 backdrop-blur-xl flex flex-col p-8 md:p-24"
+          >
+            <button 
+              onClick={() => setIsSearchOpen(false)}
+              className="absolute top-10 right-8 md:right-24 p-2 text-white/40 hover:text-white transition-colors"
+            >
+              <X size={32} />
+            </button>
+            
+            <div className="max-w-4xl w-full mx-auto mt-20">
+              <span className="text-[10px] tracking-[1em] uppercase opacity-30 mb-8 block">
+                {lang === 'ar' ? 'بحث في النظام' : 'SYSTEM SEARCH'}
+              </span>
+              <div className="relative">
+                <input 
+                  autoFocus
+                  type="text"
+                  placeholder={lang === 'ar' ? 'ابحث عن مشاريع، خدمات، أو أفكار...' : 'Search projects, services, or ideas...'}
+                  className="w-full bg-transparent border-b border-white/10 py-8 text-4xl md:text-6xl font-light italic outline-none focus:border-white/40 transition-colors"
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                />
+                {searchQuery && (
+                  <div className="absolute top-full left-0 w-full mt-4 p-6 bg-white/5 backdrop-blur-md border border-white/10 rounded-sm z-[120]">
+                    <div className="space-y-4">
+                      <p className="text-xs opacity-40 uppercase tracking-widest">{lang === 'ar' ? 'نتائج البحث عن' : 'RESULTS FOR'}: {searchQuery}</p>
+                      <div className="grid gap-4">
+                        {[
+                          { title: 'QIROX Core', desc: 'Identity and access management' },
+                          { title: 'QIROX Build', desc: 'Frontend architecture engine' },
+                          { title: 'QIROX Meet', desc: 'Secure enterprise meetings' }
+                        ].filter(item => item.title.toLowerCase().includes(searchQuery.toLowerCase())).map((res, i) => (
+                          <div key={i} className="group p-4 hover:bg-white/5 cursor-pointer border border-transparent hover:border-white/10 transition-all">
+                            <h5 className="text-xl font-light italic">{res.title}</h5>
+                            <p className="text-sm opacity-40">{res.desc}</p>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  </div>
+                )}
+              </div>
+              
+              <div className="mt-20 grid grid-cols-1 md:grid-cols-2 gap-12 opacity-40">
+                <div className="space-y-4">
+                  <h4 className="text-xs tracking-widest uppercase">{lang === 'ar' ? 'روابط سريعة' : 'QUICK LINKS'}</h4>
+                  <div className="flex flex-col gap-2 text-xl font-light italic">
+                    <Link href="/build"><span onClick={() => setIsSearchOpen(false)} className="hover:text-white cursor-pointer">QIROX Build</span></Link>
+                    <Link href="/systems"><span onClick={() => setIsSearchOpen(false)} className="hover:text-white cursor-pointer">QIROX Systems</span></Link>
+                    <Link href="/stores"><span onClick={() => setIsSearchOpen(false)} className="hover:text-white cursor-pointer">QIROX Stores</span></Link>
+                  </div>
+                </div>
+                <div className="space-y-4">
+                  <h4 className="text-xs tracking-widest uppercase">{lang === 'ar' ? 'الكلمات الرائجة' : 'TRENDING'}</h4>
+                  <div className="flex flex-wrap gap-4">
+                    {['SaaS', 'ERP', 'Web3', 'AI Architecture'].map(tag => (
+                      <span key={tag} className="px-3 py-1 border border-white/10 rounded-full text-xs">{tag}</span>
+                    ))}
+                  </div>
+                </div>
+              </div>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
 
       {/* Fullscreen Menu Overlay */}
       <AnimatePresence>
