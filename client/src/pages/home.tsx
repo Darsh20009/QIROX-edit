@@ -8,6 +8,8 @@ import organicArt from "@assets/generated_images/organic_fluid_dark_abstract_art
 
 import qiroxMobile from "@assets/Screenshot_2026-01-02_013112_1768411480128.png";
 
+import qiroxLogo from "@assets/qirox_without_background_1767780745614.png";
+
 export default function Home() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const { scrollY } = useScroll();
@@ -31,7 +33,9 @@ export default function Home() {
       {/* Minimalist Navigation */}
       <nav className="fixed top-0 w-full z-50 px-8 py-10 flex justify-between items-center mix-blend-difference">
         <Link href="/">
-          <span className="text-3xl font-light tracking-widest uppercase cursor-pointer">QIROX</span>
+          <div className="flex items-center cursor-pointer">
+            <img src={qiroxLogo} alt="QIROX" className="h-8 md:h-10 w-auto invert brightness-0" />
+          </div>
         </Link>
         
         <div className="flex items-center gap-12">
