@@ -8,7 +8,7 @@ import { PARTNERS } from "@/lib/constants";
 import qiroxHero from "@assets/qirox_1767360025807.png";
 import generatedBg from "@assets/generated_images/futuristic_abstract_digital_technology_background.png";
 
-const FloatingElement = ({ children, delay = 0, duration = 4 }) => (
+const FloatingElement = ({ children, delay = 0, duration = 4 }: { children: React.ReactNode, delay?: number, duration?: number }) => (
   <motion.div
     animate={{
       y: [0, -15, 0],
@@ -24,7 +24,7 @@ const FloatingElement = ({ children, delay = 0, duration = 4 }) => (
   </motion.div>
 );
 
-const GlassCard = ({ children, className = "" }) => (
+const GlassCard = ({ children, className = "" }: { children: React.ReactNode, className?: string }) => (
   <div className={`backdrop-blur-xl bg-white/5 border border-white/10 rounded-[2.5rem] p-8 hover:bg-white/10 transition-all duration-500 hover:border-white/20 hover:shadow-[0_0_40px_rgba(255,255,255,0.05)] ${className}`}>
     {children}
   </div>
