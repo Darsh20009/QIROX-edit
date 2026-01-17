@@ -197,8 +197,8 @@ export default function Home() {
               <div className={`hidden md:block border-l border-white/10 pl-20 space-y-12 opacity-60 ${lang === 'ar' ? 'border-r border-l-0 pr-20 text-right' : ''}`}>
                 <div className="space-y-4">
                   <span className="text-[10px] tracking-[0.5em] uppercase block">Contact</span>
-                  <p className="text-xl font-light">studio@qirox.online</p>
-                  <p className="text-xl font-light">+20 112 019 21</p>
+                  <p className="text-xl font-light">support@qirox.online</p>
+                  <p className="text-xl font-light">+20 115 520 1921</p>
                 </div>
                 <div className="space-y-4">
                   <span className="text-[10px] tracking-[0.5em] uppercase block">Follow</span>

@@ -66,7 +66,7 @@ export default function Contact() {
       </section>
 
       <footer className="py-20 px-8 md:px-24 border-t border-white/5 text-center opacity-40">
-        <p className="text-[10px] tracking-[0.3em] uppercase">studio@qirox.online</p>
+        <p className="text-[10px] tracking-[0.3em] uppercase">support@qirox.online | +201155201921</p>
       </footer>
     </div>
   );
