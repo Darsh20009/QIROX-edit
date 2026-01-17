@@ -1,312 +1,102 @@
-import { useState } from "react";
-import { Link } from "wouter";
+import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
-import { Layout } from "@/components/layout/layout";
-import { CheckCircle2, ArrowLeft, HelpCircle, Store, Coffee, GraduationCap } from "lucide-react";
-import {
-  Accordion,
-  AccordionContent,
-  AccordionItem,
-  AccordionTrigger,
-} from "@/components/ui/accordion";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-
-type PlanCategory = "stores" | "restaurants" | "education";
+import { Link } from "wouter";
+import { CheckCircle2, ArrowRight, ArrowUpRight } from "lucide-react";
+import { motion } from "framer-motion";
+import { useState, useEffect } from "react";
+import { SEO } from "@/components/layout/seo";
+import qiroxLogo from "@assets/qirox_without_background_1767780745614.png";
 
 const planCategories = [
   {
-    id: "stores" as PlanCategory,
+    id: "stores",
     name: "المتاجر الإلكترونية",
     nameEn: "E-commerce",
-    icon: Store,
-    description: "حلول تجارة إلكترونية متكاملة للمؤسسات والشركات",
     plans: [
       {
         duration: "خطة مدى الحياة",
         durationEn: "Lifetime Plan",
         price: "4999",
-        originalPrice: null,
-        savings: null,
-        popular: false,
-        isCustom: false,
-        features: [
-          "تحديثات وتطويرات مستمرة",
-          "التكلفة كاملة علينا",
-          "ملكية كاملة للكود",
-          "دعم فني VIP",
-          "استضافة سحابية فائقة"
-        ]
+        features: ["تحديثات مستمرة", "ملكية كاملة للكود", "دعم فني VIP"]
       },
       {
         duration: "الخطة السنوية",
         durationEn: "Annual Plan",
         price: "699",
-        originalPrice: null,
-        savings: null,
-        popular: true,
-        isCustom: false,
-        features: [
-          "الضمان الذهبي",
-          "دومين باسم الشركة",
-          "تحديثات دورية",
-          "دعم فني متكامل",
-          "كل المميزات الأساسية"
-        ]
+        features: ["الضمان الذهبي", "دومين خاص", "دعم متكامل"]
       }
-    ],
-    features: [],
-  },
-  {
-    id: "restaurants" as PlanCategory,
-    name: "المطاعم والكافيهات",
-    nameEn: "Restaurants & Cafes",
-    icon: Coffee,
-    description: "نظام إدارة المطاعم والعمليات التشغيلية",
-    plans: [
-      {
-        duration: "خطة مدى الحياة",
-        durationEn: "Lifetime Plan",
-        price: "6999",
-        originalPrice: null,
-        savings: null,
-        popular: false,
-        isCustom: false,
-        features: [
-          "نظام نقاط بيع متكامل",
-          "إدارة المخزون والموردين",
-          "تطويرات مخصصة",
-          "دعم فني موقعي",
-          "أتمتة كاملة للعمليات"
-        ]
-      },
-      {
-        duration: "الخطة السنوية",
-        durationEn: "Annual Plan",
-        price: "599",
-        originalPrice: "799",
-        savings: "التجديد بـ 799 ريال",
-        popular: true,
-        isCustom: false,
-        features: [
-          "دعم فني 24/7",
-          "تقارير ذكاء أعمال",
-          "تكامل مع تطبيقات التوصيل",
-          "ضمان استمرارية الخدمة"
-        ]
-      }
-    ],
-    features: [],
-  },
-  {
-    id: "education" as PlanCategory,
-    name: "أنظمة التعليم",
-    nameEn: "Educational Systems",
-    icon: GraduationCap,
-    description: "حلول تعليمية ذكية مخصصة للمدارس والجامعات والمنصات التدريبية",
-    plans: [
-      {
-        duration: "طلب عرض سعر",
-        durationEn: "Request Quote",
-        price: "تواصل معنا",
-        originalPrice: null,
-        savings: null,
-        popular: false,
-        isCustom: true,
-        features: [
-          "تخصيص كامل للنظام",
-          "إدارة المدارس والجامعات",
-          "منصات تدريبية متطورة",
-          "دعم فني خاص"
-        ]
-      }
-    ],
-    features: [],
-  },
-];
-
-const faqs = [
-  {
-    question: "هل يمكنني تغيير الخطة لاحقاً؟",
-    answer: "نعم، يمكنك الترقية أو تغيير خطتك في أي وقت. سيتم احتساب الفرق بشكل تناسبي.",
-  },
-  {
-    question: "ما هي طرق الدفع المتاحة؟",
-    answer: "نقبل الدفع عبر التحويل البنكي. تواصل معنا عبر الواتساب لإتمام عملية الدفع.",
-  },
-  {
-    question: "هل هناك فترة تجريبية مجانية؟",
-    answer: "نعم، نوفر فترة تجريبية مجانية لمدة 14 يوماً لجميع الخطط.",
-  },
-  {
-    question: "ماذا يشمل الدعم الفني؟",
-    answer: "الدعم الفني يشمل المساعدة التقنية، حل المشاكل، والتحديثات المستمرة للنظام.",
-  },
-  {
-    question: "هل يمكنني إلغاء الاشتراك؟",
-    answer: "نعم، يمكنك إلغاء اشتراكك في أي وقت. للاشتراكات الطويلة، يتم استرداد المبلغ المتبقي بشكل تناسبي.",
-  },
+    ]
+  }
 ];
 
 export default function Pricing() {
-  const [selectedCategory, setSelectedCategory] = useState<PlanCategory>("stores");
+  const [lang, setLang] = useState<"ar" | "en">("ar");
+
+  useEffect(() => {
+    document.documentElement.dir = lang === "ar" ? "rtl" : "ltr";
+    document.documentElement.lang = lang;
+  }, [lang]);
 
   return (
-    <Layout>
-      <section className="py-24 md:py-32 relative overflow-hidden">
-        <div className="absolute inset-0 -z-10">
-          <div className="absolute top-0 right-0 w-1/2 h-1/2 bg-primary/5 rounded-full blur-[120px]" />
-          <div className="absolute bottom-0 left-0 w-1/3 h-1/3 bg-accent/5 rounded-full blur-[100px]" />
-        </div>
-        
-        <div className="mx-auto max-w-7xl px-6">
-          <div className="max-w-3xl mx-auto text-center space-y-8">
-            <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-primary/10 text-primary text-sm font-bold uppercase tracking-widest" data-testid="badge-pricing-intro">
-              شفافية مطلقة في الأسعار
-            </div>
-            <h1 className="text-5xl md:text-7xl font-black tracking-tight leading-tight" data-testid="text-pricing-title">
-              خطط <span className="text-primary text-glow">إبداعية بسيطة</span>
-            </h1>
-            <p className="text-xl text-muted-foreground font-medium leading-relaxed" data-testid="text-pricing-subtitle">
-              خطوات سهلة، وضوح تام، ودعم لا ينقطع. اختر باقتك وابدأ رحلة النجاح.
-            </p>
-          </div>
-        </div>
+    <div className={`min-h-screen bg-[#0A0A0A] text-[#E5E5E5] ${lang === 'ar' ? 'font-arabic' : 'font-serif'} selection:bg-white selection:text-black`}>
+      <SEO title={lang === "ar" ? "الأسعار" : "Pricing"} />
+      
+      <nav className="fixed top-0 w-full z-50 px-8 py-10 flex justify-between items-center mix-blend-difference">
+        <Link href="/">
+          <img src={qiroxLogo} alt="QIROX" className="h-12 md:h-16 w-auto invert brightness-0 cursor-pointer" />
+        </Link>
+        <button 
+          onClick={() => setLang(l => l === "ar" ? "en" : "ar")}
+          className="text-[10px] tracking-[0.3em] uppercase border border-white/20 px-3 py-1 rounded-full hover:bg-white hover:text-black transition-all flex items-center gap-2"
+        >
+          <span className="hidden sm:inline">{lang === "ar" ? "English" : "العربية"}</span>
+          <span className="sm:hidden text-lg">🌐</span>
+        </button>
+      </nav>
+
+      <section className="relative min-h-[50vh] flex flex-col justify-center px-8 md:px-24 pt-32">
+        <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="max-w-4xl">
+          <span className="text-[10px] tracking-[1em] uppercase opacity-30 mb-8 block">
+            {lang === "ar" ? "الاستثمار" : "INVESTMENT"}
+          </span>
+          <h1 className="text-5xl md:text-8xl font-light italic leading-none tracking-tighter mb-8">
+            {lang === "ar" ? "خطط إبداعية بسيطة" : "Simple creative plans"}
+          </h1>
+        </motion.div>
       </section>
 
-      <section className="pb-32">
-        <div className="mx-auto max-w-7xl px-6">
-          <Tabs value={selectedCategory} onValueChange={(v) => setSelectedCategory(v as PlanCategory)} className="w-full">
-            <div className="flex justify-center mb-20">
-              <TabsList className="h-20 p-2 bg-secondary/50 rounded-2xl border border-border/40" data-testid="tabs-plan-categories">
-                {planCategories.map((category) => {
-                  const Icon = category.icon;
-                  return (
-                    <TabsTrigger
-                      key={category.id}
-                      value={category.id}
-                      className="px-10 py-4 data-[state=active]:bg-background data-[state=active]:shadow-xl rounded-xl transition-all font-black text-lg gap-3"
-                      data-testid={`tab-category-${category.id}`}
-                    >
-                      <Icon className="w-6 h-6" />
-                      <span className="hidden sm:inline">{category.name}</span>
-                    </TabsTrigger>
-                  );
-                })}
-              </TabsList>
-            </div>
-
-            {planCategories.map((category) => (
-              <TabsContent key={category.id} value={category.id} className="animate-in fade-in slide-in-from-bottom-4 duration-500">
-                <div className={`grid gap-8 mb-20 ${category.plans.length === 1 ? "max-w-xl mx-auto" : "md:grid-cols-2"}`}>
-                  {category.plans.map((plan, index) => (
-                    <Card
-                      key={plan.duration}
-                      className={`relative border-none bg-background shadow-sm transition-all duration-500 rounded-[2.5rem] p-4 ${plan.popular ? "ring-4 ring-primary shadow-2xl scale-[1.02] z-10" : "hover:shadow-xl hover:-translate-y-2"}`}
-                      data-testid={`card-plan-${category.id}-${index}`}
-                    >
-                      {plan.popular && (
-                        <div className="absolute -top-6 left-1/2 -translate-x-1/2">
-                          <Badge className="px-6 py-2 text-sm font-black rounded-full bg-primary text-white shadow-lg shadow-primary/20" data-testid={`badge-popular-${category.id}`}>
-                            الخيار المفضل
-                          </Badge>
-                        </div>
-                      )}
-                      <CardContent className="p-10 text-center flex flex-col h-full">
-                        <div className="mb-10">
-                          <h3 className="text-2xl font-black mb-2" data-testid={`text-plan-duration-${category.id}-${index}`}>
-                            {plan.duration}
-                          </h3>
-                          <p className="text-muted-foreground font-medium uppercase tracking-widest text-xs">{plan.durationEn}</p>
-                        </div>
-
-                        <div className="mb-12">
-                          {plan.price === "تواصل معنا" ? (
-                            <span className="text-4xl font-black tracking-tight" data-testid={`text-plan-price-${category.id}-${index}`}>
-                              {plan.price}
-                            </span>
-                          ) : (
-                            <div className="flex items-baseline justify-center gap-2">
-                              <span className="text-7xl font-black tracking-tighter" data-testid={`text-plan-price-${category.id}-${index}`}>
-                                {plan.price}
-                              </span>
-                              <span className="text-xl text-muted-foreground font-black">ريال</span>
-                            </div>
-                          )}
-                        </div>
-
-                        {plan.savings && (
-                          <div className="mb-12">
-                            <div className="inline-block px-4 py-2 rounded-xl bg-emerald-500/10 text-emerald-600 font-black text-sm">
-                              {plan.savings}
-                            </div>
-                          </div>
-                        )}
-
-                        <div className="space-y-4 mb-12 text-right">
-                          {plan.features?.map((feature, fIndex) => (
-                            <div key={fIndex} className="flex items-center gap-3">
-                              <CheckCircle2 className="w-5 h-5 text-primary shrink-0" />
-                              <span className="font-bold text-foreground/80">{feature}</span>
-                            </div>
-                          ))}
-                        </div>
-
-                        <Link href={plan.price === "تواصل معنا" ? "/contact" : "/register"} className="mt-auto block">
-                          <Button
-                            size="lg"
-                            variant={plan.popular ? "default" : "outline"}
-                            className={`w-full h-16 text-xl font-black rounded-2xl transition-all shadow-lg ${plan.popular ? "shadow-primary/20" : "border-2"}`}
-                            data-testid={`button-subscribe-${category.id}-${index}`}
-                          >
-                            {plan.price === "تواصل معنا" ? "اطلب عرض سعر" : "اطلب الآن"}
-                            <ArrowLeft className="mr-2 w-6 h-6" />
-                          </Button>
-                        </Link>
-                      </CardContent>
-                    </Card>
-                  ))}
+      <section className="py-20 px-8 md:px-24">
+        <div className="grid md:grid-cols-2 gap-px bg-white/10 border-t border-b border-white/10">
+          {planCategories[0].plans.map((plan, i) => (
+            <div key={i} className="bg-[#0A0A0A] py-20 px-10 group hover:bg-white hover:text-black transition-all duration-700">
+              <span className="text-[10px] tracking-[0.5em] uppercase opacity-40 mb-10 block">{plan.durationEn}</span>
+              <h3 className="text-6xl font-light italic mb-8">{plan.price}<span className="text-sm uppercase tracking-widest ml-4">SAR</span></h3>
+              <ul className="space-y-4 mb-20">
+                {plan.features.map((f, j) => (
+                  <li key={j} className="text-sm opacity-60 flex items-center gap-3">
+                    <div className="w-1 h-1 bg-current rounded-full" />
+                    {f}
+                  </li>
+                ))}
+              </ul>
+              <Link href="/register">
+                <div className="flex items-center gap-4 cursor-pointer">
+                   <span className="text-[10px] tracking-[0.3em] uppercase">{lang === 'ar' ? 'ابدأ الآن' : 'START NOW'}</span>
+                   <ArrowUpRight size={16} />
                 </div>
-              </TabsContent>
-            ))}
-          </Tabs>
-        </div>
-      </section>
-
-      <section className="py-32 bg-secondary/20">
-        <div className="mx-auto max-w-4xl px-6">
-          <div className="text-center mb-20 space-y-4">
-            <div className="w-20 h-20 rounded-3xl bg-primary/10 flex items-center justify-center text-primary mx-auto mb-8 shadow-inner">
-              <HelpCircle className="w-10 h-10" />
+              </Link>
             </div>
-            <h2 className="text-4xl md:text-5xl font-black tracking-tight">
-              أسئلة قد تدور بذهنك
-            </h2>
-            <p className="text-lg text-muted-foreground font-medium">نحن هنا لتوضيح كل شيء قبل أن تبدأ.</p>
-          </div>
-
-          <Accordion type="single" collapsible className="space-y-4">
-            {faqs.map((faq, index) => (
-              <AccordionItem
-                key={index}
-                value={`item-${index}`}
-                className="border-none bg-background rounded-3xl px-8 shadow-sm transition-all hover:shadow-md"
-              >
-                <AccordionTrigger
-                  className="text-right font-black text-xl text-foreground hover:no-underline py-8"
-                  data-testid={`accordion-faq-${index}`}
-                >
-                  {faq.question}
-                </AccordionTrigger>
-                <AccordionContent className="text-muted-foreground text-right pb-8 text-lg font-medium leading-relaxed" data-testid={`text-faq-answer-${index}`}>
-                  {faq.answer}
-                </AccordionContent>
-              </AccordionItem>
-            ))}
-          </Accordion>
+          ))}
         </div>
       </section>
-    </Layout>
+
+      <footer className="py-20 px-8 md:px-24 border-t border-white/5 flex flex-col md:flex-row justify-between items-center gap-8 opacity-40">
+        <span className="text-xl font-light tracking-widest uppercase">QIROX</span>
+        <div className="flex gap-12 text-[10px] tracking-[0.3em] uppercase">
+          <Link href="/privacy">{lang === 'ar' ? 'الخصوصية' : 'Privacy'}</Link>
+          <Link href="/terms">{lang === 'ar' ? 'الشروط' : 'Terms'}</Link>
+        </div>
+      </footer>
+    </div>
   );
 }
