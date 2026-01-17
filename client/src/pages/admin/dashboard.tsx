@@ -102,11 +102,11 @@ export default function AdminDashboard() {
           <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4 mb-8">
             {[
               { label: "إعدادات النظام", icon: Shield, href: "/admin/settings", count: "آمن" },
-              { label: "QIROX Core", icon: Users, href: "/admin/stores", count: "12" },
-              { label: "QIROX Build", icon: Package, href: "/build/kanban", count: "24" },
-              { label: "الطلبات", icon: ShoppingCart, href: "/admin/support", count: "12" },
-              { label: "السحابة", icon: Globe, href: "/admin/cloud", count: "99.9%" },
-              { label: "العمليات", icon: Activity, href: "/admin/audit", count: "156" }
+              { label: "QIROX Core", icon: Users, href: "/admin/stores", count: "نشط" },
+              { label: "QIROX Build", icon: Package, href: "/build/kanban", count: "جاهز" },
+              { label: "QIROX Stores", icon: ShoppingCart, href: "/admin/products", count: "مفعل" },
+              { label: "QIROX Cloud", icon: Globe, href: "/admin/cloud", count: "99.9%" },
+              { label: "QIROX Meet", icon: Activity, href: "/meetings", count: "متصل" }
             ].map((item, i) => (
               <Card key={i} className="border-primary/5 bg-primary/5 hover-elevate transition-all cursor-pointer group text-center" onClick={() => setLocation(item.href)}>
                 <CardContent className="pt-6">

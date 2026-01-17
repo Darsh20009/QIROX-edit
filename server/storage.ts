@@ -8,15 +8,18 @@ import {
   type Product, type Order,
   type Deployment, type InsertDeployment,
   type BuildLog, type InsertBuildLog,
-  type RuntimeHealth, type InsertRuntimeHealth
+  type RuntimeHealth, type InsertRuntimeHealth,
+  users, sessions // Replit Auth specific
 } from "@shared/schema";
 import { randomUUID } from "crypto";
 import { isConnected } from "./db";
+import { type UpsertUser } from "@shared/models/auth";
 
 export interface IStorage {
   getUser(id: string): Promise<User | undefined>;
   getUserByUsername(username: string): Promise<User | undefined>;
   createUser(user: InsertUser): Promise<User>;
+  upsertUser(user: UpsertUser): Promise<User>;
   
   getTenants(): Promise<Tenant[]>;
   getTenant(id: string): Promise<Tenant | undefined>;
@@ -96,6 +99,38 @@ export class MemStorage implements IStorage {
   }
 
   async getUser(id: string): Promise<User | undefined> { return this.users.get(id); }
+  async upsertUser(userData: UpsertUser): Promise<User> {
+    const existing = Array.from(this.users.values()).find(u => u.id === userData.id || u.email === userData.email);
+    const id = userData.id || existing?.id || randomUUID();
+    const user: User = { 
+      ...existing,
+      ...userData,
+      id,
+      username: userData.email || id,
+      password: existing?.password || "OIDC_USER",
+      role: existing?.role || "visitor",
+      tenantId: existing?.tenantId || "default",
+      metadata: existing?.metadata || null,
+      phone: existing?.phone || null,
+      projectName: existing?.projectName || null,
+      commercialRegisterUrl: existing?.commercialRegisterUrl || null,
+      ibanCertificateUrl: existing?.ibanCertificateUrl || null,
+      projectIdea: existing?.projectIdea || null,
+      selectedPlanId: existing?.selectedPlanId || null,
+      assignedEmployeeId: existing?.assignedEmployeeId || null,
+      domainInfo: existing?.domainInfo || null,
+      projectStatus: existing?.projectStatus || "pending",
+      currentStage: existing?.currentStage || null,
+      stageDeadline: existing?.stageDeadline || null,
+      whatsapp: existing?.whatsapp || null,
+      businessType: existing?.businessType || null,
+      loyaltyPoints: existing?.loyaltyPoints || 0,
+      loyaltyTier: existing?.loyaltyTier || "bronze",
+      totalSpent: existing?.totalSpent || 0,
+    } as User;
+    this.users.set(id, user);
+    return user;
+  }
   async getUserByUsername(username: string): Promise<User | undefined> {
     return Array.from(this.users.values()).find(user => user.username === username);
   }
@@ -320,6 +355,7 @@ export class MongoStorage implements IStorage {
   private memStorage: MemStorage;
   constructor() { this.memStorage = new MemStorage(); }
   async getUser(id: string): Promise<User | undefined> { return this.memStorage.getUser(id); }
+  async upsertUser(user: UpsertUser): Promise<User> { return this.memStorage.upsertUser(user); }
   async getUserByUsername(username: string): Promise<User | undefined> { return this.memStorage.getUserByUsername(username); }
   async createUser(user: InsertUser): Promise<User> { return this.memStorage.createUser(user); }
   async getTenants(): Promise<Tenant[]> { return this.memStorage.getTenants(); }

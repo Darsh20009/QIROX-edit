@@ -118,10 +118,16 @@ const upload = multer({
   },
 });
 
+import { setupAuth, registerAuthRoutes } from "./replit_integrations/auth/index";
+
 export async function registerRoutes(
   httpServer: Server,
   app: Express
 ): Promise<Server> {
+  // Wire up Replit Auth
+  await setupAuth(app);
+  registerAuthRoutes(app);
+
   // File Upload Endpoint using MongoDB GridFS logic (simulated with Buffer storage for now)
   app.post("/api/upload", authMiddleware, upload.single("file"), async (req: AuthRequest, res) => {
     try {

@@ -114,12 +114,28 @@ export default function Login() {
                 </div>
 
                 <Button 
-                  type="submit" 
+                  onClick={() => window.location.href = "/api/login"}
                   className="w-full h-14 bg-white text-black hover:bg-white/90 rounded-none text-xs tracking-[0.4em] uppercase font-light transition-all"
-                  disabled={isLoading}
                 >
-                  {isLoading ? <Loader2 className="animate-spin" /> : (lang === "ar" ? "دخول المنظومة" : "ENTER SYSTEM")}
+                  {lang === "ar" ? "دخول عبر QIROX" : "LOGIN WITH QIROX"}
                 </Button>
+
+                <div className="grid grid-cols-2 gap-4">
+                  <Button 
+                    variant="outline"
+                    onClick={() => window.location.href = "/api/login?provider=google"}
+                    className="h-12 border-white/10 rounded-none text-[10px] tracking-widest uppercase hover:bg-white/5"
+                  >
+                    Google
+                  </Button>
+                  <Button 
+                    variant="outline"
+                    onClick={() => window.location.href = "/api/login?provider=github"}
+                    className="h-12 border-white/10 rounded-none text-[10px] tracking-widest uppercase hover:bg-white/5"
+                  >
+                    GitHub
+                  </Button>
+                </div>
               </form>
 
               <div className="mt-12 pt-8 border-t border-white/5 text-center space-y-4">

@@ -70,9 +70,29 @@ export default function Register() {
                   <Label className="text-[10px] tracking-widest uppercase opacity-40">{lang === "ar" ? "كلمة المرور" : "PASSWORD"}</Label>
                   <Input type="password" value={formData.password} onChange={e => setFormData({...formData, password: e.target.value})} className="bg-transparent border-b border-white/10 rounded-none h-12 focus:border-white/40 px-0" required dir="ltr" />
                 </div>
-                <Button type="submit" className="w-full h-14 bg-white text-black hover:bg-white/90 rounded-none text-xs tracking-[0.4em] uppercase font-light" disabled={isLoading}>
-                  {isLoading ? <Loader2 className="animate-spin" /> : (lang === "ar" ? "بدء الرحلة" : "BEGIN JOURNEY")}
+                <Button 
+                  onClick={() => window.location.href = "/api/login"}
+                  className="w-full h-14 bg-white text-black hover:bg-white/90 rounded-none text-xs tracking-[0.4em] uppercase font-light"
+                >
+                  {lang === "ar" ? "بدء الرحلة عبر QIROX" : "BEGIN JOURNEY WITH QIROX"}
                 </Button>
+
+                <div className="grid grid-cols-2 gap-4 mt-4">
+                  <Button 
+                    variant="outline"
+                    onClick={() => window.location.href = "/api/login?provider=google"}
+                    className="h-12 border-white/10 rounded-none text-[10px] tracking-widest uppercase hover:bg-white/5"
+                  >
+                    Google
+                  </Button>
+                  <Button 
+                    variant="outline"
+                    onClick={() => window.location.href = "/api/login?provider=github"}
+                    className="h-12 border-white/10 rounded-none text-[10px] tracking-widest uppercase hover:bg-white/5"
+                  >
+                    GitHub
+                  </Button>
+                </div>
               </form>
               <div className="mt-12 pt-8 border-t border-white/5 text-center">
                 <Link href="/login"><span className="text-sm font-light italic hover:text-white/60 transition-colors cursor-pointer">{lang === "ar" ? "لديك حساب؟ سجل دخولك" : "Already have access? Enter here"}</span></Link>

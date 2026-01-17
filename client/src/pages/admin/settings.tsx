@@ -100,6 +100,37 @@ export default function AdminSettings() {
           <TabsContent value="security" className="space-y-6">
             <Card>
               <CardHeader>
+                <CardTitle>مفاتيح الربط (API Keys)</CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-6">
+                <div className="space-y-4">
+                  <div className="p-4 rounded-xl bg-primary/5 border border-primary/10">
+                    <Label className="text-[10px] tracking-widest uppercase opacity-40 mb-2 block">Google Cloud API Key</Label>
+                    <div className="flex gap-2">
+                      <Input type="password" value="********************************" readOnly className="bg-background" />
+                      <Button variant="outline">تعديل</Button>
+                    </div>
+                  </div>
+                  <div className="p-4 rounded-xl bg-primary/5 border border-primary/10">
+                    <Label className="text-[10px] tracking-widest uppercase opacity-40 mb-2 block">GitHub OAuth Secret</Label>
+                    <div className="flex gap-2">
+                      <Input type="password" value="********************************" readOnly className="bg-background" />
+                      <Button variant="outline">تعديل</Button>
+                    </div>
+                  </div>
+                  <div className="p-4 rounded-xl bg-primary/5 border border-primary/10">
+                    <Label className="text-[10px] tracking-widest uppercase opacity-40 mb-2 block">QIROX Internal System Key</Label>
+                    <div className="flex gap-2">
+                      <Input value="qx_7f2a1b9c3d4e5f6g7h8i9j0k" readOnly className="bg-background" />
+                      <Button variant="outline">نسخ</Button>
+                    </div>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+
+            <Card>
+              <CardHeader>
                 <CardTitle>حماية الحساب</CardTitle>
               </CardHeader>
               <CardContent className="space-y-4">
