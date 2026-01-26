@@ -92,7 +92,7 @@ export async function registerUser(
   name: string,
   phone?: string,
   metadata?: string,
-  role: UserRole = "visitor",
+  role: UserRole = "client_viewer",
   tenantId: string = "default"
 ): Promise<{ user: IUser; token: string }> {
   const existingUser = await User.findOne({ email: email.toLowerCase() });

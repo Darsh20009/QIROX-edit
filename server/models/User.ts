@@ -2,16 +2,14 @@ import mongoose, { Schema, Document } from "mongoose";
 import bcrypt from "bcryptjs";
 
 export type UserRole = 
-  | "visitor" 
-  | "client_owner" 
-  | "client_admin" 
-  | "client_editor"
+  | "system_admin"
+  | "qirox_pm" 
   | "qirox_sales" 
   | "qirox_support"
-  | "qirox_pm" 
-  | "qirox_specialist"
   | "qirox_finance"
-  | "system_admin";
+  | "client_owner"
+  | "client_admin"
+  | "client_viewer";
 
 export interface IUser extends Document {
   email: string;
@@ -40,11 +38,10 @@ const UserSchema = new Schema<IUser>(
     role: { 
       type: String, 
       enum: [
-        "visitor", "client_owner", "client_admin", "client_editor",
-        "qirox_sales", "qirox_support", "qirox_pm", "qirox_specialist",
-        "qirox_finance", "system_admin"
+        "system_admin", "qirox_pm", "qirox_sales", "qirox_support", 
+        "qirox_finance", "client_owner", "client_admin", "client_viewer"
       ],
-      default: "visitor" 
+      default: "client_viewer" 
     },
     isActive: { type: Boolean, default: true },
     isFirstLogin: { type: Boolean, default: true },
