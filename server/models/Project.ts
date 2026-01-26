@@ -84,3 +84,26 @@ const ProjectSchema = new Schema<IProject>(
 );
 
 export const Project = mongoose.model<IProject>("Project", ProjectSchema);
+
+export interface ITask extends Document {
+  projectId: mongoose.Types.ObjectId;
+  title: string;
+  description?: string;
+  status: string;
+  assignedTo?: mongoose.Types.ObjectId;
+  dueDate?: Date;
+}
+
+const TaskSchema = new Schema<ITask>(
+  {
+    projectId: { type: Schema.Types.ObjectId, ref: "Project", required: true },
+    title: { type: String, required: true },
+    description: { type: String },
+    status: { type: String, default: "todo" },
+    assignedTo: { type: Schema.Types.ObjectId, ref: "User" },
+    dueDate: { type: Date }
+  },
+  { timestamps: true }
+);
+
+export const Task = mongoose.model<ITask>("Task", TaskSchema);
