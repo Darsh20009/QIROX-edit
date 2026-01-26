@@ -3,7 +3,11 @@ import jwt from "jsonwebtoken";
 import { User, type IUser, type UserRole } from "./models/User";
 import { Request, Response, NextFunction } from "express";
 
-const JWT_SECRET = process.env.SESSION_SECRET || "default-secret-key";
+const JWT_SECRET = process.env.SESSION_SECRET;
+if (!JWT_SECRET && process.env.NODE_ENV === "production") {
+  throw new Error("SESSION_SECRET must be set in production");
+}
+const ACTUAL_JWT_SECRET = JWT_SECRET || "default-secret-key";
 const JWT_EXPIRES_IN = "7d";
 
 export interface JWTPayload {
@@ -30,12 +34,12 @@ export function generateToken(user: IUser): string {
     email: user.email,
     role: user.role,
   };
-  return jwt.sign(payload, JWT_SECRET, { expiresIn: JWT_EXPIRES_IN });
+  return jwt.sign(payload, ACTUAL_JWT_SECRET, { expiresIn: JWT_EXPIRES_IN });
 }
 
 export function verifyToken(token: string): JWTPayload | null {
   try {
-    const decoded = jwt.verify(token, JWT_SECRET) as any;
+    const decoded = jwt.verify(token, ACTUAL_JWT_SECRET) as any;
     return {
       userId: decoded.userId,
       email: decoded.email,

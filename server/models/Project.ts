@@ -38,6 +38,10 @@ export interface IProject extends Document {
   nextUpdate?: string;
   responsiblePerson?: string;
   status: string;
+  // Encrypted fields for QIROX OS
+  encryptedEnvVars?: string;
+  encryptedDbInfo?: string;
+  encryptedCredentials?: string;
 }
 
 const ProjectSchema = new Schema<IProject>(
@@ -78,7 +82,10 @@ const ProjectSchema = new Schema<IProject>(
     }],
     nextUpdate: { type: String },
     responsiblePerson: { type: String },
-    status: { type: String, default: "active" }
+    status: { type: String, default: "active" },
+    encryptedEnvVars: { type: String },
+    encryptedDbInfo: { type: String },
+    encryptedCredentials: { type: String }
   },
   { timestamps: true }
 );

@@ -1863,5 +1863,83 @@ export async function registerRoutes(
     }
   });
 
+  app.post("/api/employees", authMiddleware, roleMiddleware("system_admin"), async (req, res) => {
+    try {
+      const { email, name, role, phone, jobTitle, employeeNumber } = req.body;
+      const existingUser = await User.findOne({ email: email.toLowerCase() });
+      if (existingUser) {
+        return res.status(400).json({ error: "البريد الإلكتروني مسجل مسبقاً" });
+      }
+
+      // Create employee with temporary password and isFirstLogin=true
+      const tempPassword = Math.random().toString(36).slice(-8);
+      const hashedPassword = await hashPassword(tempPassword);
+      
+      const user = await User.create({
+        email: email.toLowerCase(),
+        password: hashedPassword,
+        name,
+        role,
+        phone,
+        isActive: true,
+        isFirstLogin: true,
+        metadata: JSON.stringify({ jobTitle, employeeNumber })
+      });
+
+      res.status(201).json({ 
+        message: "تم إنشاء حساب الموظف بنجاح",
+        user: {
+          id: user._id,
+          email: user.email,
+          name: user.name,
+          tempPassword // Only shared once during creation
+        }
+      });
+    } catch (error) {
+      res.status(500).json({ error: "فشل في إنشاء حساب الموظف" });
+    }
+  });
+
+  app.post("/api/auth/verify-employee", async (req, res) => {
+    try {
+      const { email, phone, name } = req.body;
+      const user = await User.findOne({ 
+        email: email.toLowerCase(),
+        phone,
+        name,
+        isFirstLogin: true 
+      });
+
+      if (!user) {
+        return res.status(404).json({ error: "لم يتم العثور على الموظف أو البيانات غير متطابقة" });
+      }
+
+      res.json({ success: true, userId: user._id });
+    } catch (error) {
+      res.status(500).json({ error: "فشل التحقق من البيانات" });
+    }
+  });
+
+  app.post("/api/auth/set-password", async (req, res) => {
+    try {
+      const { userId, password } = req.body;
+      const hashedPassword = await hashPassword(password);
+      
+      const user = await User.findByIdAndUpdate(userId, {
+        password: hashedPassword,
+        isFirstLogin: false
+      }, { new: true });
+
+      if (!user) {
+        return res.status(404).json({ error: "المستخدم غير موجود" });
+      }
+
+      const token = generateToken(user);
+      res.json({ user, token });
+    } catch (error) {
+      res.status(500).json({ error: "فشل تعيين كلمة المرور" });
+    }
+  });
+
   return httpServer;
 }
