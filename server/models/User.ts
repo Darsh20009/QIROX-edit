@@ -1,4 +1,5 @@
 import mongoose, { Schema, Document } from "mongoose";
+import bcrypt from "bcryptjs";
 
 export type UserRole = 
   | "visitor" 
@@ -18,19 +19,14 @@ export interface IUser extends Document {
   name: string;
   role: UserRole;
   phone?: string;
-  metadata?: string;
   isActive: boolean;
+  isFirstLogin: boolean;
   tenantId: string;
-  projectName?: string | null;
-  commercialRegisterUrl?: string | null;
-  ibanCertificateUrl?: string | null;
-  projectIdea?: string | null;
-  selectedPlanId?: string | null;
-  assignedEmployeeId?: string | null;
-  domainInfo?: string | null;
-  projectStatus?: string | null;
-  currentStage?: string | null;
-  stageDeadline?: Date | null;
+  metadata?: string;
+  projectName?: string;
+  projectStatus?: string;
+  currentStage?: string;
+  stageDeadline?: Date;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -51,20 +47,23 @@ const UserSchema = new Schema<IUser>(
       default: "visitor" 
     },
     isActive: { type: Boolean, default: true },
+    isFirstLogin: { type: Boolean, default: true },
     tenantId: { type: String, default: "default" },
     metadata: { type: String },
     projectName: { type: String },
-    commercialRegisterUrl: { type: String },
-    ibanCertificateUrl: { type: String },
-    projectIdea: { type: String },
-    selectedPlanId: { type: String },
-    assignedEmployeeId: { type: String },
-    domainInfo: { type: String },
     projectStatus: { type: String, default: "pending" },
     currentStage: { type: String },
     stageDeadline: { type: Date },
   },
   { timestamps: true }
 );
+
+export async function hashPassword(password: string): Promise<string> {
+  return bcrypt.hash(password, 12);
+}
+
+export async function comparePassword(password: string, hash: string): Promise<boolean> {
+  return bcrypt.compare(password, hash);
+}
 
 export const User = mongoose.model<IUser>("User", UserSchema);

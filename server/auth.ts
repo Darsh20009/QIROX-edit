@@ -102,19 +102,10 @@ export async function registerUser(
     password: hashedPassword,
     name,
     phone,
-    metadata,
+    isActive: true,
+    isFirstLogin: true,
     role,
     tenantId,
-    projectName: null,
-    commercialRegisterUrl: null,
-    ibanCertificateUrl: null,
-    projectIdea: null,
-    selectedPlanId: null,
-    assignedEmployeeId: null,
-    domainInfo: null,
-    projectStatus: "pending",
-    currentStage: null,
-    stageDeadline: null,
   });
 
   const token = generateToken(user);

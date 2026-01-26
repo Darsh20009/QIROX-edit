@@ -63,7 +63,31 @@ app.use((req, res, next) => {
 });
 
 (async () => {
-  await connectDB();
+  const dbConnected = await connectDB();
+  if (dbConnected) {
+    try {
+      const { User, hashPassword } = await import("./models/User");
+      const adminEmail = "admin@qirox.online";
+      const existingAdmin = await User.findOne({ email: adminEmail });
+      
+      if (!existingAdmin) {
+        console.log("Seeding system admin...");
+        const hashedPassword = await hashPassword("123456");
+        await User.create({
+          email: adminEmail,
+          password: hashedPassword,
+          name: "QIROX Admin",
+          role: "system_admin",
+          isActive: true,
+          isFirstLogin: true,
+          tenantId: "qirox-internal"
+        });
+        console.log("System admin created successfully.");
+      }
+    } catch (error) {
+      console.error("Error seeding admin:", error);
+    }
+  }
   await ensureModelsDirectory();
   await registerRoutes(httpServer, app);
 
