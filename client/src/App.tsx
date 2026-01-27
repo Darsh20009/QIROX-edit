@@ -78,7 +78,6 @@ function Router() {
   return (
     <Switch>
       <Route path="/" component={Home} />
-      {/* ... rest of the routes remain same ... */}
       <Route path="/developers" component={Developers} />
       <Route path="/build" component={Home} />
       <Route path="/systems" component={Home} />
@@ -158,23 +157,28 @@ function App() {
     return <SplashScreen onComplete={handleSplashComplete} />;
   }
 
+  const sidebarStyle = {
+    "--sidebar-width": "17rem",
+    "--sidebar-width-icon": "4rem",
+  };
+
   return (
     <HelmetProvider>
       <QueryClientProvider client={queryClient}>
         <ThemeProvider>
           <AuthProvider>
             <TooltipProvider>
-              <SidebarProvider>
-                <div className="flex h-screen w-full bg-[#050505] text-white overflow-hidden">
+              <SidebarProvider style={sidebarStyle as React.CSSProperties}>
+                <div className="flex h-screen w-full bg-background text-foreground overflow-hidden">
                   <AppSidebar />
                   <div className="flex-1 flex flex-col min-w-0 relative">
-                    <header className="h-14 flex items-center justify-between px-6 border-b border-white/5 bg-[#0A0A0A]/50 backdrop-blur-md z-40">
-                      <SidebarTrigger />
+                    <header className="h-14 flex items-center justify-between px-6 border-b border-border bg-card/80 backdrop-blur-md z-40">
+                      <SidebarTrigger data-testid="button-sidebar-toggle" />
                       <div className="flex items-center gap-4">
                         <ThemeToggle />
                       </div>
                     </header>
-                    <main className="flex-1 overflow-y-auto relative">
+                    <main className="flex-1 overflow-y-auto relative bg-background">
                       <Router />
                     </main>
                   </div>

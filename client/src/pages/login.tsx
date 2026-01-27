@@ -6,7 +6,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useAuth } from "@/lib/auth";
 import { useToast } from "@/hooks/use-toast";
-import { Loader2 } from "lucide-react";
+import { Loader2, LogIn, Mail, Lock } from "lucide-react";
 import { motion } from "framer-motion";
 import { SEO } from "@/components/layout/seo";
 import qiroxLogo from "@assets/qirox_without_background_1767780745614.png";
@@ -18,12 +18,6 @@ export default function Login() {
   const { login } = useAuth();
   const { toast } = useToast();
   const [, setLocation] = useLocation();
-  const [lang, setLang] = useState<"ar" | "en">("ar");
-
-  useEffect(() => {
-    document.documentElement.dir = lang === "ar" ? "rtl" : "ltr";
-    document.documentElement.lang = lang;
-  }, [lang]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -32,8 +26,8 @@ export default function Login() {
     try {
       const { user } = await login(email, password);
       toast({
-        title: lang === "ar" ? "مرحباً بك!" : "Welcome back!",
-        description: lang === "ar" ? "تم تسجيل الدخول بنجاح" : "Logged in successfully",
+        title: "مرحباً بك!",
+        description: "تم تسجيل الدخول بنجاح",
       });
       
       if (user.role === "admin") setLocation("/admin");
@@ -41,8 +35,8 @@ export default function Login() {
       else setLocation("/agency/dashboard");
     } catch (error) {
       toast({
-        title: lang === "ar" ? "خطأ" : "Error",
-        description: error instanceof Error ? error.message : "Authentication failed",
+        title: "خطأ",
+        description: error instanceof Error ? error.message : "فشل في المصادقة",
         variant: "destructive",
       });
     } finally {
@@ -51,86 +45,135 @@ export default function Login() {
   };
 
   return (
-    <div className={`min-h-screen bg-[#0A0A0A] text-[#E5E5E5] ${lang === 'ar' ? 'font-arabic' : 'font-serif'} selection:bg-white selection:text-black`}>
-      <SEO title={lang === "ar" ? "تسجيل الدخول" : "Login"} />
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-slate-100">
+      <SEO title="تسجيل الدخول | QIROX" />
       
-      <nav className="fixed top-0 w-full z-50 px-8 py-10 flex justify-between items-center mix-blend-difference">
-        <Link href="/">
-          <img src={qiroxLogo} alt="QIROX" className="h-12 md:h-16 w-auto invert brightness-0 cursor-pointer" />
-        </Link>
-        <button 
-          onClick={() => setLang(l => l === "ar" ? "en" : "ar")}
-          className="text-[10px] tracking-[0.3em] uppercase border border-white/20 px-3 py-1 rounded-full hover:bg-white hover:text-black transition-all flex items-center gap-2"
-        >
-          <span className="hidden sm:inline">{lang === "ar" ? "English" : "العربية"}</span>
-          <span className="sm:hidden text-lg">🌐</span>
-        </button>
-      </nav>
+      <div className="absolute inset-0 overflow-hidden pointer-events-none">
+        <div className="absolute top-0 left-1/4 w-[500px] h-[500px] bg-blue-100/30 rounded-full blur-[100px]" />
+        <div className="absolute bottom-0 right-1/4 w-[400px] h-[400px] bg-purple-100/20 rounded-full blur-[80px]" />
+      </div>
 
-      <div className="flex min-h-screen items-center justify-center p-8 pt-32">
+      <div className="flex min-h-screen items-center justify-center p-6 relative z-10">
         <motion.div 
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5 }}
           className="w-full max-w-md"
         >
-          <div className="text-center mb-12">
-            <span className="text-[10px] tracking-[1em] uppercase opacity-30 mb-4 block">
-              {lang === "ar" ? "بوابة النظام" : "SYSTEM PORTAL"}
-            </span>
-            <h1 className="text-4xl md:text-5xl font-light italic tracking-tighter">
-              {lang === "ar" ? "تسجيل الدخول" : "Portal Access"}
+          <div className="text-center mb-10">
+            <Link href="/">
+              <img 
+                src={qiroxLogo} 
+                alt="QIROX" 
+                className="h-14 w-auto mx-auto mb-6 cursor-pointer hover:opacity-80 transition-opacity" 
+              />
+            </Link>
+            <h1 className="text-3xl font-bold text-slate-900 mb-2">
+              مرحباً بعودتك
             </h1>
+            <p className="text-slate-500">
+              سجل دخولك للوصول إلى لوحة التحكم
+            </p>
           </div>
 
-          <Card className="border-none bg-white/5 backdrop-blur-xl rounded-sm border border-white/10 overflow-hidden">
-            <CardContent className="p-8 md:p-12">
-              <form onSubmit={handleSubmit} className="space-y-8">
-                <div className="space-y-4">
-                  <Label className="text-[10px] tracking-widest uppercase opacity-40">
-                    {lang === "ar" ? "البريد الإلكتروني" : "EMAIL ADDRESS"}
+          <Card className="border-0 shadow-xl shadow-slate-200/50 bg-white/80 backdrop-blur-sm">
+            <CardContent className="p-8">
+              <form onSubmit={handleSubmit} className="space-y-6">
+                <div className="space-y-2">
+                  <Label className="text-sm font-medium text-slate-700">
+                    البريد الإلكتروني
                   </Label>
-                  <Input
-                    type="email"
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
-                    className="bg-transparent border-b border-white/10 rounded-none h-12 focus:border-white/40 transition-colors px-0"
-                    required
-                    dir="ltr"
-                  />
+                  <div className="relative">
+                    <Mail className="absolute right-3 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400" />
+                    <Input
+                      type="email"
+                      value={email}
+                      onChange={(e) => setEmail(e.target.value)}
+                      className="h-12 pr-11 bg-slate-50 border-slate-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                      placeholder="example@email.com"
+                      required
+                      dir="ltr"
+                      data-testid="input-email"
+                    />
+                  </div>
                 </div>
                 
-                <div className="space-y-4">
-                  <Label className="text-[10px] tracking-widest uppercase opacity-40">
-                    {lang === "ar" ? "كلمة المرور" : "PASSWORD"}
+                <div className="space-y-2">
+                  <Label className="text-sm font-medium text-slate-700">
+                    كلمة المرور
                   </Label>
-                  <Input
-                    type="password"
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
-                    className="bg-transparent border-b border-white/10 rounded-none h-12 focus:border-white/40 transition-colors px-0"
-                    required
-                    dir="ltr"
-                  />
+                  <div className="relative">
+                    <Lock className="absolute right-3 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400" />
+                    <Input
+                      type="password"
+                      value={password}
+                      onChange={(e) => setPassword(e.target.value)}
+                      className="h-12 pr-11 bg-slate-50 border-slate-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                      placeholder="********"
+                      required
+                      dir="ltr"
+                      data-testid="input-password"
+                    />
+                  </div>
+                </div>
+
+                <div className="flex items-center justify-between text-sm">
+                  <label className="flex items-center gap-2 cursor-pointer">
+                    <input type="checkbox" className="rounded border-slate-300 text-blue-600 focus:ring-blue-500" />
+                    <span className="text-slate-600">تذكرني</span>
+                  </label>
+                  <Link href="/forgot-password">
+                    <span className="text-blue-600 hover:text-blue-700 transition-colors cursor-pointer">
+                      نسيت كلمة المرور؟
+                    </span>
+                  </Link>
                 </div>
 
                 <Button 
-                  onClick={() => window.location.href = "/api/login"}
-                  className="w-full h-14 bg-white text-black hover:bg-white/90 rounded-none text-xs tracking-[0.4em] uppercase font-light transition-all"
+                  type="submit"
+                  disabled={isLoading}
+                  className="w-full h-12 bg-gradient-to-l from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white rounded-xl text-base font-medium shadow-lg shadow-blue-500/25"
+                  data-testid="button-login"
                 >
-                  {lang === "ar" ? "دخول عبر QIROX" : "LOGIN WITH QIROX"}
+                  {isLoading ? (
+                    <Loader2 className="w-5 h-5 animate-spin" />
+                  ) : (
+                    <>
+                      <LogIn className="w-5 h-5 ml-2" />
+                      تسجيل الدخول
+                    </>
+                  )}
                 </Button>
 
+                <div className="relative my-6">
+                  <div className="absolute inset-0 flex items-center">
+                    <div className="w-full border-t border-slate-200"></div>
+                  </div>
+                  <div className="relative flex justify-center text-sm">
+                    <span className="px-4 bg-white text-slate-400">أو</span>
+                  </div>
+                </div>
+
+                <Button 
+                  type="button"
+                  variant="outline"
+                  className="w-full h-12 border-2 border-slate-200 text-slate-700 hover:bg-slate-50 rounded-xl text-base font-medium"
+                  onClick={() => window.location.href = "/api/login"}
+                  data-testid="button-login-qirox"
+                >
+                  الدخول عبر QIROX
+                </Button>
               </form>
 
-              <div className="mt-12 pt-8 border-t border-white/5 text-center space-y-4">
-                <p className="text-[10px] tracking-widest uppercase opacity-40">
-                  {lang === "ar" ? "ليس لديك حساب؟" : "NO ACCOUNT?"}
+              <div className="mt-8 pt-6 border-t border-slate-100 text-center">
+                <p className="text-slate-500">
+                  ليس لديك حساب؟{" "}
+                  <Link href="/register">
+                    <span className="text-blue-600 hover:text-blue-700 font-medium cursor-pointer transition-colors">
+                      سجل الآن
+                    </span>
+                  </Link>
                 </p>
-                <Link href="/register">
-                  <span className="text-sm font-light italic hover:text-white/60 transition-colors cursor-pointer block">
-                    {lang === "ar" ? "ابدأ تسجيل حساب جديد" : "Request new access"}
-                  </span>
-                </Link>
               </div>
             </CardContent>
           </Card>

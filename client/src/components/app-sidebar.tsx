@@ -12,30 +12,28 @@ import {
 } from "@/components/ui/sidebar";
 import { 
   Home, 
-  Inbox, 
   BarChart2, 
   Settings, 
   Users, 
   Package, 
-  ShoppingCart, 
-  Shield, 
   Activity,
   LogOut,
-  User as UserIcon,
-  HelpCircle,
+  Search,
 } from "lucide-react";
 import { Link, useLocation } from "wouter";
 import { useAuth } from "@/lib/auth";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import qiroxLogo from "@assets/qirox_without_background_1767780745614.png";
 
 const navItems = [
-  { title: "Home", url: "/", icon: Home },
-  { title: "Dashboard", url: "/agency/dashboard", icon: Activity },
-  { title: "Projects", url: "/tenants", icon: Package },
-  { title: "Analytics", url: "/admin/analytics", icon: BarChart2 },
-  { title: "Users", url: "/admin/users", icon: Users },
-  { title: "Settings", url: "/admin/settings", icon: Settings },
+  { title: "الرئيسية", url: "/", icon: Home },
+  { title: "لوحة التحكم", url: "/agency/dashboard", icon: Activity },
+  { title: "المشاريع", url: "/tenants", icon: Package },
+  { title: "التحليلات", url: "/admin/analytics", icon: BarChart2 },
+  { title: "المستخدمين", url: "/admin/users", icon: Users },
+  { title: "الإعدادات", url: "/admin/settings", icon: Settings },
 ];
 
 export function AppSidebar() {
@@ -47,20 +45,29 @@ export function AppSidebar() {
   };
 
   return (
-    <Sidebar variant="inset" className="bg-[#0D0D0D] border-r border-white/5">
-      <SidebarHeader className="p-4">
+    <Sidebar variant="inset" className="bg-card border-l border-border">
+      <SidebarHeader className="p-4 border-b border-border">
         <div className="flex items-center gap-3 px-2">
-          <div className="w-8 h-8 bg-white rounded-md flex items-center justify-center">
-            <span className="text-black font-bold text-lg">Q</span>
-          </div>
-          <span className="text-white font-medium tracking-tight">QIROX</span>
+          <img 
+            src={qiroxLogo} 
+            alt="QIROX" 
+            className="h-8 w-auto dark:invert"
+          />
+        </div>
+        <div className="mt-4 relative">
+          <Search className="absolute right-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+          <Input 
+            placeholder="بحث..." 
+            className="pr-10 bg-secondary/50 border-0 focus-visible:ring-1"
+            data-testid="input-sidebar-search"
+          />
         </div>
       </SidebarHeader>
       
-      <SidebarContent className="px-2">
+      <SidebarContent className="px-2 py-4">
         <SidebarGroup>
-          <SidebarGroupLabel className="text-white/40 uppercase tracking-[0.2em] text-[10px] mb-2 px-4">
-            Navigation
+          <SidebarGroupLabel className="text-muted-foreground uppercase tracking-wider text-[10px] mb-2 px-4">
+            التنقل
           </SidebarGroupLabel>
           <SidebarGroupContent>
             <SidebarMenu>
@@ -69,11 +76,11 @@ export function AppSidebar() {
                   <SidebarMenuButton
                     asChild
                     isActive={location === item.url}
-                    className="hover-elevate transition-all duration-200 h-10 px-4 group"
+                    className="hover-elevate transition-all duration-200 h-11 px-4 group rounded-lg"
                   >
                     <Link href={item.url} className="flex items-center gap-3 w-full">
-                      <item.icon className="w-4 h-4 text-white/60 group-hover:text-white group-data-[active=true]:text-white" />
-                      <span className="text-sm font-medium text-white/60 group-hover:text-white group-data-[active=true]:text-white">
+                      <item.icon className="w-5 h-5 text-muted-foreground group-hover:text-primary group-data-[active=true]:text-primary" />
+                      <span className="text-sm font-medium text-muted-foreground group-hover:text-foreground group-data-[active=true]:text-foreground group-data-[active=true]:font-semibold">
                         {item.title}
                       </span>
                     </Link>
@@ -85,32 +92,33 @@ export function AppSidebar() {
         </SidebarGroup>
       </SidebarContent>
 
-      <SidebarFooter className="p-4 mt-auto border-t border-white/5">
+      <SidebarFooter className="p-4 mt-auto border-t border-border">
         <div className="space-y-4">
-          <div className="flex items-center gap-3 px-2 py-3 rounded-lg bg-white/5">
-            <Avatar className="h-10 w-10 border border-white/10">
+          <div className="flex items-center gap-3 px-2 py-3 rounded-xl bg-secondary/50">
+            <Avatar className="h-10 w-10 border-2 border-primary/20">
               <AvatarImage src="/attached_assets/profile_placeholder.png" />
-              <AvatarFallback className="bg-white/10 text-white">
-                {user?.username?.charAt(0).toUpperCase()}
+              <AvatarFallback className="bg-primary/10 text-primary font-semibold">
+                {user?.username?.charAt(0).toUpperCase() || "ي"}
               </AvatarFallback>
             </Avatar>
             <div className="flex-1 min-w-0">
-              <p className="text-sm font-medium text-white truncate">
-                {user?.username || "Youssef Darwish"}
+              <p className="text-sm font-semibold text-foreground truncate">
+                {user?.username || "يوسف درويش"}
               </p>
-              <p className="text-[10px] text-white/40 uppercase tracking-wider truncate">
-                Web Projects Director
+              <p className="text-[11px] text-muted-foreground truncate">
+                مدير المشاريع
               </p>
             </div>
           </div>
           
           <Button 
             variant="ghost" 
-            className="w-full justify-start gap-3 h-10 px-4 text-white/60 hover:text-white hover:bg-white/5 rounded-md"
+            className="w-full justify-start gap-3 h-11 px-4 text-muted-foreground hover:text-destructive hover:bg-destructive/10 rounded-lg"
             onClick={handleLogout}
+            data-testid="button-logout"
           >
             <LogOut className="w-4 h-4" />
-            <span className="text-sm">Log out</span>
+            <span className="text-sm">تسجيل الخروج</span>
           </Button>
         </div>
       </SidebarFooter>

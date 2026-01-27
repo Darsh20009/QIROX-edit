@@ -1,13 +1,15 @@
-import { Search as SearchIcon, Plus, Menu, X, ArrowUpRight, ArrowRight, Minus } from "lucide-react";
+import { Search as SearchIcon, ArrowLeft, ChevronLeft, Check, Star, Zap, Shield, Globe } from "lucide-react";
 import { Link } from "wouter";
 import { Button } from "@/components/ui/button";
 import { SEO } from "@/components/layout/seo";
-import { motion, useScroll, useTransform, AnimatePresence } from "framer-motion";
+import { motion } from "framer-motion";
 import { useState, useEffect } from "react";
-import organicArt from "@assets/generated_images/organic_fluid_dark_abstract_art.png";
+import { Card, CardContent } from "@/components/ui/card";
 
-import qiroxMobile from "@assets/Screenshot_2026-01-02_013112_1768411480128.png";
-
+import qiroxHero from "@assets/ChatGPT_Image_Jan_2,_2026,_04_26_37_PM_1769504697766.png";
+import qiroxMobile from "@assets/Screenshot_2026-01-02_013112_1769504726157.png";
+import qiroxTeam from "@assets/Screenshot_2026-01-02_013107_1769504726156.png";
+import qiroxDashboard from "@assets/Screenshot_2026-01-27_120537_1769504770694.png";
 import qiroxLogo from "@assets/qirox_without_background_1767780745614.png";
 
 import { translations, Language } from "@/lib/i18n";
@@ -15,309 +17,303 @@ import { translations, Language } from "@/lib/i18n";
 export default function Home() {
   const [lang, setLang] = useState<Language>("ar");
   const t = translations[lang];
-  const [isMenuOpen, setIsMenuOpen] = useState(false);
-  const { scrollY } = useScroll();
-  const y = useTransform(scrollY, [0, 500], [0, -50]);
-
-  const [searchQuery, setSearchQuery] = useState("");
-  const [isSearchOpen, setIsSearchOpen] = useState(false);
 
   useEffect(() => {
     document.documentElement.dir = lang === "ar" ? "rtl" : "ltr";
     document.documentElement.lang = lang;
   }, [lang]);
 
-  const toggleLang = () => setLang(prev => prev === "ar" ? "en" : "ar");
+  const features = [
+    { icon: Zap, title: "سرعة فائقة", desc: "أداء عالي وتحميل سريع" },
+    { icon: Shield, title: "أمان متقدم", desc: "حماية بيانات عالية" },
+    { icon: Globe, title: "وصول عالمي", desc: "دعم متعدد اللغات" },
+  ];
+
+  const stats = [
+    { value: "500+", label: "عميل نشط" },
+    { value: "99.9%", label: "وقت التشغيل" },
+    { value: "24/7", label: "دعم فني" },
+    { value: "50+", label: "مشروع منجز" },
+  ];
 
   return (
-    <div className={`min-h-screen bg-[#0A0A0A] text-[#E5E5E5] ${lang === 'ar' ? 'font-arabic' : 'font-serif'} selection:bg-white selection:text-black`}>
-      <SEO title={lang === "ar" ? "QIROX | ذكاء عضوي" : "QIROX | Organic Intelligence"} description="A human approach to complex systems." />
+    <div className="min-h-screen bg-gradient-to-b from-slate-50 via-white to-slate-50 text-slate-800 font-sans">
+      <SEO title="QIROX | Build Systems. Stay Human." description="نظام متكامل لإدارة الأعمال" />
       
-      {/* Abstract Background Art */}
-      <div className="fixed inset-0 z-0 pointer-events-none overflow-hidden">
-        <motion.img 
-          style={{ y }}
-          src={organicArt} 
-          alt="Organic Texture" 
-          className="w-full h-full object-cover opacity-20 scale-110 grayscale"
-        />
-        <div className="absolute inset-0 bg-gradient-to-b from-transparent via-[#0A0A0A] to-[#0A0A0A]" />
-      </div>
-
-      {/* Minimalist Navigation */}
-      <nav className="fixed top-0 w-full z-50 px-8 py-10 flex justify-between items-center mix-blend-difference">
-        <Link href="/">
-          <div className="flex items-center cursor-pointer">
-            <img src={qiroxLogo} alt="QIROX" className="h-16 md:h-28 w-auto invert brightness-0" />
-          </div>
-        </Link>
-        
-        <div className="flex items-center gap-12">
-          <button 
-            onClick={() => setIsSearchOpen(true)}
-            className="p-2 opacity-60 hover:opacity-100 transition-opacity"
-          >
-            <SearchIcon size={20} />
-          </button>
-          <div className="hidden md:flex gap-10 text-xs tracking-[0.3em] uppercase opacity-60 hover:opacity-100 transition-opacity">
-            <button onClick={() => setLang('ar')} className={lang === 'ar' ? 'text-white' : ''}>{translations.ar.philosophy}</button>
-            <button onClick={() => setLang('en')} className={lang === 'en' ? 'text-white' : ''}>{translations.en.philosophy}</button>
-          </div>
-          <button 
-            onClick={toggleLang}
-            className="text-[10px] tracking-[0.3em] uppercase border border-white/20 px-3 py-1 rounded-full hover:bg-white hover:text-black transition-all flex items-center gap-2"
-          >
-            <span className="hidden sm:inline">{lang === "ar" ? "English" : "العربية"}</span>
-            <span className="sm:hidden text-lg">🌐</span>
-          </button>
-          <button 
-            onClick={() => setIsMenuOpen(!isMenuOpen)}
-            className="group p-2"
-          >
-            {isMenuOpen ? <X size={24} /> : <Menu size={24} className="group-hover:scale-x-125 transition-transform" />}
-          </button>
+      <section className="relative min-h-[90vh] flex items-center overflow-hidden">
+        <div className="absolute inset-0 z-0">
+          <div className="absolute top-0 left-1/4 w-[500px] h-[500px] bg-blue-100/40 rounded-full blur-[100px]" />
+          <div className="absolute bottom-0 right-1/4 w-[400px] h-[400px] bg-purple-100/30 rounded-full blur-[80px]" />
         </div>
-      </nav>
 
-      {/* Search Overlay */}
-      <AnimatePresence>
-        {isSearchOpen && (
-          <motion.div
-            initial={{ opacity: 0, y: -20 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -20 }}
-            className="fixed inset-0 z-[110] bg-black/95 backdrop-blur-xl flex flex-col p-8 md:p-24"
-          >
-            <button 
-              onClick={() => setIsSearchOpen(false)}
-              className="absolute top-10 right-8 md:right-24 p-2 text-white/40 hover:text-white transition-colors"
+        <div className="container mx-auto px-6 md:px-12 relative z-10">
+          <div className="grid lg:grid-cols-2 gap-12 items-center">
+            <motion.div
+              initial={{ opacity: 0, y: 30 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.8 }}
+              className="space-y-8"
             >
-              <X size={32} />
-            </button>
-            
-            <div className="max-w-4xl w-full mx-auto mt-20">
-              <span className="text-[10px] tracking-[1em] uppercase opacity-30 mb-8 block">
-                {lang === 'ar' ? 'بحث في النظام' : 'SYSTEM SEARCH'}
-              </span>
-              <div className="relative">
-                <input 
-                  autoFocus
-                  type="text"
-                  placeholder={lang === 'ar' ? 'ابحث عن مشاريع، خدمات، أو أفكار...' : 'Search projects, services, or ideas...'}
-                  className="w-full bg-transparent border-b border-white/10 py-8 text-4xl md:text-6xl font-light italic outline-none focus:border-white/40 transition-colors"
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                />
-                {searchQuery && (
-                  <div className="absolute top-full left-0 w-full mt-4 p-6 bg-white/5 backdrop-blur-md border border-white/10 rounded-sm z-[120]">
-                    <div className="space-y-4">
-                      <p className="text-xs opacity-40 uppercase tracking-widest">{lang === 'ar' ? 'نتائج البحث عن' : 'RESULTS FOR'}: {searchQuery}</p>
-                      <div className="grid gap-4">
-                        {[
-                          { title: 'QIROX Core', desc: 'Identity and access management' },
-                          { title: 'QIROX Build', desc: 'Frontend architecture engine' },
-                          { title: 'QIROX Meet', desc: 'Secure enterprise meetings' }
-                        ].filter(item => item.title.toLowerCase().includes(searchQuery.toLowerCase())).map((res, i) => (
-                          <div key={i} className="group p-4 hover:bg-white/5 cursor-pointer border border-transparent hover:border-white/10 transition-all">
-                            <h5 className="text-xl font-light italic">{res.title}</h5>
-                            <p className="text-sm opacity-40">{res.desc}</p>
-                          </div>
-                        ))}
-                      </div>
-                    </div>
-                  </div>
-                )}
+              <div className="inline-flex items-center gap-2 px-4 py-2 bg-blue-50 text-blue-600 rounded-full text-sm font-medium">
+                <Star className="w-4 h-4" />
+                <span>الحل الأمثل لإدارة أعمالك</span>
               </div>
-              
-              <div className="mt-20 grid grid-cols-1 md:grid-cols-2 gap-12 opacity-40">
-                <div className="space-y-4">
-                  <h4 className="text-xs tracking-widest uppercase">{lang === 'ar' ? 'روابط سريعة' : 'QUICK LINKS'}</h4>
-                  <div className="flex flex-col gap-2 text-xl font-light italic">
-                    <Link href="/build"><span onClick={() => setIsSearchOpen(false)} className="hover:text-white cursor-pointer">QIROX Build</span></Link>
-                    <Link href="/systems"><span onClick={() => setIsSearchOpen(false)} className="hover:text-white cursor-pointer">QIROX Systems</span></Link>
-                    <Link href="/stores"><span onClick={() => setIsSearchOpen(false)} className="hover:text-white cursor-pointer">QIROX Stores</span></Link>
-                  </div>
-                </div>
-                <div className="space-y-4">
-                  <h4 className="text-xs tracking-widest uppercase">{lang === 'ar' ? 'الكلمات الرائجة' : 'TRENDING'}</h4>
-                  <div className="flex flex-wrap gap-4">
-                    {['SaaS', 'ERP', 'Web3', 'AI Architecture'].map(tag => (
-                      <span key={tag} className="px-3 py-1 border border-white/10 rounded-full text-xs">{tag}</span>
-                    ))}
-                  </div>
-                </div>
-              </div>
-            </div>
-          </motion.div>
-        )}
-      </AnimatePresence>
 
-      {/* Fullscreen Menu Overlay */}
-      <AnimatePresence>
-        {isMenuOpen && (
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            className="fixed inset-0 z-[100] bg-black flex items-center justify-center p-8"
-          >
-            <button 
-              onClick={() => setIsMenuOpen(false)}
-              className="absolute top-10 right-8 p-2 text-white hover:scale-110 transition-transform"
-            >
-              <X size={32} />
-            </button>
-            
-            <div className="grid md:grid-cols-2 gap-20 max-w-6xl w-full items-center">
-              <nav className={`space-y-8 ${lang === 'ar' ? 'text-right' : 'text-left'}`}>
-                {[
-                  { title: t.work, url: '/work' },
-                  { title: t.philosophy, url: '/philosophy' },
-                  { title: t.dialogue, url: '/contact' },
-                  { title: lang === 'ar' ? 'البوابة' : 'Portal', url: '/login' }
-                ].map((item, i) => (
-                  <motion.div
-                    key={item.url}
-                    initial={{ opacity: 0, x: lang === 'ar' ? 50 : -50 }}
-                    animate={{ opacity: 1, x: 0 }}
-                    transition={{ delay: i * 0.1 + 0.2 }}
+              <h1 className="text-4xl md:text-6xl lg:text-7xl font-bold leading-tight text-slate-900">
+                ابنِ أنظمتك.
+                <br />
+                <span className="bg-gradient-to-l from-blue-600 to-purple-600 bg-clip-text text-transparent">
+                  ابقَ إنساناً.
+                </span>
+              </h1>
+
+              <p className="text-lg md:text-xl text-slate-600 max-w-lg leading-relaxed">
+                منصة متكاملة تجمع بين القوة والبساطة. صُممت لتمكين فريقك من تحقيق المزيد بجهد أقل.
+              </p>
+
+              <div className="flex flex-wrap gap-4">
+                <Link href="/register">
+                  <Button 
+                    size="lg" 
+                    className="h-14 px-8 bg-gradient-to-l from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white rounded-xl text-base font-medium shadow-lg shadow-blue-500/25"
+                    data-testid="button-start-free"
                   >
-                    <Link href={item.url}>
-                      <span 
-                        onClick={() => setIsMenuOpen(false)}
-                        className="text-5xl md:text-8xl font-light italic hover:text-white/40 transition-colors cursor-pointer block"
-                      >
-                        {item.title}
-                      </span>
-                    </Link>
-                  </motion.div>
-                ))}
-              </nav>
-              
-              <div className={`hidden md:block border-l border-white/10 pl-20 space-y-12 opacity-60 ${lang === 'ar' ? 'border-r border-l-0 pr-20 text-right' : ''}`}>
-                <div className="space-y-4">
-                  <span className="text-[10px] tracking-[0.5em] uppercase block">Contact</span>
-                  <p className="text-xl font-light">support@qirox.online</p>
-                  <p className="text-xl font-light">+20 115 520 1921</p>
+                    ابدأ مجاناً
+                    <ChevronLeft className="w-5 h-5 mr-2" />
+                  </Button>
+                </Link>
+                <Link href="/pricing">
+                  <Button 
+                    size="lg" 
+                    variant="outline" 
+                    className="h-14 px-8 border-2 border-slate-200 text-slate-700 hover:bg-slate-50 rounded-xl text-base font-medium"
+                    data-testid="button-view-pricing"
+                  >
+                    عرض الأسعار
+                  </Button>
+                </Link>
+              </div>
+
+              <div className="flex items-center gap-6 pt-4">
+                <div className="flex -space-x-3 space-x-reverse">
+                  {[1, 2, 3, 4].map((i) => (
+                    <div key={i} className="w-10 h-10 rounded-full bg-gradient-to-br from-slate-200 to-slate-300 border-2 border-white flex items-center justify-center text-xs font-semibold text-slate-600">
+                      {String.fromCharCode(64 + i)}
+                    </div>
+                  ))}
                 </div>
-                <div className="space-y-4">
-                  <span className="text-[10px] tracking-[0.5em] uppercase block">Follow</span>
-                  <div className="flex gap-8 text-sm tracking-widest">
-                    <span>IG</span>
-                    <span>TW</span>
-                    <span>LI</span>
+                <div className="text-sm text-slate-600">
+                  <span className="font-semibold text-slate-800">+500</span> عميل يثقون بنا
+                </div>
+              </div>
+            </motion.div>
+
+            <motion.div
+              initial={{ opacity: 0, scale: 0.95 }}
+              animate={{ opacity: 1, scale: 1 }}
+              transition={{ duration: 1, delay: 0.2 }}
+              className="relative"
+            >
+              <div className="relative rounded-2xl overflow-hidden shadow-2xl shadow-slate-300/50">
+                <img 
+                  src={qiroxHero} 
+                  alt="QIROX Platform" 
+                  className="w-full h-auto"
+                />
+                <div className="absolute inset-0 bg-gradient-to-t from-slate-900/20 to-transparent" />
+              </div>
+              <div className="absolute -bottom-6 -right-6 bg-white rounded-xl shadow-xl p-4 border border-slate-100">
+                <div className="flex items-center gap-3">
+                  <div className="w-12 h-12 rounded-full bg-green-100 flex items-center justify-center">
+                    <Check className="w-6 h-6 text-green-600" />
+                  </div>
+                  <div>
+                    <p className="font-semibold text-slate-800">جاهز للإنتاج</p>
+                    <p className="text-sm text-slate-500">99.9% وقت تشغيل</p>
                   </div>
                 </div>
               </div>
-            </div>
-          </motion.div>
-        )}
-      </AnimatePresence>
+            </motion.div>
+          </div>
+        </div>
+      </section>
 
-      {/* Artistic Hero Section */}
-      <section className="relative min-h-screen flex flex-col justify-center px-8 md:px-24 z-10 pt-32">
-        <div className="max-w-6xl">
+      <section className="py-16 bg-white border-y border-slate-100">
+        <div className="container mx-auto px-6 md:px-12">
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
+            {stats.map((stat, i) => (
+              <motion.div
+                key={i}
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ delay: i * 0.1 }}
+                className="text-center"
+              >
+                <p className="text-3xl md:text-4xl font-bold bg-gradient-to-l from-blue-600 to-purple-600 bg-clip-text text-transparent">
+                  {stat.value}
+                </p>
+                <p className="text-slate-600 mt-2">{stat.label}</p>
+              </motion.div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      <section className="py-24 bg-slate-50">
+        <div className="container mx-auto px-6 md:px-12">
+          <div className="text-center mb-16">
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+            >
+              <span className="inline-block px-4 py-2 bg-blue-100 text-blue-700 rounded-full text-sm font-medium mb-4">
+                المميزات
+              </span>
+              <h2 className="text-3xl md:text-5xl font-bold text-slate-900 mb-4">
+                كل ما تحتاجه في مكان واحد
+              </h2>
+              <p className="text-lg text-slate-600 max-w-2xl mx-auto">
+                منصة شاملة توفر لك جميع الأدوات اللازمة لإدارة أعمالك بكفاءة
+              </p>
+            </motion.div>
+          </div>
+
+          <div className="grid md:grid-cols-3 gap-8">
+            {features.map((feature, i) => (
+              <motion.div
+                key={i}
+                initial={{ opacity: 0, y: 30 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ delay: i * 0.15 }}
+              >
+                <Card className="h-full border-0 shadow-lg shadow-slate-200/50 hover:shadow-xl transition-shadow bg-white">
+                  <CardContent className="p-8">
+                    <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center mb-6">
+                      <feature.icon className="w-7 h-7 text-white" />
+                    </div>
+                    <h3 className="text-xl font-bold text-slate-900 mb-3">{feature.title}</h3>
+                    <p className="text-slate-600 leading-relaxed">{feature.desc}</p>
+                  </CardContent>
+                </Card>
+              </motion.div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      <section className="py-24 bg-white">
+        <div className="container mx-auto px-6 md:px-12">
+          <div className="grid lg:grid-cols-2 gap-16 items-center">
+            <motion.div
+              initial={{ opacity: 0, x: -30 }}
+              whileInView={{ opacity: 1, x: 0 }}
+              viewport={{ once: true }}
+              className="order-2 lg:order-1"
+            >
+              <div className="grid grid-cols-2 gap-4">
+                <img 
+                  src={qiroxMobile} 
+                  alt="Mobile App" 
+                  className="rounded-2xl shadow-xl w-full"
+                />
+                <img 
+                  src={qiroxTeam} 
+                  alt="Team" 
+                  className="rounded-2xl shadow-xl w-full mt-8"
+                />
+              </div>
+            </motion.div>
+
+            <motion.div
+              initial={{ opacity: 0, x: 30 }}
+              whileInView={{ opacity: 1, x: 0 }}
+              viewport={{ once: true }}
+              className="order-1 lg:order-2 space-y-6"
+            >
+              <span className="inline-block px-4 py-2 bg-purple-100 text-purple-700 rounded-full text-sm font-medium">
+                لماذا QIROX؟
+              </span>
+              <h2 className="text-3xl md:text-4xl font-bold text-slate-900">
+                تجربة مستخدم استثنائية على جميع الأجهزة
+              </h2>
+              <p className="text-lg text-slate-600 leading-relaxed">
+                سواء كنت على الكمبيوتر أو الهاتف، ستحصل على نفس التجربة السلسة والقوية. صُمم النظام ليكون سريع الاستجابة ومتوافق مع جميع الأجهزة.
+              </p>
+              <ul className="space-y-4">
+                {["تصميم متجاوب", "تطبيق موبايل", "مزامنة فورية"].map((item, i) => (
+                  <li key={i} className="flex items-center gap-3">
+                    <div className="w-6 h-6 rounded-full bg-green-100 flex items-center justify-center">
+                      <Check className="w-4 h-4 text-green-600" />
+                    </div>
+                    <span className="text-slate-700">{item}</span>
+                  </li>
+                ))}
+              </ul>
+            </motion.div>
+          </div>
+        </div>
+      </section>
+
+      <section className="py-24 bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 text-white">
+        <div className="container mx-auto px-6 md:px-12">
           <motion.div
             initial={{ opacity: 0, y: 30 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 1.2, ease: [0.22, 1, 0.36, 1] }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            className="text-center max-w-3xl mx-auto"
           >
-            <h1 className={`text-7xl md:text-[11vw] font-light leading-[0.85] tracking-tighter italic mb-12 ${lang === 'ar' ? 'text-right' : 'text-left'}`}>
-              {t.heroTitle.split(' ')[0]} <br />
-              <span className={lang === 'ar' ? 'mr-[10vw]' : 'ml-[10vw]'}>{t.heroTitle.split(' ')[1]}</span>
-            </h1>
+            <h2 className="text-3xl md:text-5xl font-bold mb-6">
+              ابدأ رحلتك معنا اليوم
+            </h2>
+            <p className="text-lg text-slate-300 mb-10">
+              انضم إلى مئات الشركات التي تثق بـ QIROX لإدارة أعمالها
+            </p>
+            <div className="flex flex-wrap justify-center gap-4">
+              <Link href="/register">
+                <Button 
+                  size="lg" 
+                  className="h-14 px-10 bg-white text-slate-900 hover:bg-slate-100 rounded-xl text-base font-semibold"
+                  data-testid="button-cta-register"
+                >
+                  ابدأ الآن مجاناً
+                </Button>
+              </Link>
+              <Link href="/contact">
+                <Button 
+                  size="lg" 
+                  variant="outline" 
+                  className="h-14 px-10 border-2 border-white/30 text-white hover:bg-white/10 rounded-xl text-base font-medium"
+                  data-testid="button-cta-contact"
+                >
+                  تواصل معنا
+                </Button>
+              </Link>
+            </div>
           </motion.div>
+        </div>
+      </section>
 
-          <div className="grid md:grid-cols-2 gap-20 items-end">
-            <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              transition={{ delay: 0.5, duration: 1 }}
-              className={`space-y-12 ${lang === 'ar' ? 'text-right' : 'text-left'}`}
-            >
-              <p className="text-xl md:text-2xl font-light leading-relaxed opacity-60 max-w-md">
-                {t.heroSubtitle}
-              </p>
-              <div className={`flex gap-10 items-center ${lang === 'ar' ? 'flex-row-reverse' : ''}`}>
-                <Link href="/contact">
-                  <span className="group flex items-center gap-3 text-sm tracking-[0.4em] uppercase cursor-pointer">
-                    {t.startDialogue}
-                    <ArrowUpRight size={16} className="group-hover:translate-x-1 group-hover:-translate-y-1 transition-transform" />
-                  </span>
-                </Link>
-                <div className="h-px w-20 bg-white/20" />
-              </div>
-            </motion.div>
+      <footer className="py-12 bg-white border-t border-slate-100">
+        <div className="container mx-auto px-6 md:px-12">
+          <div className="flex flex-col md:flex-row justify-between items-center gap-6">
+            <div className="flex items-center gap-3">
+              <img src={qiroxLogo} alt="QIROX" className="h-8 w-auto" />
+            </div>
+            
+            <div className="flex gap-8 text-sm text-slate-500">
+              <Link href="/privacy" className="hover:text-slate-800 transition-colors">الخصوصية</Link>
+              <Link href="/terms" className="hover:text-slate-800 transition-colors">الشروط</Link>
+              <Link href="/contact" className="hover:text-slate-800 transition-colors">تواصل معنا</Link>
+            </div>
 
-            <motion.div
-              initial={{ opacity: 0, scale: 0.98 }}
-              animate={{ opacity: 1, scale: 1 }}
-              transition={{ delay: 0.8, duration: 1.5 }}
-              className="relative aspect-[4/5] md:aspect-square overflow-hidden rounded-sm group shadow-2xl"
-            >
-              <div className="absolute inset-0 bg-black/20 group-hover:bg-transparent transition-colors duration-700 z-10" />
-              <img 
-                src={qiroxMobile} 
-                alt="QIROX Mobile" 
-                className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-[2s]" 
-              />
-              <div className="absolute bottom-8 left-8 z-20">
-                <span className="text-[10px] tracking-[0.5em] uppercase opacity-40 text-white">Interface / Human Centric</span>
-              </div>
-            </motion.div>
+            <p className="text-sm text-slate-400">
+              2026 QIROX. جميع الحقوق محفوظة.
+            </p>
           </div>
         </div>
-      </section>
-      {/* The Pillars - Minimalist Grid */}
-      <section className="py-60 px-8 md:px-24 z-10 relative">
-            <div className="grid md:grid-cols-3 gap-1px bg-white/10 border-t border-b border-white/10">
-          {[
-            { title: t.work, type: 'Architecture', desc: 'Spaces that breathe and adapt.' },
-            { title: t.philosophy, type: 'Order', desc: 'Silence in the middle of chaos.' },
-            { title: t.dialogue, type: 'Connection', desc: 'Boundaries rewritten by intent.' }
-          ].map((pillar, i) => (
-            <div key={i} className={`bg-[#0A0A0A] py-20 px-10 group hover:bg-white hover:text-black transition-colors duration-700 cursor-default ${lang === 'ar' ? 'text-right' : 'text-left'}`}>
-              <span className="text-[10px] tracking-[0.5em] uppercase opacity-40 mb-10 block">{pillar.type}</span>
-              <h3 className="text-4xl font-light italic mb-6 leading-none">{pillar.title}</h3>
-              <p className="text-sm opacity-60 group-hover:opacity-100 max-w-xs">{pillar.desc}</p>
-              <div className={`mt-20 flex ${lang === 'ar' ? 'justify-start' : 'justify-end'}`}>
-                <Plus size={20} className="group-hover:rotate-90 transition-transform duration-500" />
-              </div>
-            </div>
-          ))}
-        </div>
-      </section>
-      {/* Statement Section */}
-      <section className="py-40 px-8 md:px-24 text-center">
-          <motion.div
-            initial={{ opacity: 0 }}
-            whileInView={{ opacity: 1 }}
-            viewport={{ once: true }}
-            className="max-w-4xl mx-auto"
-          >
-            <span className="text-[10px] tracking-[1em] uppercase opacity-30 mb-12 block">{lang === 'ar' ? 'الفلسفة' : 'The Philosophy'}</span>
-            <h2 className="text-4xl md:text-6xl font-light italic leading-tight mb-16">
-              {lang === 'ar' 
-                ? '"الجمال هو الشكل النهائي للوظيفة. نحن نرفض المألوف، والمؤتمت، والفاقد للحياة."'
-                : '"Beauty is the ultimate form of functionality. We refuse the generic, the automated, and the lifeless."'
-              }
-            </h2>
-            <div className="h-20 w-px bg-white/20 mx-auto" />
-          </motion.div>
-      </section>
-      <footer className="py-20 px-8 md:px-24 border-t border-white/5 flex flex-col md:flex-row justify-between items-end gap-12 opacity-40 hover:opacity-100 transition-opacity">
-        <div className={`space-y-4 ${lang === 'ar' ? 'text-right' : 'text-left'}`}>
-          <span className="text-2xl font-light tracking-widest uppercase">QIROX</span>
-          <p className="text-xs tracking-widest uppercase">{lang === 'ar' ? 'الولايات المتحدة / مصر / الخليج العربي' : 'USA/ EGYPT / GULF AREA'}</p>
-        </div>
-        
-        <div className="flex gap-12 text-[10px] tracking-[0.3em] uppercase">
-          <Link href="/privacy">{lang === 'ar' ? 'الخصوصية' : 'Privacy'}</Link>
-          <Link href="/terms">{lang === 'ar' ? 'الشروط' : 'Terms'}</Link>
-          <Link href="/archive">{lang === 'ar' ? 'الأرشيف' : 'Archive'}</Link>
-        </div>
-
-        <p className="text-[10px] tracking-[0.3em] uppercase">{lang === 'ar' ? '© 2026 صنع بكل حب' : '© 2026 Crafted by Hand'}</p>
       </footer>
     </div>
   );
