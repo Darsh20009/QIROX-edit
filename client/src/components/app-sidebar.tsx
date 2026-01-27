@@ -19,7 +19,7 @@ import {
   Activity,
   LogOut,
   Search,
-  Sparkles,
+  Zap,
   Bell,
   ChevronLeft,
 } from "lucide-react";
@@ -49,25 +49,25 @@ export function AppSidebar() {
   };
 
   return (
-    <Sidebar variant="inset" className="border-l border-border/50">
-      <SidebarHeader className="p-5 border-b border-border/50">
+    <Sidebar variant="inset" className="border-l border-border">
+      <SidebarHeader className="p-5 border-b border-border">
         <Link href="/">
           <div className="flex items-center gap-3 cursor-pointer group">
-            <div className="w-10 h-10 rounded-xl gradient-bg flex items-center justify-center shadow-glow">
-              <Sparkles className="w-5 h-5 text-white" />
+            <div className="w-10 h-10 rounded-xl bg-primary flex items-center justify-center shadow-lg shadow-primary/25">
+              <Zap className="w-5 h-5 text-white" />
             </div>
             <div className="flex flex-col">
-              <span className="font-bold text-lg tracking-tight gradient-text">QIROX</span>
+              <span className="font-bold text-lg tracking-tight">QIROX</span>
               <span className="text-[10px] text-muted-foreground -mt-1">منصة إدارة الأعمال</span>
             </div>
           </div>
         </Link>
         
-        <div className="mt-5 relative group">
-          <Search className="absolute right-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground transition-colors group-focus-within:text-primary" />
+        <div className="mt-5 relative">
+          <Search className="absolute right-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
           <Input 
             placeholder="ابحث عن أي شيء..." 
-            className="pr-10 h-11 bg-muted/50 border-0 rounded-xl focus-visible:ring-2 focus-visible:ring-primary/30 transition-all"
+            className="pr-10 h-11 bg-muted border-0 rounded-xl focus-visible:ring-primary"
             data-testid="input-sidebar-search"
           />
         </div>
@@ -75,7 +75,7 @@ export function AppSidebar() {
       
       <SidebarContent className="px-3 py-5">
         <SidebarGroup>
-          <SidebarGroupLabel className="text-muted-foreground/70 uppercase tracking-widest text-[10px] font-semibold mb-3 px-3">
+          <SidebarGroupLabel className="text-muted-foreground uppercase tracking-widest text-[10px] font-semibold mb-3 px-3">
             القائمة الرئيسية
           </SidebarGroupLabel>
           <SidebarGroupContent>
@@ -88,34 +88,34 @@ export function AppSidebar() {
                       asChild
                       isActive={isActive}
                       className={`
-                        h-12 px-3 rounded-xl transition-all duration-300 group
+                        h-12 px-3 rounded-xl transition-all duration-200
                         ${isActive 
-                          ? 'bg-primary/10 shadow-sm' 
-                          : 'hover:bg-muted/80'
+                          ? 'bg-primary/10' 
+                          : 'hover:bg-muted'
                         }
                       `}
                     >
                       <Link href={item.url} className="flex items-center gap-3 w-full">
                         <div className={`
-                          w-9 h-9 rounded-lg flex items-center justify-center transition-all duration-300
+                          w-9 h-9 rounded-lg flex items-center justify-center transition-all
                           ${isActive 
-                            ? 'gradient-bg shadow-glow' 
-                            : 'bg-muted group-hover:bg-primary/10'
+                            ? 'bg-primary shadow-lg shadow-primary/25' 
+                            : 'bg-muted'
                           }
                         `}>
                           <item.icon className={`
-                            w-4 h-4 transition-colors
-                            ${isActive ? 'text-white' : 'text-muted-foreground group-hover:text-primary'}
+                            w-4 h-4
+                            ${isActive ? 'text-white' : 'text-muted-foreground'}
                           `} />
                         </div>
                         <span className={`
-                          text-sm font-medium flex-1 transition-colors
-                          ${isActive ? 'text-foreground font-semibold' : 'text-muted-foreground group-hover:text-foreground'}
+                          text-sm font-medium flex-1
+                          ${isActive ? 'text-foreground font-semibold' : 'text-muted-foreground'}
                         `}>
                           {item.title}
                         </span>
                         {item.badge && (
-                          <Badge variant="secondary" className="h-5 min-w-5 px-1.5 text-[10px] font-bold bg-primary/10 text-primary border-0">
+                          <Badge className="h-5 min-w-5 px-1.5 text-[10px] font-bold bg-primary/10 text-primary border-0">
                             {item.badge}
                           </Badge>
                         )}
@@ -132,11 +132,11 @@ export function AppSidebar() {
         </SidebarGroup>
 
         <SidebarGroup className="mt-6">
-          <SidebarGroupLabel className="text-muted-foreground/70 uppercase tracking-widest text-[10px] font-semibold mb-3 px-3">
+          <SidebarGroupLabel className="text-muted-foreground uppercase tracking-widest text-[10px] font-semibold mb-3 px-3">
             الإشعارات
           </SidebarGroupLabel>
           <div className="px-3">
-            <div className="glass-card rounded-xl p-4 space-y-3">
+            <div className="bg-muted rounded-xl p-4 space-y-3 border border-border">
               <div className="flex items-center gap-3">
                 <div className="w-8 h-8 rounded-lg bg-amber-500/10 flex items-center justify-center">
                   <Bell className="w-4 h-4 text-amber-500" />
@@ -151,12 +151,12 @@ export function AppSidebar() {
         </SidebarGroup>
       </SidebarContent>
 
-      <SidebarFooter className="p-4 mt-auto border-t border-border/50">
+      <SidebarFooter className="p-4 mt-auto border-t border-border">
         <div className="space-y-3">
-          <div className="flex items-center gap-3 p-3 rounded-xl glass-card">
+          <div className="flex items-center gap-3 p-3 rounded-xl bg-muted border border-border">
             <Avatar className="h-11 w-11 ring-2 ring-primary/20 ring-offset-2 ring-offset-background">
               <AvatarImage src="/attached_assets/profile_placeholder.png" />
-              <AvatarFallback className="gradient-bg text-white font-bold">
+              <AvatarFallback className="bg-primary text-white font-bold">
                 {user?.username?.charAt(0).toUpperCase() || "ي"}
               </AvatarFallback>
             </Avatar>
@@ -173,7 +173,7 @@ export function AppSidebar() {
           
           <Button 
             variant="ghost" 
-            className="w-full justify-start gap-3 h-11 px-4 text-muted-foreground hover:text-destructive hover:bg-destructive/10 rounded-xl transition-all"
+            className="w-full justify-start gap-3 h-11 px-4 text-muted-foreground hover:text-destructive hover:bg-destructive/10 rounded-xl"
             onClick={handleLogout}
             data-testid="button-logout"
           >
