@@ -12,28 +12,31 @@ import {
 } from "@/components/ui/sidebar";
 import { 
   Home, 
-  BarChart2, 
+  BarChart3, 
   Settings, 
   Users, 
-  Package, 
+  Layers,
   Activity,
   LogOut,
   Search,
+  Sparkles,
+  Bell,
+  ChevronLeft,
 } from "lucide-react";
 import { Link, useLocation } from "wouter";
 import { useAuth } from "@/lib/auth";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import qiroxLogo from "@assets/qirox_without_background_1767780745614.png";
+import { Badge } from "@/components/ui/badge";
 
 const navItems = [
-  { title: "الرئيسية", url: "/", icon: Home },
-  { title: "لوحة التحكم", url: "/agency/dashboard", icon: Activity },
-  { title: "المشاريع", url: "/tenants", icon: Package },
-  { title: "التحليلات", url: "/admin/analytics", icon: BarChart2 },
-  { title: "المستخدمين", url: "/admin/users", icon: Users },
-  { title: "الإعدادات", url: "/admin/settings", icon: Settings },
+  { title: "الرئيسية", url: "/", icon: Home, badge: null },
+  { title: "لوحة التحكم", url: "/agency/dashboard", icon: Activity, badge: null },
+  { title: "المشاريع", url: "/tenants", icon: Layers, badge: "3" },
+  { title: "التحليلات", url: "/admin/analytics", icon: BarChart3, badge: null },
+  { title: "المستخدمين", url: "/admin/users", icon: Users, badge: null },
+  { title: "الإعدادات", url: "/admin/settings", icon: Settings, badge: null },
 ];
 
 export function AppSidebar() {
@@ -46,61 +49,114 @@ export function AppSidebar() {
   };
 
   return (
-    <Sidebar variant="inset" className="bg-card border-l border-border">
-      <SidebarHeader className="p-4 border-b border-border">
+    <Sidebar variant="inset" className="border-l border-border/50">
+      <SidebarHeader className="p-5 border-b border-border/50">
         <Link href="/">
-          <div className="flex items-center gap-3 px-2 cursor-pointer">
-            <img 
-              src={qiroxLogo} 
-              alt="QIROX" 
-              className="h-8 w-auto dark:invert"
-            />
+          <div className="flex items-center gap-3 cursor-pointer group">
+            <div className="w-10 h-10 rounded-xl gradient-bg flex items-center justify-center shadow-glow">
+              <Sparkles className="w-5 h-5 text-white" />
+            </div>
+            <div className="flex flex-col">
+              <span className="font-bold text-lg tracking-tight gradient-text">QIROX</span>
+              <span className="text-[10px] text-muted-foreground -mt-1">منصة إدارة الأعمال</span>
+            </div>
           </div>
         </Link>
-        <div className="mt-4 relative">
-          <Search className="absolute right-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+        
+        <div className="mt-5 relative group">
+          <Search className="absolute right-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground transition-colors group-focus-within:text-primary" />
           <Input 
-            placeholder="بحث..." 
-            className="pr-10 bg-muted/50 border-0 focus-visible:ring-1"
+            placeholder="ابحث عن أي شيء..." 
+            className="pr-10 h-11 bg-muted/50 border-0 rounded-xl focus-visible:ring-2 focus-visible:ring-primary/30 transition-all"
             data-testid="input-sidebar-search"
           />
         </div>
       </SidebarHeader>
       
-      <SidebarContent className="px-2 py-4">
+      <SidebarContent className="px-3 py-5">
         <SidebarGroup>
-          <SidebarGroupLabel className="text-muted-foreground uppercase tracking-wider text-[10px] mb-2 px-4">
-            التنقل
+          <SidebarGroupLabel className="text-muted-foreground/70 uppercase tracking-widest text-[10px] font-semibold mb-3 px-3">
+            القائمة الرئيسية
           </SidebarGroupLabel>
           <SidebarGroupContent>
-            <SidebarMenu>
-              {navItems.map((item) => (
-                <SidebarMenuItem key={item.title}>
-                  <SidebarMenuButton
-                    asChild
-                    isActive={location === item.url}
-                    className="hover-elevate transition-all duration-200 h-11 px-4 group rounded-lg"
-                  >
-                    <Link href={item.url} className="flex items-center gap-3 w-full">
-                      <item.icon className="w-5 h-5 text-muted-foreground group-hover:text-primary group-data-[active=true]:text-primary" />
-                      <span className="text-sm font-medium text-muted-foreground group-hover:text-foreground group-data-[active=true]:text-foreground group-data-[active=true]:font-semibold">
-                        {item.title}
-                      </span>
-                    </Link>
-                  </SidebarMenuButton>
-                </SidebarMenuItem>
-              ))}
+            <SidebarMenu className="space-y-1">
+              {navItems.map((item) => {
+                const isActive = location === item.url;
+                return (
+                  <SidebarMenuItem key={item.title}>
+                    <SidebarMenuButton
+                      asChild
+                      isActive={isActive}
+                      className={`
+                        h-12 px-3 rounded-xl transition-all duration-300 group
+                        ${isActive 
+                          ? 'bg-primary/10 shadow-sm' 
+                          : 'hover:bg-muted/80'
+                        }
+                      `}
+                    >
+                      <Link href={item.url} className="flex items-center gap-3 w-full">
+                        <div className={`
+                          w-9 h-9 rounded-lg flex items-center justify-center transition-all duration-300
+                          ${isActive 
+                            ? 'gradient-bg shadow-glow' 
+                            : 'bg-muted group-hover:bg-primary/10'
+                          }
+                        `}>
+                          <item.icon className={`
+                            w-4 h-4 transition-colors
+                            ${isActive ? 'text-white' : 'text-muted-foreground group-hover:text-primary'}
+                          `} />
+                        </div>
+                        <span className={`
+                          text-sm font-medium flex-1 transition-colors
+                          ${isActive ? 'text-foreground font-semibold' : 'text-muted-foreground group-hover:text-foreground'}
+                        `}>
+                          {item.title}
+                        </span>
+                        {item.badge && (
+                          <Badge variant="secondary" className="h-5 min-w-5 px-1.5 text-[10px] font-bold bg-primary/10 text-primary border-0">
+                            {item.badge}
+                          </Badge>
+                        )}
+                        {isActive && (
+                          <ChevronLeft className="w-4 h-4 text-primary" />
+                        )}
+                      </Link>
+                    </SidebarMenuButton>
+                  </SidebarMenuItem>
+                );
+              })}
             </SidebarMenu>
           </SidebarGroupContent>
         </SidebarGroup>
+
+        <SidebarGroup className="mt-6">
+          <SidebarGroupLabel className="text-muted-foreground/70 uppercase tracking-widest text-[10px] font-semibold mb-3 px-3">
+            الإشعارات
+          </SidebarGroupLabel>
+          <div className="px-3">
+            <div className="glass-card rounded-xl p-4 space-y-3">
+              <div className="flex items-center gap-3">
+                <div className="w-8 h-8 rounded-lg bg-amber-500/10 flex items-center justify-center">
+                  <Bell className="w-4 h-4 text-amber-500" />
+                </div>
+                <div className="flex-1 min-w-0">
+                  <p className="text-xs font-medium truncate">3 تحديثات جديدة</p>
+                  <p className="text-[10px] text-muted-foreground">منذ ساعتين</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </SidebarGroup>
       </SidebarContent>
 
-      <SidebarFooter className="p-4 mt-auto border-t border-border">
-        <div className="space-y-4">
-          <div className="flex items-center gap-3 px-2 py-3 rounded-xl bg-muted/50">
-            <Avatar className="h-10 w-10 border-2 border-primary/20">
+      <SidebarFooter className="p-4 mt-auto border-t border-border/50">
+        <div className="space-y-3">
+          <div className="flex items-center gap-3 p-3 rounded-xl glass-card">
+            <Avatar className="h-11 w-11 ring-2 ring-primary/20 ring-offset-2 ring-offset-background">
               <AvatarImage src="/attached_assets/profile_placeholder.png" />
-              <AvatarFallback className="bg-primary/10 text-primary font-semibold">
+              <AvatarFallback className="gradient-bg text-white font-bold">
                 {user?.username?.charAt(0).toUpperCase() || "ي"}
               </AvatarFallback>
             </Avatar>
@@ -108,7 +164,8 @@ export function AppSidebar() {
               <p className="text-sm font-semibold truncate">
                 {user?.username || "يوسف درويش"}
               </p>
-              <p className="text-[11px] text-muted-foreground truncate">
+              <p className="text-[11px] text-muted-foreground truncate flex items-center gap-1">
+                <span className="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>
                 مدير المشاريع
               </p>
             </div>
@@ -116,7 +173,7 @@ export function AppSidebar() {
           
           <Button 
             variant="ghost" 
-            className="w-full justify-start gap-3 h-11 px-4 text-muted-foreground hover:text-destructive hover:bg-destructive/10 rounded-lg"
+            className="w-full justify-start gap-3 h-11 px-4 text-muted-foreground hover:text-destructive hover:bg-destructive/10 rounded-xl transition-all"
             onClick={handleLogout}
             data-testid="button-logout"
           >

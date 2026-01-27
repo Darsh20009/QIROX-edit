@@ -68,11 +68,14 @@ import AdminInvoicesPage from "@/pages/admin/invoices";
 import NotFound from "@/pages/not-found";
 import { SplashScreen } from "@/components/splash-screen";
 import { HelmetProvider } from "react-helmet-async";
-import { useState, useEffect } from "react";
+import { useState } from "react";
 
 import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
 import { AppSidebar } from "@/components/app-sidebar";
 import { ThemeToggle } from "@/components/theme-toggle";
+import { Bell, Sparkles } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
 
 function Router() {
   return (
@@ -158,8 +161,8 @@ function App() {
   }
 
   const sidebarStyle = {
-    "--sidebar-width": "17rem",
-    "--sidebar-width-icon": "4rem",
+    "--sidebar-width": "18rem",
+    "--sidebar-width-icon": "4.5rem",
   };
 
   return (
@@ -172,13 +175,25 @@ function App() {
                 <div className="flex h-screen w-full bg-background text-foreground overflow-hidden">
                   <AppSidebar />
                   <div className="flex-1 flex flex-col min-w-0 relative">
-                    <header className="h-14 flex items-center justify-between px-6 border-b border-border bg-card/80 backdrop-blur-md z-40">
-                      <SidebarTrigger data-testid="button-sidebar-toggle" />
+                    <header className="h-16 flex items-center justify-between px-6 border-b border-border/50 glass sticky top-0 z-50">
                       <div className="flex items-center gap-4">
+                        <SidebarTrigger data-testid="button-sidebar-toggle" className="hover:bg-primary/10 transition-colors rounded-lg" />
+                        <div className="hidden md:flex items-center gap-2 px-3 py-1.5 rounded-full bg-gradient-to-r from-primary/10 to-purple-500/10 border border-primary/20">
+                          <Sparkles className="w-3.5 h-3.5 text-primary" />
+                          <span className="text-xs font-medium text-primary">الإصدار 2.0</span>
+                        </div>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <Button variant="ghost" size="icon" className="relative rounded-xl hover:bg-primary/10">
+                          <Bell className="w-5 h-5 text-muted-foreground" />
+                          <Badge className="absolute -top-1 -right-1 h-5 w-5 p-0 flex items-center justify-center text-[10px] font-bold gradient-bg border-2 border-background">
+                            3
+                          </Badge>
+                        </Button>
                         <ThemeToggle />
                       </div>
                     </header>
-                    <main className="flex-1 overflow-y-auto relative bg-background">
+                    <main className="flex-1 overflow-y-auto relative">
                       <Router />
                     </main>
                   </div>
