@@ -41,3 +41,21 @@ QIROX is a modular, multi-tenant system built with a security-first and audit-fi
 - **Database**: MongoDB (Mongoose) + PostgreSQL (Drizzle)
 - **State Management**: TanStack Query
 - **Routing**: Wouter
+- **Animations**: Framer Motion
+
+## Recent Design Updates (January 2026)
+### Creative Redesign
+- **Color Scheme**: Purple gradient theme (primary: 262 83% 58%) with pink and purple accents
+- **Visual Effects**: Glassmorphism with backdrop-blur and transparent backgrounds
+- **Border Radius**: Increased to 1rem for softer, modern appearance
+- **Animations**: 
+  - `animate-blob`: Morphing background blobs
+  - `animate-spin-slow`: Slow orbital rotation effects
+  - `gradient-flow`: Animated gradient backgrounds
+- **Utility Classes**:
+  - `gradient-bg`: Primary gradient background
+  - `gradient-text`: Gradient text effect
+  - `glass-card`: Glassmorphism card styling
+  - `shadow-glow`: Primary color glow effect
+  - `shadow-soft`: Subtle shadow for depth
+- **Components Updated**: Home page, Login, Register, Client Dashboard, Sidebar Navigation
