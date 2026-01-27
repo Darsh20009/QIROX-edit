@@ -44,18 +44,21 @@ QIROX is a modular, multi-tenant system built with a security-first and audit-fi
 - **Animations**: Framer Motion
 
 ## Recent Design Updates (January 2026)
-### Creative Redesign
-- **Color Scheme**: Purple gradient theme (primary: 262 83% 58%) with pink and purple accents
-- **Visual Effects**: Glassmorphism with backdrop-blur and transparent backgrounds
-- **Border Radius**: Increased to 1rem for softer, modern appearance
+### Zid.sa-Inspired Redesign
+- **Color Scheme**: Clean green/teal theme (primary: 160 84% 39%) - professional and minimalist
+- **Visual Style**: Clean white backgrounds with subtle borders instead of glassmorphism
+- **Button Style**: Rounded-full buttons (pill-shaped) matching Zid.sa design
+- **Typography**: Bold headings with green accents, clear hierarchy
+- **Layout**: Spacious, professional layouts with proper whitespace
 - **Animations**: 
-  - `animate-blob`: Morphing background blobs
-  - `animate-spin-slow`: Slow orbital rotation effects
-  - `gradient-flow`: Animated gradient backgrounds
+  - `animate-marquee`: Smooth scrolling partner logos
+  - `animate-slide-up`: Subtle entrance animations
+  - `animate-fade-in`: Clean fade transitions
 - **Utility Classes**:
-  - `gradient-bg`: Primary gradient background
-  - `gradient-text`: Gradient text effect
-  - `glass-card`: Glassmorphism card styling
-  - `shadow-glow`: Primary color glow effect
+  - `gradient-bg`: Green gradient background
+  - `gradient-text`: Green gradient text effect
+  - `btn-primary`: Rounded-full primary buttons
+  - `btn-outline`: Rounded-full outline buttons
   - `shadow-soft`: Subtle shadow for depth
 - **Components Updated**: Home page, Login, Register, Client Dashboard, Sidebar Navigation
+- **Design Philosophy**: Clean, professional, minimalist - matching Zid.sa's modern approach
