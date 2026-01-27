@@ -37,28 +37,31 @@ const navItems = [
 ];
 
 export function AppSidebar() {
-  const [location] = useLocation();
+  const [location, setLocation] = useLocation();
   const { user, logout } = useAuth();
 
-  const handleLogout = async () => {
-    await logout();
+  const handleLogout = () => {
+    logout();
+    setLocation("/login");
   };
 
   return (
     <Sidebar variant="inset" className="bg-card border-l border-border">
       <SidebarHeader className="p-4 border-b border-border">
-        <div className="flex items-center gap-3 px-2">
-          <img 
-            src={qiroxLogo} 
-            alt="QIROX" 
-            className="h-8 w-auto dark:invert"
-          />
-        </div>
+        <Link href="/">
+          <div className="flex items-center gap-3 px-2 cursor-pointer">
+            <img 
+              src={qiroxLogo} 
+              alt="QIROX" 
+              className="h-8 w-auto dark:invert"
+            />
+          </div>
+        </Link>
         <div className="mt-4 relative">
           <Search className="absolute right-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
           <Input 
             placeholder="بحث..." 
-            className="pr-10 bg-secondary/50 border-0 focus-visible:ring-1"
+            className="pr-10 bg-muted/50 border-0 focus-visible:ring-1"
             data-testid="input-sidebar-search"
           />
         </div>
@@ -94,7 +97,7 @@ export function AppSidebar() {
 
       <SidebarFooter className="p-4 mt-auto border-t border-border">
         <div className="space-y-4">
-          <div className="flex items-center gap-3 px-2 py-3 rounded-xl bg-secondary/50">
+          <div className="flex items-center gap-3 px-2 py-3 rounded-xl bg-muted/50">
             <Avatar className="h-10 w-10 border-2 border-primary/20">
               <AvatarImage src="/attached_assets/profile_placeholder.png" />
               <AvatarFallback className="bg-primary/10 text-primary font-semibold">
@@ -102,7 +105,7 @@ export function AppSidebar() {
               </AvatarFallback>
             </Avatar>
             <div className="flex-1 min-w-0">
-              <p className="text-sm font-semibold text-foreground truncate">
+              <p className="text-sm font-semibold truncate">
                 {user?.username || "يوسف درويش"}
               </p>
               <p className="text-[11px] text-muted-foreground truncate">
