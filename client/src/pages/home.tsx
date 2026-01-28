@@ -296,17 +296,33 @@ export default function Home() {
         </div>
       </section>
 
-      <section className="py-12 border-b border-border/50 bg-muted/30 overflow-hidden">
-        <div className="container mx-auto px-6 md:px-12">
-          <p className="text-center text-sm text-muted-foreground mb-8 font-medium">
+      <section className="py-16 border-y border-border/40 bg-muted/20 relative overflow-hidden">
+        <div className="absolute inset-0 opacity-50 bg-[radial-gradient(circle_at_center,var(--primary-foreground)_0%,transparent_70%)]" />
+        <div className="container mx-auto px-6 md:px-12 relative z-10">
+          <p className="text-center text-sm text-muted-foreground mb-12 font-medium tracking-wider uppercase">
             أكثر من 500 شركة تثق بـ QIROX لإدارة أعمالها
           </p>
-          <div className="flex gap-8 animate-marquee">
-            {[...partnerLogos, ...partnerLogos, ...partnerLogos].map((logo, i) => (
-              <div key={i} className="flex-shrink-0 px-8 py-4 bg-card rounded-xl border border-border/50 shadow-sm hover:shadow-md transition-shadow">
-                <img src={logo} alt="Partner logo" className="h-8 w-auto object-contain" />
-              </div>
-            ))}
+          <div className="relative">
+            {/* Gradient Fades for Professional Look */}
+            <div className="absolute left-0 top-0 bottom-0 w-24 bg-gradient-to-r from-muted/20 to-transparent z-20" />
+            <div className="absolute right-0 top-0 bottom-0 w-24 bg-gradient-to-l from-muted/20 to-transparent z-20" />
+            
+            <div className="flex gap-12 animate-marquee py-4">
+              {[...partnerLogos, ...partnerLogos, ...partnerLogos].map((logo, i) => (
+                <div 
+                  key={i} 
+                  className="flex-shrink-0 group grayscale hover:grayscale-0 transition-all duration-500 transform hover:scale-110"
+                >
+                  <div className="px-10 py-6 bg-card/40 backdrop-blur-sm rounded-2xl border border-border/40 shadow-sm hover:shadow-xl hover:bg-card hover:border-primary/20 transition-all duration-500 flex items-center justify-center min-w-[180px] h-[100px]">
+                    <img 
+                      src={logo} 
+                      alt="Partner logo" 
+                      className="max-h-12 w-auto object-contain filter drop-shadow-sm" 
+                    />
+                  </div>
+                </div>
+              ))}
+            </div>
           </div>
         </div>
       </section>
