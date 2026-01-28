@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { ChevronLeft, Check, Zap, Shield, Globe, ArrowUpRight, Cpu, Layers, BarChart3, Users, Clock, HeadphonesIcon, Rocket, Building2, Package, CreditCard, MessageSquare, Star, ChevronRight, Quote, Sparkles, TrendingUp, Award, Play } from "lucide-react";
+import { ChevronLeft, Check, Zap, Shield, Layers, BarChart3, Users, HeadphonesIcon, Rocket, Package, CreditCard, MessageSquare, Star, ChevronRight, Quote, Sparkles, TrendingUp, Award } from "lucide-react";
 import { Link } from "wouter";
 import { Button } from "@/components/ui/button";
 import { SEO } from "@/components/layout/seo";
@@ -116,7 +116,7 @@ export default function Home() {
     <div className="min-h-screen bg-background text-foreground overflow-x-hidden">
       <SEO title="QIROX | ابنِ أنظمتك. ابقَ إنساناً." description="منصة متكاملة لإدارة الأعمال بتقنيات الذكاء الاصطناعي" />
       
-      <section className="relative h-[100vh] min-h-[700px] overflow-hidden">
+      <section className="relative min-h-[100vh] md:min-h-[700px] overflow-hidden">
         <AnimatePresence mode="wait">
           <motion.div
             key={currentSlide}
@@ -126,11 +126,11 @@ export default function Home() {
             transition={{ duration: 1 }}
             className="absolute inset-0"
           >
-            <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/60 to-black/40 z-10" />
+            <div className="absolute inset-0 bg-gradient-to-t from-black/95 via-black/70 to-black/50 z-10" />
             <img 
               src={heroSlides[currentSlide].image} 
               alt="QIROX Hero" 
-              className="w-full h-full object-cover"
+              className="w-full h-full object-cover object-center md:object-top"
             />
           </motion.div>
         </AnimatePresence>
@@ -146,16 +146,16 @@ export default function Home() {
                 transition={{ duration: 0.8, delay: 0.2 }}
                 className="text-white"
               >
-                <Badge className="bg-white/20 backdrop-blur-sm text-white border-0 px-6 py-2.5 text-sm font-medium rounded-full mb-8">
-                  <Sparkles className="w-4 h-4 ml-2" />
+                <Badge className="bg-white/20 backdrop-blur-sm text-white border-0 px-4 md:px-6 py-2 md:py-2.5 text-xs md:text-sm font-medium rounded-full mb-6 md:mb-8">
+                  <Sparkles className="w-3 md:w-4 h-3 md:h-4 ml-1.5 md:ml-2" />
                   الجيل الجديد من إدارة الأعمال
                 </Badge>
 
-                <h1 className="text-5xl md:text-7xl font-bold leading-[1.1] mb-6 drop-shadow-2xl">
+                <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-7xl font-bold leading-[1.15] mb-4 md:mb-6 drop-shadow-2xl">
                   {heroSlides[currentSlide].title}
                 </h1>
 
-                <p className="text-xl md:text-2xl text-white/80 mb-10 leading-relaxed">
+                <p className="text-base sm:text-lg md:text-xl lg:text-2xl text-white/80 mb-8 md:mb-10 leading-relaxed">
                   {heroSlides[currentSlide].subtitle}
                 </p>
 
@@ -163,22 +163,23 @@ export default function Home() {
                   <Link href="/register">
                     <Button 
                       size="lg" 
-                      className="h-16 px-10 bg-white text-gray-900 hover:bg-white/90 rounded-full text-lg font-bold shadow-2xl transition-all duration-300 hover:scale-105"
+                      className="h-14 md:h-16 px-8 md:px-10 bg-white text-gray-900 hover:bg-white/90 rounded-full text-base md:text-lg font-bold shadow-2xl transition-all duration-300 hover:scale-105"
                       data-testid="button-start-free"
                     >
                       ابدأ مجاناً الآن
-                      <ChevronLeft className="w-6 h-6 mr-2" />
+                      <ChevronLeft className="w-5 md:w-6 h-5 md:h-6 mr-2" />
                     </Button>
                   </Link>
-                  <Button 
-                    size="lg" 
-                    variant="outline" 
-                    className="h-16 px-10 border-2 border-white/40 text-white hover:bg-white/10 rounded-full text-lg font-semibold backdrop-blur-sm transition-all duration-300"
-                    data-testid="button-watch-video"
-                  >
-                    <Play className="w-5 h-5 ml-2" />
-                    شاهد الفيديو
-                  </Button>
+                  <Link href="/contact">
+                    <Button 
+                      size="lg" 
+                      variant="outline" 
+                      className="h-14 md:h-16 px-8 md:px-10 border-2 border-white/40 text-white hover:bg-white/10 rounded-full text-base md:text-lg font-semibold backdrop-blur-sm transition-all duration-300"
+                      data-testid="button-contact-sales"
+                    >
+                      تواصل معنا
+                    </Button>
+                  </Link>
                 </div>
               </motion.div>
 
