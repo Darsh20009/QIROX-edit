@@ -302,9 +302,9 @@ export default function Home() {
             أكثر من 500 شركة تثق بـ QIROX لإدارة أعمالها
           </p>
           <div className="flex gap-8 animate-marquee">
-            {[...partners, ...partners, ...partners].map((partner, i) => (
+            {[...partnerLogos, ...partnerLogos, ...partnerLogos].map((logo, i) => (
               <div key={i} className="flex-shrink-0 px-8 py-4 bg-card rounded-xl border border-border/50 shadow-sm hover:shadow-md transition-shadow">
-                <span className="text-muted-foreground font-medium whitespace-nowrap">{partner}</span>
+                <img src={logo} alt="Partner logo" className="h-8 w-auto object-contain" />
               </div>
             ))}
           </div>
