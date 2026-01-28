@@ -6,10 +6,11 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useAuth } from "@/lib/auth";
 import { useToast } from "@/hooks/use-toast";
-import { Loader2, UserPlus, Mail, Lock, User, Zap, ArrowLeft, Check } from "lucide-react";
+import { Loader2, UserPlus, Mail, Lock, User, Zap, ArrowLeft, Check, Sparkles, Rocket, Shield, Gift } from "lucide-react";
 import { motion } from "framer-motion";
 import { SEO } from "@/components/layout/seo";
 import { Badge } from "@/components/ui/badge";
+import heroImage from "@assets/Screenshot_2026-01-02_013107_1769593609190.png";
 
 export default function Register() {
   const [formData, setFormData] = useState({ name: "", email: "", password: "" });
@@ -33,36 +34,83 @@ export default function Register() {
   };
 
   const benefits = [
-    "تجربة مجانية لمدة 14 يوم",
-    "دعم فني على مدار الساعة",
-    "إلغاء في أي وقت"
+    { icon: Gift, text: "تجربة مجانية لمدة 14 يوم" },
+    { icon: Shield, text: "حماية بياناتك بأعلى معايير" },
+    { icon: Rocket, text: "إعداد سريع في دقائق" },
   ];
 
   return (
-    <div className="min-h-screen bg-background text-foreground relative">
+    <div className="min-h-screen bg-background flex">
       <SEO title="إنشاء حساب | QIROX" />
       
-      <div className="absolute top-0 left-0 right-0 h-96 bg-gradient-to-b from-primary/5 to-transparent" />
+      <div className="hidden lg:flex lg:w-1/2 relative overflow-hidden">
+        <div className="absolute inset-0 bg-gradient-to-br from-gray-900/95 via-gray-900/90 to-primary/30 z-10" />
+        <img src={heroImage} alt="QIROX" className="w-full h-full object-cover" />
+        
+        <div className="absolute inset-0 z-20 flex flex-col justify-between p-12">
+          <Link href="/">
+            <div className="flex items-center gap-3 cursor-pointer">
+              <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-primary to-emerald-600 flex items-center justify-center shadow-lg shadow-primary/30">
+                <Zap className="w-6 h-6 text-white" />
+              </div>
+              <span className="font-bold text-2xl text-white">QIROX</span>
+            </div>
+          </Link>
+          
+          <div>
+            <Badge className="bg-white/20 backdrop-blur-sm text-white border-0 px-4 py-2 text-sm font-medium rounded-full mb-6">
+              <Sparkles className="w-4 h-4 ml-2" />
+              انضم إلى 500+ شركة ناجحة
+            </Badge>
+            <h1 className="text-5xl font-bold text-white mb-6 leading-tight">
+              ابدأ رحلة
+              <br />
+              <span className="text-primary">النجاح اليوم</span>
+            </h1>
+            <p className="text-white/70 text-xl leading-relaxed mb-10">
+              أنشئ حسابك الآن واستمتع بأفضل تجربة لإدارة أعمالك
+            </p>
+            
+            <div className="space-y-4">
+              {benefits.map((b, i) => (
+                <motion.div 
+                  key={i}
+                  initial={{ opacity: 0, x: -20 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  transition={{ delay: i * 0.1 }}
+                  className="flex items-center gap-4 text-white"
+                >
+                  <div className="w-10 h-10 rounded-xl bg-primary/30 flex items-center justify-center">
+                    <b.icon className="w-5 h-5 text-primary" />
+                  </div>
+                  <span className="text-lg">{b.text}</span>
+                </motion.div>
+              ))}
+            </div>
+          </div>
+          
+          <p className="text-white/50 text-sm">Build Systems. Stay Human.</p>
+        </div>
+      </div>
 
-      <div className="flex min-h-screen items-center justify-center p-6 relative z-10">
+      <div className="flex-1 flex items-center justify-center p-6 lg:p-12 bg-muted/30">
         <motion.div 
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5 }}
           className="w-full max-w-md"
         >
-          <div className="text-center mb-10">
+          <div className="lg:hidden text-center mb-10">
             <Link href="/">
-              <motion.div 
-                initial={{ scale: 0 }}
-                animate={{ scale: 1 }}
-                transition={{ type: "spring", stiffness: 200, damping: 15 }}
-                className="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-primary shadow-lg shadow-primary/25 mb-6 cursor-pointer hover:scale-105 transition-transform"
-              >
+              <div className="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-gradient-to-br from-primary to-emerald-600 shadow-lg shadow-primary/30 mb-6 cursor-pointer">
                 <Zap className="w-8 h-8 text-white" />
-              </motion.div>
+              </div>
             </Link>
+          </div>
+
+          <div className="text-center lg:text-right mb-10">
             <Badge className="bg-primary/10 text-primary border-0 px-4 py-1.5 text-sm font-medium rounded-full mb-4">
+              <Gift className="w-4 h-4 ml-2" />
               مجاني للتجربة
             </Badge>
             <h1 className="text-3xl font-bold mb-2">
@@ -73,17 +121,17 @@ export default function Register() {
             </p>
           </div>
 
-          <Card className="border border-border shadow-xl">
+          <Card className="border-0 shadow-2xl bg-card">
             <CardContent className="p-8">
               <form onSubmit={handleSubmit} className="space-y-5">
                 <div className="space-y-2">
-                  <Label className="text-sm font-medium">الاسم الكامل</Label>
+                  <Label className="text-sm font-semibold">الاسم الكامل</Label>
                   <div className="relative">
                     <User className="absolute right-4 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
                     <Input
                       value={formData.name}
                       onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                      className="h-12 pr-12 rounded-xl border-border focus-visible:ring-primary"
+                      className="h-14 pr-12 rounded-xl border-border bg-muted/50 focus-visible:ring-primary"
                       placeholder="أدخل اسمك الكامل"
                       required
                       data-testid="input-name"
@@ -92,14 +140,14 @@ export default function Register() {
                 </div>
 
                 <div className="space-y-2">
-                  <Label className="text-sm font-medium">البريد الإلكتروني</Label>
+                  <Label className="text-sm font-semibold">البريد الإلكتروني</Label>
                   <div className="relative">
                     <Mail className="absolute right-4 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
                     <Input
                       type="email"
                       value={formData.email}
                       onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-                      className="h-12 pr-12 rounded-xl border-border focus-visible:ring-primary"
+                      className="h-14 pr-12 rounded-xl border-border bg-muted/50 focus-visible:ring-primary"
                       placeholder="example@email.com"
                       required
                       dir="ltr"
@@ -109,14 +157,14 @@ export default function Register() {
                 </div>
                 
                 <div className="space-y-2">
-                  <Label className="text-sm font-medium">كلمة المرور</Label>
+                  <Label className="text-sm font-semibold">كلمة المرور</Label>
                   <div className="relative">
                     <Lock className="absolute right-4 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
                     <Input
                       type="password"
                       value={formData.password}
                       onChange={(e) => setFormData({ ...formData, password: e.target.value })}
-                      className="h-12 pr-12 rounded-xl border-border focus-visible:ring-primary"
+                      className="h-14 pr-12 rounded-xl border-border bg-muted/50 focus-visible:ring-primary"
                       placeholder="********"
                       required
                       dir="ltr"
@@ -125,13 +173,13 @@ export default function Register() {
                   </div>
                 </div>
 
-                <div className="py-4 space-y-2">
-                  {benefits.map((benefit, i) => (
-                    <div key={i} className="flex items-center gap-3 text-sm text-muted-foreground">
-                      <div className="w-5 h-5 rounded-full bg-primary/10 flex items-center justify-center">
-                        <Check className="w-3 h-3 text-primary" />
+                <div className="py-4 bg-primary/5 rounded-xl p-4 space-y-3">
+                  {["تجربة مجانية لمدة 14 يوم", "دعم فني على مدار الساعة", "إلغاء في أي وقت"].map((benefit, i) => (
+                    <div key={i} className="flex items-center gap-3 text-sm">
+                      <div className="w-5 h-5 rounded-full bg-primary flex items-center justify-center">
+                        <Check className="w-3 h-3 text-white" />
                       </div>
-                      {benefit}
+                      <span className="font-medium">{benefit}</span>
                     </div>
                   ))}
                 </div>
@@ -139,7 +187,7 @@ export default function Register() {
                 <Button 
                   type="submit"
                   disabled={isLoading}
-                  className="w-full h-12 bg-primary hover:bg-primary/90 text-white rounded-full text-base font-medium shadow-lg shadow-primary/25"
+                  className="w-full h-14 bg-gradient-to-r from-primary to-emerald-600 hover:from-primary/90 hover:to-emerald-600/90 text-white rounded-full text-base font-semibold shadow-lg shadow-primary/25 hover:shadow-xl hover:shadow-primary/30 transition-all duration-300"
                   data-testid="button-register"
                 >
                   {isLoading ? (
@@ -164,11 +212,11 @@ export default function Register() {
                 <Button 
                   type="button"
                   variant="outline"
-                  className="w-full h-12 rounded-full text-base font-medium border-2 hover:bg-muted"
+                  className="w-full h-14 rounded-full text-base font-medium border-2 hover:bg-muted"
                   onClick={() => window.location.href = "/api/login"}
                   data-testid="button-register-qirox"
                 >
-                  <Zap className="w-5 h-5 ml-2 text-primary" />
+                  <Sparkles className="w-5 h-5 ml-2 text-primary" />
                   التسجيل عبر QIROX
                 </Button>
               </form>
@@ -177,7 +225,7 @@ export default function Register() {
                 <p className="text-muted-foreground">
                   لديك حساب بالفعل؟{" "}
                   <Link href="/login">
-                    <span className="text-primary font-medium cursor-pointer hover:underline">
+                    <span className="text-primary font-semibold cursor-pointer hover:underline">
                       سجل دخولك
                     </span>
                   </Link>

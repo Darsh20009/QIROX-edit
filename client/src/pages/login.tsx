@@ -6,9 +6,11 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useAuth } from "@/lib/auth";
 import { useToast } from "@/hooks/use-toast";
-import { Loader2, LogIn, Mail, Lock, Zap, ArrowLeft } from "lucide-react";
+import { Loader2, LogIn, Mail, Lock, Zap, ArrowLeft, Sparkles, Shield, Check } from "lucide-react";
 import { motion } from "framer-motion";
 import { SEO } from "@/components/layout/seo";
+import { Badge } from "@/components/ui/badge";
+import heroImage from "@assets/ChatGPT_Image_Jan_2,_2026,_04_26_37_PM_1769593589852.png";
 
 export default function Login() {
   const [email, setEmail] = useState("");
@@ -43,30 +45,75 @@ export default function Login() {
     }
   };
 
+  const benefits = [
+    "لوحة تحكم متكاملة",
+    "دعم فني 24/7",
+    "حماية بياناتك"
+  ];
+
   return (
-    <div className="min-h-screen bg-background relative">
+    <div className="min-h-screen bg-background flex">
       <SEO title="تسجيل الدخول | QIROX" />
       
-      <div className="absolute top-0 left-0 right-0 h-96 bg-gradient-to-b from-primary/5 to-transparent" />
+      <div className="hidden lg:flex lg:w-1/2 relative overflow-hidden">
+        <div className="absolute inset-0 bg-gradient-to-br from-gray-900/95 via-gray-900/90 to-primary/30 z-10" />
+        <img src={heroImage} alt="QIROX" className="w-full h-full object-cover" />
+        
+        <div className="absolute inset-0 z-20 flex flex-col justify-between p-12">
+          <Link href="/">
+            <div className="flex items-center gap-3 cursor-pointer">
+              <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-primary to-emerald-600 flex items-center justify-center shadow-lg shadow-primary/30">
+                <Zap className="w-6 h-6 text-white" />
+              </div>
+              <span className="font-bold text-2xl text-white">QIROX</span>
+            </div>
+          </Link>
+          
+          <div>
+            <h1 className="text-5xl font-bold text-white mb-6 leading-tight">
+              ابنِ أنظمتك.
+              <br />
+              <span className="text-primary">ابقَ إنساناً.</span>
+            </h1>
+            <p className="text-white/70 text-xl leading-relaxed mb-8">
+              منصة متكاملة لإدارة الأعمال بتقنيات الذكاء الاصطناعي
+            </p>
+            <div className="flex items-center gap-6">
+              {benefits.map((b, i) => (
+                <div key={i} className="flex items-center gap-2 text-white/80">
+                  <div className="w-5 h-5 rounded-full bg-primary/30 flex items-center justify-center">
+                    <Check className="w-3 h-3 text-primary" />
+                  </div>
+                  <span className="text-sm">{b}</span>
+                </div>
+              ))}
+            </div>
+          </div>
+          
+          <p className="text-white/50 text-sm">Build Systems. Stay Human.</p>
+        </div>
+      </div>
 
-      <div className="flex min-h-screen items-center justify-center p-6 relative z-10">
+      <div className="flex-1 flex items-center justify-center p-6 lg:p-12 bg-muted/30">
         <motion.div 
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5 }}
           className="w-full max-w-md"
         >
-          <div className="text-center mb-10">
+          <div className="lg:hidden text-center mb-10">
             <Link href="/">
-              <motion.div 
-                initial={{ scale: 0 }}
-                animate={{ scale: 1 }}
-                transition={{ type: "spring", stiffness: 200, damping: 15 }}
-                className="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-primary shadow-lg shadow-primary/25 mb-6 cursor-pointer hover:scale-105 transition-transform"
-              >
+              <div className="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-gradient-to-br from-primary to-emerald-600 shadow-lg shadow-primary/30 mb-6 cursor-pointer">
                 <Zap className="w-8 h-8 text-white" />
-              </motion.div>
+              </div>
             </Link>
+          </div>
+
+          <div className="text-center lg:text-right mb-10">
+            <Badge className="bg-primary/10 text-primary border-0 px-4 py-1.5 text-sm font-medium rounded-full mb-4">
+              <Shield className="w-4 h-4 ml-2" />
+              تسجيل دخول آمن
+            </Badge>
             <h1 className="text-3xl font-bold mb-2">
               مرحباً بعودتك
             </h1>
@@ -75,18 +122,18 @@ export default function Login() {
             </p>
           </div>
 
-          <Card className="border border-border shadow-xl">
+          <Card className="border-0 shadow-2xl bg-card">
             <CardContent className="p-8">
               <form onSubmit={handleSubmit} className="space-y-6">
                 <div className="space-y-2">
-                  <Label className="text-sm font-medium">البريد الإلكتروني</Label>
+                  <Label className="text-sm font-semibold">البريد الإلكتروني</Label>
                   <div className="relative">
                     <Mail className="absolute right-4 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
                     <Input
                       type="email"
                       value={email}
                       onChange={(e) => setEmail(e.target.value)}
-                      className="h-12 pr-12 rounded-xl border-border focus-visible:ring-primary"
+                      className="h-14 pr-12 rounded-xl border-border bg-muted/50 focus-visible:ring-primary"
                       placeholder="example@email.com"
                       required
                       dir="ltr"
@@ -97,14 +144,14 @@ export default function Login() {
                 </div>
                 
                 <div className="space-y-2">
-                  <Label className="text-sm font-medium">كلمة المرور</Label>
+                  <Label className="text-sm font-semibold">كلمة المرور</Label>
                   <div className="relative">
                     <Lock className="absolute right-4 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
                     <Input
                       type="password"
                       value={password}
                       onChange={(e) => setPassword(e.target.value)}
-                      className="h-12 pr-12 rounded-xl border-border focus-visible:ring-primary"
+                      className="h-14 pr-12 rounded-xl border-border bg-muted/50 focus-visible:ring-primary"
                       placeholder="********"
                       required
                       dir="ltr"
@@ -129,7 +176,7 @@ export default function Login() {
                 <Button 
                   type="submit"
                   disabled={isLoading}
-                  className="w-full h-12 bg-primary hover:bg-primary/90 text-white rounded-full text-base font-medium shadow-lg shadow-primary/25"
+                  className="w-full h-14 bg-gradient-to-r from-primary to-emerald-600 hover:from-primary/90 hover:to-emerald-600/90 text-white rounded-full text-base font-semibold shadow-lg shadow-primary/25 hover:shadow-xl hover:shadow-primary/30 transition-all duration-300"
                   data-testid="button-login"
                 >
                   {isLoading ? (
@@ -142,7 +189,7 @@ export default function Login() {
                   )}
                 </Button>
 
-                <div className="relative my-6">
+                <div className="relative my-8">
                   <div className="absolute inset-0 flex items-center">
                     <div className="w-full border-t border-border"></div>
                   </div>
@@ -154,11 +201,11 @@ export default function Login() {
                 <Button 
                   type="button"
                   variant="outline"
-                  className="w-full h-12 rounded-full text-base font-medium border-2 hover:bg-muted"
+                  className="w-full h-14 rounded-full text-base font-medium border-2 hover:bg-muted"
                   onClick={() => window.location.href = "/api/login"}
                   data-testid="button-login-qirox"
                 >
-                  <Zap className="w-5 h-5 ml-2 text-primary" />
+                  <Sparkles className="w-5 h-5 ml-2 text-primary" />
                   الدخول عبر QIROX
                 </Button>
               </form>
@@ -167,8 +214,8 @@ export default function Login() {
                 <p className="text-muted-foreground">
                   ليس لديك حساب؟{" "}
                   <Link href="/register">
-                    <span className="text-primary font-medium cursor-pointer hover:underline">
-                      سجل الآن
+                    <span className="text-primary font-semibold cursor-pointer hover:underline">
+                      سجل الآن مجاناً
                     </span>
                   </Link>
                 </p>
