@@ -129,7 +129,7 @@ export async function registerRoutes(
   registerAuthRoutes(app);
 
   // File Upload Endpoint using MongoDB GridFS logic (simulated with Buffer storage for now)
-  app.post("/api/upload", authMiddleware, upload.single("file"), async (req: AuthRequest, res) => {
+  app.post("/api/upload", authMiddleware as any, upload.single("file"), async (req: AuthRequest, res) => {
     try {
       if (!req.file) {
         return res.status(400).json({ error: "No file uploaded" });
@@ -321,14 +321,14 @@ export async function registerRoutes(
   });
 
   // Deployment Engine
-  app.get("/api/deployments", authMiddleware, async (req: AuthRequest, res) => {
+  app.get("/api/deployments", authMiddleware as any, async (req: AuthRequest, res) => {
     const user = await User.findById(req.user!.userId);
     if (!user) return res.status(404).json({ error: "User not found" });
     const list = await storage.getDeployments(user.tenantId || "default");
     res.json(list);
   });
 
-  app.post("/api/deployments", authMiddleware, async (req: AuthRequest, res) => {
+  app.post("/api/deployments", authMiddleware as any, async (req: AuthRequest, res) => {
     const user = await User.findById(req.user!.userId);
     if (!user) return res.status(404).json({ error: "User not found" });
     
@@ -391,7 +391,7 @@ export async function registerRoutes(
     res.json(logs);
   });
 
-  app.get("/api/deployments/current", authMiddleware, async (req: AuthRequest, res) => {
+  app.get("/api/deployments/current", authMiddleware as any, async (req: AuthRequest, res) => {
     const user = await User.findById(req.user!.userId);
     if (!user) return res.status(404).json({ error: "User not found" });
     const deployments = await storage.getDeployments(user.tenantId || "default");
@@ -399,14 +399,14 @@ export async function registerRoutes(
     res.json(live || null);
   });
 
-  app.get("/api/runtime-health", authMiddleware, async (req: AuthRequest, res) => {
+  app.get("/api/runtime-health", authMiddleware as any, async (req: AuthRequest, res) => {
     const user = await User.findById(req.user!.userId);
     if (!user) return res.status(404).json({ error: "User not found" });
     const health = await storage.getRuntimeHealth(user.tenantId || "default");
     res.json(health || { status: "unknown" });
   });
 
-  app.post("/api/sites", authMiddleware, async (req: AuthRequest, res) => {
+  app.post("/api/sites", authMiddleware as any, async (req: AuthRequest, res) => {
     try {
       const newTenant = await storage.createTenant(req.body);
       res.status(201).json(newTenant);
@@ -466,17 +466,17 @@ export async function registerRoutes(
   };
 
   // Site Management Routes (Restricted)
-  app.get("/api/sites", authMiddleware, requirePermission("admin"), auditAction("VIEW_SITES"), async (req: AuthRequest, res) => {
+  app.get("/api/sites", authMiddleware as any, requirePermission("admin"), auditAction("VIEW_SITES"), async (req: AuthRequest, res) => {
     const tenants = await storage.getTenants();
     res.json(tenants);
   });
 
-  app.get("/api/admin/audit-logs", authMiddleware, requirePermission("admin"), async (req: AuthRequest, res) => {
+  app.get("/api/admin/audit-logs", authMiddleware as any, requirePermission("admin"), async (req: AuthRequest, res) => {
     const logs = await storage.getAuditLogs();
     res.json(logs);
   });
 
-  app.patch("/api/sites/:id", authMiddleware, requirePermission("admin"), auditAction("UPDATE_SITE"), async (req: AuthRequest, res) => {
+  app.patch("/api/sites/:id", authMiddleware as any, requirePermission("admin"), auditAction("UPDATE_SITE"), async (req: AuthRequest, res) => {
     try {
       const updated = await storage.updateTenant(req.params.id, req.body);
       res.json(updated);
@@ -486,7 +486,7 @@ export async function registerRoutes(
   });
 
   // Deployment & Health Stats for Dashboard
-  app.get("/api/stats/overview", authMiddleware, async (req: AuthRequest, res) => {
+  app.get("/api/stats/overview", authMiddleware as any, async (req: AuthRequest, res) => {
     const user = await User.findById(req.user!.userId);
     if (!user) return res.status(404).json({ error: "User not found" });
     
@@ -607,7 +607,7 @@ export async function registerRoutes(
     }
   });
 
-  app.get("/api/auth/me", authMiddleware, async (req: AuthRequest, res) => {
+  app.get("/api/auth/me", authMiddleware as any, async (req: AuthRequest, res) => {
     try {
       const user = await User.findById(req.user!.userId).select("-password");
       if (!user) {
@@ -1846,7 +1846,7 @@ export async function registerRoutes(
     }
   });
 
-  app.get("/api/daily-updates", authMiddleware, async (req: AuthRequest, res) => {
+  app.get("/api/daily-updates", authMiddleware as any, async (req: AuthRequest, res) => {
     try {
       const updates = await storage.getDailyUpdates(req.user!.userId);
       res.json(updates);
@@ -1855,7 +1855,7 @@ export async function registerRoutes(
     }
   });
 
-  app.post("/api/daily-updates", authMiddleware, roleMiddleware("system_admin", "qirox_pm"), async (req: AuthRequest, res) => {
+  app.post("/api/daily-updates", authMiddleware as any, roleMiddleware("system_admin", "qirox_pm") as any, async (req: AuthRequest, res) => {
     try {
       const update = await storage.createDailyUpdate({
         userId: req.body.userId,
@@ -1867,7 +1867,7 @@ export async function registerRoutes(
     }
   });
 
-  app.get("/api/daily-updates", authMiddleware, async (req: AuthRequest, res) => {
+  app.get("/api/daily-updates", authMiddleware as any, async (req: AuthRequest, res) => {
     try {
       const updates = await storage.getDailyUpdates(req.user!.userId);
       res.json(updates);
