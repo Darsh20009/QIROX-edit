@@ -54,6 +54,15 @@ export function authMiddleware(req: AuthRequest, res: Response, next: NextFuncti
   const authHeader = req.headers.authorization;
   
   if (!authHeader || !authHeader.startsWith("Bearer ")) {
+    // If no header, check cookies (fallback for some client setups)
+    const token = (req as any).cookies?.token;
+    if (token) {
+      const payload = verifyToken(token);
+      if (payload) {
+        req.user = payload;
+        return next();
+      }
+    }
     res.status(401).json({ error: "غير مصرح - يرجى تسجيل الدخول" });
     return;
   }

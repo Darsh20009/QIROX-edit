@@ -441,12 +441,25 @@ export async function registerRoutes(
     return (req: AuthRequest, res: Response, next: NextFunction) => {
       if (!req.user) return res.status(401).json({ error: "Unauthorized" });
       
-      const rolesOrder = ["visitor", "client", "team", "admin"];
-      const userRoleIndex = rolesOrder.indexOf(req.user.role || "visitor");
+      const rolesOrder = [
+        "visitor", 
+        "client_viewer", 
+        "client_admin", 
+        "client_owner", 
+        "qirox_support", 
+        "qirox_sales", 
+        "qirox_pm", 
+        "qirox_finance", 
+        "system_admin"
+      ];
+      
+      const userRole = req.user.role || "visitor";
+      const userRoleIndex = rolesOrder.indexOf(userRole);
       const requiredRoleIndex = rolesOrder.indexOf(requiredRole);
 
-      if (userRoleIndex < requiredRoleIndex) {
-        return res.status(403).json({ error: "Insufficient permissions" });
+      if (userRoleIndex < 0 || userRoleIndex < requiredRoleIndex) {
+        console.warn(`Access denied for role ${userRole} to resource requiring ${requiredRole}`);
+        return res.status(403).json({ error: "Insufficient permissions - صلاحيات غير كافية" });
       }
       next();
     };
