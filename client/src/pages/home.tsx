@@ -13,6 +13,26 @@ import heroImage3 from "@assets/Screenshot_2026-01-02_013103_1769593609189.png";
 import heroImage4 from "@assets/Screenshot_2026-01-02_013107_1769593609190.png";
 import heroImage5 from "@assets/Screenshot_2026-01-02_013112_1769593609190.png";
 
+import partnerLogo1 from "@assets/Elegant_Coffee_Culture_Design_1757428233689_1769594241050.png";
+import partnerLogo2 from "@assets/Screenshot_2025-12-03_213226_1769594250134.png";
+import partnerLogo3 from "@assets/Screenshot_2025-12-24_203835_1769594265339.png";
+import partnerLogo4 from "@assets/Screenshot_2026-01-27_123515_1769594282071.png";
+import partnerLogo5 from "@assets/Screenshot_2025-12-29_215627_1769594290330.png";
+import partnerLogo6 from "@assets/Screenshot_2026-01-25_211424_1769594309742.png";
+import partnerLogo7 from "@assets/Screenshot_2026-01-25_182548_1769594323911.png";
+import partnerLogo8 from "@assets/Screenshot_2026-01-27_123435_1769594340706.png";
+import partnerLogo9 from "@assets/Screenshot_2026-01-27_123301_1769594352549.png";
+import partnerLogo10 from "@assets/Screenshot_2026-01-28_125929_1769594390744.png";
+import partnerLogo11 from "@assets/Screenshot_2026-01-28_125936_1769594390745.png";
+import partnerLogo12 from "@assets/Screenshot_2026-01-28_130014_1769594469795.png";
+import partnerLogo13 from "@assets/Screenshot_2026-01-28_130058_1769594469796.png";
+
+const partnerLogos = [
+  partnerLogo1, partnerLogo2, partnerLogo3, partnerLogo4, partnerLogo5,
+  partnerLogo6, partnerLogo7, partnerLogo8, partnerLogo9, partnerLogo10,
+  partnerLogo11, partnerLogo12, partnerLogo13
+];
+
 const heroSlides = [
   {
     image: heroImage1,
@@ -110,7 +130,6 @@ export default function Home() {
     { text: "الدعم الفني سريع ومحترف. فريق QIROX يفهم احتياجاتنا ويقدم حلول مبتكرة.", author: "محمد القحطاني", role: "مدير المشاريع", company: "حلول رقمية" },
   ];
 
-  const partners = ["شركة النور", "مؤسسة الرياض", "متجر الخليج", "تقنية المستقبل", "حلول رقمية", "إبداع تقني", "نجاح للأعمال", "مشاريع السعودية"];
 
   return (
     <div className="min-h-screen bg-background text-foreground overflow-x-hidden">
